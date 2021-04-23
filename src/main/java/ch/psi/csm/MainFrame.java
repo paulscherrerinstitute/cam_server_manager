@@ -20,8 +20,8 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
      */
     @Override
     protected void onCreate() {
-        panelCameraServers.setProxy("http://localhost:8888");
-        panelPipelineServers.setProxy("http://localhost:8889");
+        panelCameras.setUrl("http://localhost:8888");
+        panelPipelines.setUrl("http://localhost:8889");
         this.setLocationRelativeTo(null);
     }
 
@@ -79,9 +79,9 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         jToolBar2 = new javax.swing.JToolBar();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
-        panelPipelineServers = new ch.psi.csm.PanelStatus();
+        panelPipelines = new ch.psi.csm.PanelServer();
         jPanel2 = new javax.swing.JPanel();
-        panelCameraServers = new ch.psi.csm.PanelStatus();
+        panelCameras = new ch.psi.csm.PanelServer();
 
         jToolBar1.setRollover(true);
 
@@ -91,13 +91,11 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPipelineServers, javax.swing.GroupLayout.DEFAULT_SIZE, 774, Short.MAX_VALUE)
+            .addComponent(panelPipelines, javax.swing.GroupLayout.DEFAULT_SIZE, 774, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(panelPipelineServers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 12, Short.MAX_VALUE))
+            .addComponent(panelPipelines, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Pipelines", jPanel1);
@@ -106,13 +104,11 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelCameraServers, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 774, Short.MAX_VALUE)
+            .addComponent(panelCameras, javax.swing.GroupLayout.DEFAULT_SIZE, 774, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(panelCameraServers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 12, Short.MAX_VALUE))
+            .addComponent(panelCameras, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Cameras", jPanel2);
@@ -137,7 +133,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
-    private ch.psi.csm.PanelStatus panelCameraServers;
-    private ch.psi.csm.PanelStatus panelPipelineServers;
+    private ch.psi.csm.PanelServer panelCameras;
+    private ch.psi.csm.PanelServer panelPipelines;
     // End of variables declaration//GEN-END:variables
 }

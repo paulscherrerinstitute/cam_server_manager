@@ -33,8 +33,8 @@ import org.zeromq.ZMQ;
  *
  */
 public class PanelStatus extends MonitoredPanel {
-    ScheduledExecutorService schedulerPolling;   
     ProxyClient proxy;
+    ScheduledExecutorService schedulerPolling;       
     final DefaultTableModel model;
     final DefaultTableModel modelInstances;
     final DefaultTreeModel modelInstance;
@@ -49,11 +49,15 @@ public class PanelStatus extends MonitoredPanel {
         modelInstance =(DefaultTreeModel) treeInstance.getModel();
     }
     
-    public void setProxy(String url){
-        proxy = new ProxyClient(url);
+    public void setProxy(ProxyClient proxy){
+        this.proxy = proxy;
     }
     
-    public String getProxy(){
+    public ProxyClient getProxy(){
+       return proxy;
+    }   
+            
+    public String getUrl(){
        if (proxy==null){
            return null;
        }
@@ -266,8 +270,8 @@ public class PanelStatus extends MonitoredPanel {
     public static void main(String[] args) {
         String server = "http://localhost:8889";
         PanelStatus pn = new PanelStatus();
-        pn.setProxy(server);
-        SwingUtils.showFrame(null, pn.getProxy(), null, pn);
+        pn.setProxy(new ProxyClient(server));
+        SwingUtils.showFrame(null, pn.getUrl(), null, pn);
     }
     /**
      * This method is called from within the constructor to initialize the form.

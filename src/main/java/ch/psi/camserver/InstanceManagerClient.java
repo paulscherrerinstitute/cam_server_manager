@@ -82,6 +82,15 @@ public class InstanceManagerClient extends CamServerClient{
         checkReturn(map);
     }
 
+    
+    public List<String> getConfigNames() throws IOException {
+        WebTarget resource = client.target(prefix+ "/config_names");
+        String json = resource.request().accept(MediaType.TEXT_HTML).get(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+        return (List<String>) map.get("config_names");        
+    }    
+    
     /**
      * Delete configuration 
      */

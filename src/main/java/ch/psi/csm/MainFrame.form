@@ -62,20 +62,17 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="panelPipelineServers" alignment="0" pref="774" max="32767" attributes="0"/>
+                  <Component id="panelPipelines" alignment="0" pref="774" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="panelPipelineServers" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="12" max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="panelPipelines" alignment="0" pref="515" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="ch.psi.csm.PanelStatus" name="panelPipelineServers">
+            <Component class="ch.psi.csm.PanelServer" name="panelPipelines">
             </Component>
           </SubComponents>
         </Container>
@@ -91,20 +88,17 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="panelCameraServers" alignment="1" pref="774" max="32767" attributes="0"/>
+                  <Component id="panelCameras" alignment="0" pref="774" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="panelCameraServers" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="12" max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="panelCameras" alignment="0" pref="515" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="ch.psi.csm.PanelStatus" name="panelCameraServers">
+            <Component class="ch.psi.csm.PanelServer" name="panelCameras">
             </Component>
           </SubComponents>
         </Container>
