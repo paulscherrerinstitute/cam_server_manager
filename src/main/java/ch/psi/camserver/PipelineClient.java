@@ -19,14 +19,14 @@ import javax.ws.rs.core.Response;
  */
 public class PipelineClient extends InstanceManagerClient{
     
-    final public static String prefix = "pipeline";
+    final public static String PREFIX = "pipeline";
 
     public PipelineClient(String host, int port) {
-        super( host, port, prefix);
+        super( host, port, PREFIX);
     }
 
     public PipelineClient(String url) {
-        super(url, prefix);
+        super(url, PREFIX);
     }
 
     /**

@@ -16,14 +16,14 @@ import javax.ws.rs.core.MediaType;
  */
 public class CameraClient extends InstanceManagerClient{
 
-    final public static String prefix = "cam";
+    final public static String PREFIX = "cam";
     
     public CameraClient(String host, int port) {
-        super( host, port, prefix);
+        super( host, port, PREFIX);
     }
 
     public CameraClient(String url) {
-        super(url, prefix);
+        super(url, PREFIX);
     }
 
     /**

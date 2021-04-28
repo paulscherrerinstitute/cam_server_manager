@@ -1,7 +1,9 @@
 package ch.psi.csm;
 
 import ch.psi.camserver.ProxyClient;
+import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
+import ch.psi.utils.swing.SwingUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ public class PanelConfig extends MonitoredPanel {
     ProxyClient proxy;
     Map<String, Object> serverCfg = null;
     List<String> instanceCfgNames;
+    String currentInstance = "" ;
     
     final DefaultTableModel modelInstances;
     final DefaultTableModel modelServers;
@@ -29,6 +32,8 @@ public class PanelConfig extends MonitoredPanel {
     
     public PanelConfig() {
         initComponents();
+        
+        buttonEditConfig.setEnabled(false);
         
         modelInstances = (DefaultTableModel)  tableInstances.getModel();
         modelServers = (DefaultTableModel)  tableServers.getModel();
@@ -100,7 +105,22 @@ public class PanelConfig extends MonitoredPanel {
        }
        return proxy.getUrl();
     }    
+          
     
+    void onTableInstancesSelection() throws IOException{
+        int row=tableInstances.getSelectedRow();
+        if (row<0){
+            currentInstance = "";
+            textConfig.setText("");
+            buttonEditConfig.setEnabled(false);
+        } else {
+            currentInstance = String.valueOf(tableInstances.getValueAt(row, 0));
+            String config = proxy.getConfigStr(currentInstance);
+            textConfig.setText(config);            
+            SwingUtils.scrollToVisible(textConfig, 0);
+            buttonEditConfig.setEnabled(true);
+        }
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -122,8 +142,7 @@ public class PanelConfig extends MonitoredPanel {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tableInstances = new javax.swing.JTable();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        buttonEditConfig = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         textConfig = new javax.swing.JTextArea();
@@ -158,6 +177,7 @@ public class PanelConfig extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        tableServers.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableServers.getTableHeader().setReorderingAllowed(false);
         jScrollPane4.setViewportView(tableServers);
 
@@ -186,6 +206,7 @@ public class PanelConfig extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        tableFixedInstances.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableFixedInstances.getTableHeader().setReorderingAllowed(false);
         jScrollPane6.setViewportView(tableFixedInstances);
 
@@ -228,7 +249,7 @@ public class PanelConfig extends MonitoredPanel {
                         .addComponent(jButton6)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE))
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -270,15 +291,30 @@ public class PanelConfig extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        tableInstances.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableInstances.getTableHeader().setReorderingAllowed(false);
+        tableInstances.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tableInstancesMouseReleased(evt);
+            }
+        });
+        tableInstances.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableInstancesKeyReleased(evt);
+            }
+        });
         jScrollPane2.setViewportView(tableInstances);
 
-        jButton3.setText("Undo");
-
-        jButton4.setText("Apply");
+        buttonEditConfig.setText("Edit");
+        buttonEditConfig.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonEditConfigActionPerformed(evt);
+            }
+        });
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Configuration"));
 
+        textConfig.setEditable(false);
         textConfig.setColumns(20);
         textConfig.setRows(5);
         jScrollPane3.setViewportView(textConfig);
@@ -289,14 +325,14 @@ public class PanelConfig extends MonitoredPanel {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -309,24 +345,20 @@ public class PanelConfig extends MonitoredPanel {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGap(0, 47, Short.MAX_VALUE)
-                        .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton4)
-                        .addGap(0, 41, Short.MAX_VALUE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(buttonEditConfig)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(jButton4))
+                .addComponent(buttonEditConfig)
                 .addContainerGap())
         );
 
@@ -355,6 +387,7 @@ public class PanelConfig extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        tablePermanentInstances.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tablePermanentInstances.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tablePermanentInstances);
 
@@ -416,12 +449,41 @@ public class PanelConfig extends MonitoredPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void tableInstancesKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableInstancesKeyReleased
+        try{
+            onTableInstancesSelection();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_tableInstancesKeyReleased
+
+    private void tableInstancesMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableInstancesMouseReleased
+        try{
+            onTableInstancesSelection();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_tableInstancesMouseReleased
+
+    private void buttonEditConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonEditConfigActionPerformed
+        String config;
+        try{
+            ConfigDialog dlg = new ConfigDialog(SwingUtils.getFrame(this), true, currentInstance,textConfig.getText());
+            dlg.setVisible(true);
+            if (dlg.getResult()){
+                proxy.setConfigStr(currentInstance, dlg.ret);
+                onTableInstancesSelection();
+            }    
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }        
+    }//GEN-LAST:event_buttonEditConfigActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton buttonEditConfig;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JPanel jPanel1;

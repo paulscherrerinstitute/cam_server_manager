@@ -20,15 +20,7 @@ public class InstanceManagerClient extends CamServerClient{
 
     public InstanceManagerClient(String url, String prefix) {
         super(url, prefix);
-    }
-
-   
-    void checkName(String name) throws IOException {
-        if (name == null) {
-            throw new IOException("Invalid name name");
-        }
-    }
-
+    }  
 
     
     /**

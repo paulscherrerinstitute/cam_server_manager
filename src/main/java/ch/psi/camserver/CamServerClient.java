@@ -50,6 +50,13 @@ public class CamServerClient {
         }
     }
     
+    void checkName(String name) throws IOException {
+        if (name == null) {
+            throw new IOException("Invalid name");
+        }
+    }
+
+    
     /**
      * Return the info of the sever
      */
