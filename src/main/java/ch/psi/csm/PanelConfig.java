@@ -8,6 +8,7 @@ import ch.psi.utils.swing.SwingUtils;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
+import static org.zeromq.ZMQ.context;
 
 /**
  *
@@ -25,8 +27,9 @@ public class PanelConfig extends MonitoredPanel {
 
     ProxyClient proxy;
     Map<String, Object> serverCfg = null;
-    List<String> instanceCfgNames;
-    Map<String, String> permanentInstances = null;
+    List<String> instanceCfgNames = new ArrayList<>();
+    List<String> scriptsNames = new ArrayList<>();
+    Map<String, String> permanentInstances = new HashMap<>();
     String currentConfig = "" ;
     String currentServer = "" ;
     boolean isPipeline;
@@ -110,7 +113,8 @@ public class PanelConfig extends MonitoredPanel {
             return;
         }
         
-        buttonScriptEdit.setEnabled(tableUserScripts.getSelectedRow()>=0);       
+        buttonScriptEdit.setEnabled(tableUserScripts.getSelectedRow()>=0);      
+        buttonScriptDel.setEnabled(tableUserScripts.getSelectedRow()>=0);      
         buttonConfigDel.setEnabled(tableConfigurations.getSelectedRow()>=0);
         buttonConfigEdit.setEnabled(tableConfigurations.getSelectedRow()>=0);
         buttonFixedDel.setEnabled(tableFixedInstances.getSelectedRow()>=0);
@@ -122,8 +126,9 @@ public class PanelConfig extends MonitoredPanel {
         
     }
     
-    void updateConfigs(){
-        new Thread(()->{
+    
+    Thread updateConfigs(){
+        Thread t = new Thread(()->{
             try {
                 instanceCfgNames =proxy.getConfigNames();
                 Collections.sort(instanceCfgNames); //, String.CASE_INSENSITIVE_ORDER);
@@ -135,7 +140,9 @@ public class PanelConfig extends MonitoredPanel {
             } catch (IOException ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
-        }).start();
+        });
+        t.start();
+        return t;
     }
     
     void updateServers(){
@@ -172,21 +179,23 @@ public class PanelConfig extends MonitoredPanel {
         }).start();
     }    
     
-    void updateScripts(){
-        new Thread(()->{
+    Thread updateScripts(){
+        Thread t = new Thread(()->{
             try {
                 PipelineClient client = new PipelineClient(getUrl());                
-                List<String> scripts = client.getScripts();
-                Collections.sort(scripts); //, String.CASE_INSENSITIVE_ORDER);
+                scriptsNames = client.getScripts();
+                Collections.sort(scriptsNames); //, String.CASE_INSENSITIVE_ORDER);
                 modelScripts.setRowCount(0);
-                for (String script : scripts){
+                for (String script : scriptsNames){
                     modelScripts.addRow(new Object[]{script});
                 }    
                 updateButtons();
             } catch (IOException ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
-        }).start();
+        });
+        t.start();
+        return t;        
     }        
     
     @Override
@@ -273,7 +282,7 @@ public class PanelConfig extends MonitoredPanel {
         jScrollPane5 = new javax.swing.JScrollPane();
         tableUserScripts = new javax.swing.JTable();
         buttonScriptNew = new javax.swing.JButton();
-        buttonScriptUpload = new javax.swing.JButton();
+        buttonScriptDel = new javax.swing.JButton();
         buttonScriptEdit = new javax.swing.JButton();
 
         splitLeft.setDividerLocation(320);
@@ -646,10 +655,10 @@ public class PanelConfig extends MonitoredPanel {
             }
         });
 
-        buttonScriptUpload.setText("Upload");
-        buttonScriptUpload.addActionListener(new java.awt.event.ActionListener() {
+        buttonScriptDel.setText("Delete");
+        buttonScriptDel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonScriptUploadActionPerformed(evt);
+                buttonScriptDelActionPerformed(evt);
             }
         });
 
@@ -672,14 +681,14 @@ public class PanelConfig extends MonitoredPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(buttonScriptNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonScriptUpload)
+                        .addComponent(buttonScriptDel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonScriptEdit)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
-        panelScriptsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonScriptEdit, buttonScriptNew, buttonScriptUpload});
+        panelScriptsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonScriptDel, buttonScriptEdit, buttonScriptNew});
 
         panelScriptsLayout.setVerticalGroup(
             panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -690,7 +699,7 @@ public class PanelConfig extends MonitoredPanel {
                 .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonScriptEdit)
                     .addComponent(buttonScriptNew)
-                    .addComponent(buttonScriptUpload))
+                    .addComponent(buttonScriptDel))
                 .addContainerGap())
         );
 
@@ -745,20 +754,67 @@ public class PanelConfig extends MonitoredPanel {
     }//GEN-LAST:event_buttonConfigEditActionPerformed
 
     private void buttonConfigNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfigNewActionPerformed
-        // TODO add your handling code here:
+        try{
+            String name = SwingUtils.getString(this, "Enter configuration name: ", "");
+            if (name !=null){
+                if (instanceCfgNames.contains(name)){
+                    throw new Exception("Configuration name is already used: " + name);
+                }
+                proxy.setConfigStr(name, "{}");
+                updateConfigs().join();
+                if (!instanceCfgNames.contains(name)){
+                    throw new Exception("Error adding configuration: " + name);
+                }
+                int index = instanceCfgNames.indexOf(name);
+                tableConfigurations.setRowSelectionInterval(index, index);
+                SwingUtils.scrollToVisible(tableConfigurations, index, 0);
+                currentConfig = name;
+                buttonConfigEditActionPerformed(null);                
+            }
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex); 
+        }   
     }//GEN-LAST:event_buttonConfigNewActionPerformed
 
     private void buttonConfigDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfigDelActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_buttonConfigDelActionPerformed
 
     private void buttonScriptNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptNewActionPerformed
-        // TODO add your handling code here:
+        try{
+            String name = SwingUtils.getString(this, "Enter script name: ", "");
+            if (name !=null){
+                
+                if (!name.endsWith(".py")) {
+                    name = name + ".py";
+                }
+
+                if (scriptsNames.contains(name)){
+                    throw new Exception("Script name is already used: " + name);
+                }
+                PipelineClient client = new PipelineClient(getUrl());  
+                String script = "from cam_server.pipeline.data_processing import functions, processor\n\n" +
+                                "def process_image(image, pulse_id, timestamp, x_axis, y_axis, parameters, bsdata=None):\n" +
+                                "    ret = processor.process_image(image, pulse_id, timestamp, x_axis, y_axis, parameters, bsdata)\n" +
+                                "    return ret";
+                client.setScript(name, script);
+                updateScripts().join();
+                if (!scriptsNames.contains(name)){
+                    throw new Exception("Error adding script: " + name);
+                }
+                int index = scriptsNames.indexOf(name);
+                tableUserScripts.setRowSelectionInterval(index, index);
+                SwingUtils.scrollToVisible(tableUserScripts, index, 0);
+                buttonScriptEditActionPerformed(null);
+            }
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }   
     }//GEN-LAST:event_buttonScriptNewActionPerformed
 
-    private void buttonScriptUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptUploadActionPerformed
+    private void buttonScriptDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptDelActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_buttonScriptUploadActionPerformed
+    }//GEN-LAST:event_buttonScriptDelActionPerformed
 
     private void buttonScriptEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptEditActionPerformed
         try{
@@ -863,9 +919,9 @@ public class PanelConfig extends MonitoredPanel {
     private javax.swing.JButton buttonPermApply;
     private javax.swing.JButton buttonPermDelete;
     private javax.swing.JButton buttonPermUndo;
+    private javax.swing.JButton buttonScriptDel;
     private javax.swing.JButton buttonScriptEdit;
     private javax.swing.JButton buttonScriptNew;
-    private javax.swing.JButton buttonScriptUpload;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;

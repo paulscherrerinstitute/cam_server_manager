@@ -418,7 +418,7 @@
                               <EmptySpace max="32767" attributes="0"/>
                               <Component id="buttonScriptNew" linkSize="2" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="buttonScriptUpload" linkSize="2" min="-2" max="-2" attributes="0"/>
+                              <Component id="buttonScriptDel" linkSize="2" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="buttonScriptEdit" linkSize="2" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -437,7 +437,7 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="buttonScriptEdit" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="buttonScriptNew" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="buttonScriptUpload" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="buttonScriptDel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -479,12 +479,12 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonScriptNewActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="buttonScriptUpload">
+            <Component class="javax.swing.JButton" name="buttonScriptDel">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Upload"/>
+                <Property name="text" type="java.lang.String" value="Delete"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonScriptUploadActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonScriptDelActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="buttonScriptEdit">

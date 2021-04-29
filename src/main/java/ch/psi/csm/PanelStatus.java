@@ -105,6 +105,7 @@ public class PanelStatus extends MonitoredPanel {
    public void setPipeline(boolean value){
        isPipeline = value;
        buttonConfig.setVisible(value);
+       buttonFunction.setVisible(value);
    }
 
    @Override
@@ -247,6 +248,7 @@ public class PanelStatus extends MonitoredPanel {
             buttonInstanceStop.setEnabled(instanceSelected);
             buttonRead.setEnabled(instanceSelected);
             buttonConfig.setEnabled(instanceSelected);
+            buttonFunction.setEnabled(instanceSelected);
         } catch (Exception ex){
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }     
@@ -291,6 +293,7 @@ public class PanelStatus extends MonitoredPanel {
         buttonRead = new javax.swing.JButton();
         buttonConfig = new javax.swing.JButton();
         buttonInstanceStop = new javax.swing.JButton();
+        buttonFunction = new javax.swing.JButton();
         panelServers = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
@@ -405,6 +408,13 @@ public class PanelStatus extends MonitoredPanel {
             }
         });
 
+        buttonFunction.setText("Function");
+        buttonFunction.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonFunctionActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelInstancesLayout = new javax.swing.GroupLayout(panelInstances);
         panelInstances.setLayout(panelInstancesLayout);
         panelInstancesLayout.setHorizontalGroup(
@@ -416,7 +426,8 @@ public class PanelStatus extends MonitoredPanel {
                 .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(buttonRead, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonInstanceStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(buttonInstanceStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -433,6 +444,8 @@ public class PanelStatus extends MonitoredPanel {
                         .addComponent(buttonInstanceStop)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfig)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonFunction)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
@@ -540,7 +553,7 @@ public class PanelStatus extends MonitoredPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(proxyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(split)
+                .addComponent(split, javax.swing.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
                 .addGap(0, 0, 0))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -708,9 +721,27 @@ public class PanelStatus extends MonitoredPanel {
         }
     }//GEN-LAST:event_buttonProxyRestartActionPerformed
 
+    private void buttonFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonFunctionActionPerformed
+        try{     
+            PipelineClient client = new PipelineClient(currentServer);
+            List<String> ret = client.getScripts();
+            Collections.sort(ret);
+            String[] scripts = ret.toArray(new String[0]);
+            String script = SwingUtils.getString(this, 
+                    "Select the user script for the pipeline " + currentInstance + ":" , 
+                    scripts, null);       
+            if (script!=null){
+                client.setFunction(currentInstance, script);
+            }
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }        
+    }//GEN-LAST:event_buttonFunctionActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonConfig;
+    private javax.swing.JButton buttonFunction;
     private javax.swing.JButton buttonInstanceStop;
     private javax.swing.JButton buttonProxyLogs;
     private javax.swing.JButton buttonProxyRestart;
