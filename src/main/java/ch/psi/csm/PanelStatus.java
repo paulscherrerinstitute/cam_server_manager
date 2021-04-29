@@ -3,6 +3,7 @@ package ch.psi.csm;
 import ch.psi.camserver.CamServerClient;
 import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
+import ch.psi.utils.Arr;
 import ch.psi.utils.NamedThreadFactory;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.SwingUtils;
@@ -724,12 +725,16 @@ public class PanelStatus extends MonitoredPanel {
     private void buttonFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonFunctionActionPerformed
         try{     
             PipelineClient client = new PipelineClient(currentServer);
+            Map instanceData = instanceInfo.get(currentInstance);
             List<String> ret = client.getScripts();
             Collections.sort(ret);
-            String[] scripts = ret.toArray(new String[0]);
+            String[] scripts = ret.toArray(new String[0]);            
+            Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());                
+            String current = (String) cfg.getOrDefault("function", null);       
+            current = Arr.containsEqual(scripts, current) ? current : null;
             String script = SwingUtils.getString(this, 
                     "Select the user script for the pipeline " + currentInstance + ":" , 
-                    scripts, null);       
+                    scripts, current);       
             if (script!=null){
                 client.setFunction(currentInstance, script);
             }

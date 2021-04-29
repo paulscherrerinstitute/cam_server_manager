@@ -13,6 +13,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
     public MainFrame() {
         initComponents();
         instance = this;
+        setTitle("CamServer Management Console");
     }
         
     /**
