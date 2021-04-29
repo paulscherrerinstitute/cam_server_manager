@@ -17,13 +17,16 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jPanel1" max="32767" attributes="0"/>
                   <Component id="jPanel3" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="jPanel2" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jPanel2" max="32767" attributes="0"/>
+                  <Component id="jPanel6" max="32767" attributes="0"/>
+              </Group>
           </Group>
       </Group>
     </DimensionLayout>
@@ -32,12 +35,13 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
-                  <Group type="102" attributes="0">
-                      <Component id="jPanel1" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="jPanel3" max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="jPanel1" max="32767" attributes="0"/>
+                  <Component id="jPanel2" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jPanel3" max="32767" attributes="0"/>
+                  <Component id="jPanel6" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
           </Group>
@@ -60,17 +64,19 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          <Component id="jButton5" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jButton6" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      </Group>
-                      <Component id="jPanel5" alignment="0" max="32767" attributes="0"/>
-                      <Component id="jScrollPane4" alignment="0" pref="262" max="32767" attributes="0"/>
+                      <Component id="jScrollPane4" alignment="0" pref="0" max="32767" attributes="0"/>
+                      <Component id="jScrollPane6" alignment="0" pref="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="buttonFixedDel" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="buttonFixedUndo" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="buttonFixedApply" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -78,13 +84,14 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="jScrollPane4" pref="154" max="32767" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Component id="jScrollPane4" pref="159" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="jScrollPane6" min="-2" pref="123" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jButton5" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jButton6" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonFixedUndo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonFixedApply" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonFixedDel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
               </Group>
@@ -113,80 +120,58 @@
                   <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableServersMouseReleased"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="tableServersKeyReleased"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
-        <Container class="javax.swing.JPanel" name="jPanel5">
-          <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="Fixed Instances"/>
-              </Border>
-            </Property>
-          </Properties>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane6" pref="0" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="117" max="32767" attributes="0"/>
-                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane6" pref="105" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
-          <SubComponents>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane6">
-              <AuxValues>
-                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-              </AuxValues>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-              <SubComponents>
-                <Component class="javax.swing.JTable" name="tableFixedInstances">
-                  <Properties>
-                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="3" rowCount="0">
-                        <Column editable="true" title="Enabed" type="java.lang.Boolean"/>
-                        <Column editable="false" title="Instance" type="java.lang.String"/>
-                        <Column editable="true" title="Port" type="java.lang.String"/>
-                      </Table>
-                    </Property>
-                    <Property name="selectionMode" type="int" value="0"/>
-                    <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-                      <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
-                    </Property>
-                  </Properties>
-                </Component>
-              </SubComponents>
-            </Container>
-          </SubComponents>
-        </Container>
-        <Component class="javax.swing.JButton" name="jButton5">
+        <Component class="javax.swing.JButton" name="buttonFixedUndo">
           <Properties>
             <Property name="text" type="java.lang.String" value="Undo"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="jButton6">
+        <Component class="javax.swing.JButton" name="buttonFixedApply">
           <Properties>
             <Property name="text" type="java.lang.String" value="Apply"/>
           </Properties>
+        </Component>
+        <Container class="javax.swing.JScrollPane" name="jScrollPane6">
+          <AuxValues>
+            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+          </AuxValues>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+          <SubComponents>
+            <Component class="javax.swing.JTable" name="tableFixedInstances">
+              <Properties>
+                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                  <Table columnCount="3" rowCount="0">
+                    <Column editable="true" title="Enabed" type="java.lang.Boolean"/>
+                    <Column editable="false" title="Instance" type="java.lang.String"/>
+                    <Column editable="true" title="Port" type="java.lang.String"/>
+                  </Table>
+                </Property>
+                <Property name="selectionMode" type="int" value="0"/>
+                <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+                  <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableFixedInstancesMouseReleased"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="tableFixedInstancesKeyReleased"/>
+              </Events>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Component class="javax.swing.JButton" name="buttonFixedDel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Delete"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonFixedDelActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -194,7 +179,7 @@
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Instances"/>
+            <TitledBorder title="Configurations"/>
           </Border>
         </Property>
       </Properties>
@@ -202,30 +187,42 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jPanel4" alignment="1" max="32767" attributes="0"/>
-                      <Component id="jScrollPane2" alignment="1" pref="0" max="32767" attributes="0"/>
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          <Component id="buttonEditConfig" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <EmptySpace pref="9" max="32767" attributes="0"/>
+                          <Component id="buttonConfigNew" linkSize="1" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="buttonConfigDel" linkSize="1" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="buttonConfigEdit" linkSize="1" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="18" max="32767" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jScrollPane2" alignment="1" pref="0" max="32767" attributes="0"/>
+                              <Component id="jScrollPane3" alignment="0" max="32767" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="jScrollPane2" pref="283" max="32767" attributes="0"/>
-                  <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
-                  <Component id="jPanel4" max="32767" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="buttonEditConfig" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Component id="jScrollPane2" min="-2" pref="156" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="jScrollPane3" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="buttonConfigEdit" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonConfigNew" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonConfigDel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -238,7 +235,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JTable" name="tableInstances">
+            <Component class="javax.swing.JTable" name="tableConfigurations">
               <Properties>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                   <Table columnCount="1" rowCount="0">
@@ -251,68 +248,52 @@
                 </Property>
               </Properties>
               <Events>
-                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableInstancesMouseReleased"/>
-                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="tableInstancesKeyReleased"/>
+                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableConfigurationsMouseReleased"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="tableConfigurationsKeyReleased"/>
               </Events>
             </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JButton" name="buttonEditConfig">
+        <Component class="javax.swing.JButton" name="buttonConfigEdit">
           <Properties>
             <Property name="text" type="java.lang.String" value="Edit"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonEditConfigActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonConfigEditActionPerformed"/>
           </Events>
         </Component>
-        <Container class="javax.swing.JPanel" name="jPanel4">
-          <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="Configuration"/>
-              </Border>
-            </Property>
-          </Properties>
+        <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+          <AuxValues>
+            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+          </AuxValues>
 
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane3" alignment="1" pref="229" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane3" pref="179" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane3">
-              <AuxValues>
-                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-              </AuxValues>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-              <SubComponents>
-                <Component class="javax.swing.JTextArea" name="textConfig">
-                  <Properties>
-                    <Property name="editable" type="boolean" value="false"/>
-                    <Property name="columns" type="int" value="20"/>
-                    <Property name="rows" type="int" value="5"/>
-                  </Properties>
-                </Component>
-              </SubComponents>
-            </Container>
+            <Component class="javax.swing.JTextArea" name="textConfig">
+              <Properties>
+                <Property name="editable" type="boolean" value="false"/>
+                <Property name="columns" type="int" value="20"/>
+                <Property name="rows" type="int" value="5"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
+        <Component class="javax.swing.JButton" name="buttonConfigNew">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="New"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonConfigNewActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="buttonConfigDel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Delete"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonConfigDelActionPerformed"/>
+          </Events>
+        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="jPanel3">
@@ -329,17 +310,17 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          <Component id="jButton1" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jButton2" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      </Group>
-                      <Component id="jScrollPane1" alignment="0" pref="0" max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="jScrollPane1" pref="288" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="buttonPermDelete" linkSize="6" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="buttonPermUndo" linkSize="6" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="buttonPermApply" linkSize="6" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -347,11 +328,12 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jScrollPane1" pref="126" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="79" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jButton2" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonPermApply" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonPermDelete" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonPermUndo" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -369,8 +351,7 @@
             <Component class="javax.swing.JTable" name="tablePermanentInstances">
               <Properties>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                  <Table columnCount="3" rowCount="0">
-                    <Column editable="true" title="Enabled" type="java.lang.Boolean"/>
+                  <Table columnCount="2" rowCount="0">
                     <Column editable="false" title="Instance" type="java.lang.String"/>
                     <Column editable="true" title="Name" type="java.lang.String"/>
                   </Table>
@@ -380,18 +361,135 @@
                   <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tablePermanentInstancesMouseReleased"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="tablePermanentInstancesKeyReleased"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JButton" name="jButton1">
+        <Component class="javax.swing.JButton" name="buttonPermUndo">
           <Properties>
             <Property name="text" type="java.lang.String" value="Undo"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonPermUndoActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="jButton2">
+        <Component class="javax.swing.JButton" name="buttonPermApply">
           <Properties>
             <Property name="text" type="java.lang.String" value="Apply"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonPermApplyActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="buttonPermDelete">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Delete"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonPermDeleteActionPerformed"/>
+          </Events>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="jPanel6">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+            <TitledBorder title="User Scripts"/>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jScrollPane5" pref="0" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <EmptySpace pref="10" max="32767" attributes="0"/>
+                          <Component id="buttonScriptNew" linkSize="2" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="buttonScriptDel" linkSize="2" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="buttonScriptEdit" linkSize="2" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="0" pref="11" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="jScrollPane5" pref="79" max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="buttonScriptEdit" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonScriptNew" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonScriptDel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Container class="javax.swing.JScrollPane" name="jScrollPane5">
+          <AuxValues>
+            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+          </AuxValues>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+          <SubComponents>
+            <Component class="javax.swing.JTable" name="tableUserScripts">
+              <Properties>
+                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                  <Table columnCount="1" rowCount="0">
+                    <Column editable="false" title="Name" type="java.lang.String"/>
+                  </Table>
+                </Property>
+                <Property name="selectionMode" type="int" value="0"/>
+                <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+                  <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableUserScriptsMouseReleased"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="tableUserScriptsKeyReleased"/>
+              </Events>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Component class="javax.swing.JButton" name="buttonScriptNew">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="New"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonScriptNewActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="buttonScriptDel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Delete"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonScriptDelActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="buttonScriptEdit">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Edit"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonScriptEditActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

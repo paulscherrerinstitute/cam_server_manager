@@ -120,6 +120,31 @@ public class ProxyClient extends CamServerClient{
         checkReturn(map);
     }        
     
+    
+    /**
+     * Return the configuration.
+     */
+    public Map<String, String> getPemanentInstances() throws IOException {
+        WebTarget resource = client.target(prefix + "/permanent");
+        String json = resource.request().accept(MediaType.TEXT_HTML).get(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+        return (Map<String, String>) map.get("permanent_instances");
+    }
+        
+    /**
+     * Set configuration 
+     */
+    public void setPemanentInstances(Map<String, String> config) throws IOException {
+        String json = JsonSerializer.encode(config);
+        WebTarget resource = client.target(prefix + "/permanent");
+        Response r = resource.request().accept(MediaType.TEXT_HTML).post(Entity.json(json));
+        json = r.readEntity(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+    }    
+    
+    
 
     
 
