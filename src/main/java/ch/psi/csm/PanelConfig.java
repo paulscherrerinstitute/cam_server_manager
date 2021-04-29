@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
@@ -741,11 +742,11 @@ public class PanelConfig extends MonitoredPanel {
     private void buttonConfigEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfigEditActionPerformed
         try{
             if (currentConfig!=null){
-                String config = proxy.getConfigStr(currentConfig);
+                String config = proxy.getNamedConfig(currentConfig);
                 ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, currentConfig, config, "json");
                 dlg.setVisible(true);
                 if (dlg.getResult()){
-                    proxy.setConfigStr(currentConfig, dlg.ret);
+                    proxy.setNamedConfig(currentConfig, dlg.ret);
                 }    
             }
         } catch (Exception ex){
@@ -760,7 +761,7 @@ public class PanelConfig extends MonitoredPanel {
                 if (instanceCfgNames.contains(name)){
                     throw new Exception("Configuration name is already used: " + name);
                 }
-                proxy.setConfigStr(name, "{}");
+                proxy.setNamedConfig(name, "{}");
                 updateConfigs().join();
                 if (!instanceCfgNames.contains(name)){
                     throw new Exception("Error adding configuration: " + name);
@@ -777,7 +778,17 @@ public class PanelConfig extends MonitoredPanel {
     }//GEN-LAST:event_buttonConfigNewActionPerformed
 
     private void buttonConfigDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfigDelActionPerformed
-        
+        try{
+            if (currentConfig!=null){
+                Object[] options = new Object[]{"No", "Yes"};
+                if (SwingUtils.showOption(this, "Delete Configuration", "Are you sure to delete the configuration: " + currentConfig  + "?", options, options[0]) == 1){
+                    proxy.deleteNamedConfig(currentConfig);
+                    updateConfigs();
+                }
+            }
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        } 
     }//GEN-LAST:event_buttonConfigDelActionPerformed
 
     private void buttonScriptNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptNewActionPerformed
@@ -813,7 +824,20 @@ public class PanelConfig extends MonitoredPanel {
     }//GEN-LAST:event_buttonScriptNewActionPerformed
 
     private void buttonScriptDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptDelActionPerformed
-        // TODO add your handling code here:
+        try{
+            int row = tableUserScripts.getSelectedRow();
+            if (row>=0){
+                String name = Str.toString(modelScripts.getValueAt(row, 0));
+                Object[] options = new Object[]{"No", "Yes"};
+                if (SwingUtils.showOption(this, "Delete Script", "Are you sure to delete the processing script: " + name  + "?", options, options[0]) == 1){
+                    PipelineClient client = new PipelineClient(getUrl());  
+                    client.deleteScript(name);
+                    updateScripts();
+                }
+            }
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        } 
     }//GEN-LAST:event_buttonScriptDelActionPerformed
 
     private void buttonScriptEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptEditActionPerformed

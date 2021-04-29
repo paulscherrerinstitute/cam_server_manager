@@ -56,7 +56,7 @@ public class ProxyClient extends CamServerClient{
     /**
      * Return the configuration.
      */
-    public String getConfigStr(String name) throws IOException {
+    public String getNamedConfig(String name) throws IOException {
         checkName(name);
         WebTarget resource = client.target(prefix + "/" + name + "/config");
         String json = resource.request().accept(MediaType.TEXT_HTML).get(String.class);
@@ -68,7 +68,7 @@ public class ProxyClient extends CamServerClient{
     /**
      * Set configuration 
      */
-    public void setConfigStr(String name, String config) throws IOException {
+    public void setNamedConfig(String name, String config) throws IOException {
         checkName(name);
         WebTarget resource = client.target(prefix + "/" + name + "/config");
         Map<String, Object> map = (Map) JsonSerializer.decode(config, Map.class); //Check if serializable
@@ -77,6 +77,15 @@ public class ProxyClient extends CamServerClient{
         map = (Map) JsonSerializer.decode(json, Map.class);
         checkReturn(map);
     }
+    
+    public void deleteNamedConfig(String name) throws IOException {
+        checkName(name);
+        WebTarget resource = client.target(prefix + "/" + name + "/config");
+        String json = resource.request().accept(MediaType.TEXT_HTML).delete(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+    }    
+    
     
     /**
      * Set configuration 

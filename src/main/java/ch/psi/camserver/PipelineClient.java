@@ -305,7 +305,15 @@ public class PipelineClient extends InstanceManagerClient{
         String json = r.readEntity(String.class);
         Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
         checkReturn(map);   
-    }                   
+    }               
+
+    public void deleteScript(String name) throws IOException {
+        checkName(name);
+        WebTarget resource = client.target(prefix+ "/script/" + name + "/script_bytes");
+        String json = resource.request().accept(MediaType.TEXT_HTML).delete(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+    }   
     
     public void setScriptFile(String instanceId, String fileName) throws IOException {
         File file = new File(fileName);
