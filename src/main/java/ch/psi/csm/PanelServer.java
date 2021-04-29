@@ -35,7 +35,17 @@ public class PanelServer extends javax.swing.JPanel {
     
     public ProxyClient getProxy(){
        return proxy;
-    }        
+    }      
+    
+    
+   public boolean getPipeline(){
+       return panelStatus.getPipeline();
+   }
+
+   public void setPipeline(boolean value){
+       panelStatus.setPipeline(value);
+   }
+   
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

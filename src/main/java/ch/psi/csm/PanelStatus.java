@@ -1,6 +1,7 @@
 package ch.psi.csm;
 
 import ch.psi.camserver.CamServerClient;
+import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.NamedThreadFactory;
 import ch.psi.utils.Str;
@@ -39,6 +40,7 @@ public class PanelStatus extends MonitoredPanel {
     String currentServer;
     String currentInstance;
     InfoDialog infoDialog;
+    boolean isPipeline;
     
     
     public PanelStatus() {
@@ -95,8 +97,17 @@ public class PanelStatus extends MonitoredPanel {
        }
        return proxy.getUrl();
     }    
+    
+   public boolean getPipeline(){
+       return isPipeline;
+   }
 
-    @Override
+   public void setPipeline(boolean value){
+       isPipeline = value;
+       buttonConfig.setVisible(value);
+   }
+
+   @Override
     protected void onShow() {
         schedulerPolling = Executors.newSingleThreadScheduledExecutor(
                 new NamedThreadFactory("PanelServers update thread"));
@@ -456,9 +467,9 @@ public class PanelStatus extends MonitoredPanel {
                     .addGroup(panelServerLayout.createSequentialGroup()
                         .addComponent(buttonRead)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonConfig)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonInstanceStop)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonConfig)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
@@ -655,7 +666,8 @@ public class PanelStatus extends MonitoredPanel {
             if (dlg.getResult()){
                 json = dlg.ret;
                 cfg = (Map) JsonSerializer.decode(json, Map.class);
-                
+                PipelineClient client = new PipelineClient(currentServer);
+                client.setInstanceConfig(currentInstance, cfg);
             }        
         } catch (Exception ex){
             SwingUtils.showException(this, ex);

@@ -21,8 +21,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
     @Override
     protected void onCreate() {
         panelCameras.setUrl("http://localhost:8888");
-        panelPipelines.setUrl("http://localhost:8889");
-        this.setLocationRelativeTo(null);
+        panelPipelines.setUrl("http://localhost:8889");        
     }
 
     /**
