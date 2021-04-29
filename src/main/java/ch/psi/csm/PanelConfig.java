@@ -1,10 +1,14 @@
 package ch.psi.csm;
 
+import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +29,7 @@ public class PanelConfig extends MonitoredPanel {
     Map<String, String> permanentInstances = null;
     String currentConfig = "" ;
     String currentServer = "" ;
+    boolean isPipeline;
     
     final DefaultTableModel modelConfigs;
     final DefaultTableModel modelServers;
@@ -35,6 +40,17 @@ public class PanelConfig extends MonitoredPanel {
     boolean modelPermanentChanged;
     
     final int SMALL_COL_SZIE = 80;
+    
+    
+   public boolean getPipeline(){
+       return isPipeline;
+   }
+
+   public void setPipeline(boolean value){
+       isPipeline = value;
+       panelScripts.setVisible(value);
+       splitRight.setDividerSize(value ? splitLeft.getDividerSize(): 0);
+   }    
     
     public PanelConfig() {
         initComponents();
@@ -59,14 +75,30 @@ public class PanelConfig extends MonitoredPanel {
         tableFixedInstances.getColumnModel().getColumn(2).setPreferredWidth(SMALL_COL_SZIE);
         tableFixedInstances.getColumnModel().getColumn(2).setMaxWidth(SMALL_COL_SZIE);
         tableFixedInstances.getColumnModel().getColumn(2).setResizable(false);                
-        tablePermanentInstances.getColumnModel().getColumn(0).setPreferredWidth(SMALL_COL_SZIE);
-        tablePermanentInstances.getColumnModel().getColumn(0).setMaxWidth(SMALL_COL_SZIE);
-        tablePermanentInstances.getColumnModel().getColumn(0).setResizable(false);    
         
         modelPermanent.addTableModelListener((TableModelEvent e) -> {
             modelPermanentChanged=true;
             updateButtons();
         });
+        
+        tableConfigurations.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if ((e.getClickCount() == 2) && (!e.isPopupTrigger())) {
+                    buttonConfigEditActionPerformed(null);
+                }
+            }
+        });
+        
+        tableUserScripts.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if ((e.getClickCount() == 2) && (!e.isPopupTrigger())) {
+                    buttonScriptEditActionPerformed(null);
+                }
+            }
+        });
+                
         
         updateButtons();
     }
@@ -78,7 +110,6 @@ public class PanelConfig extends MonitoredPanel {
             return;
         }
         
-        buttonScriptDel.setEnabled(tableUserScripts.getSelectedRow()>=0);
         buttonScriptEdit.setEnabled(tableUserScripts.getSelectedRow()>=0);       
         buttonConfigDel.setEnabled(tableConfigurations.getSelectedRow()>=0);
         buttonConfigEdit.setEnabled(tableConfigurations.getSelectedRow()>=0);
@@ -95,6 +126,7 @@ public class PanelConfig extends MonitoredPanel {
         new Thread(()->{
             try {
                 instanceCfgNames =proxy.getConfigNames();
+                Collections.sort(instanceCfgNames); //, String.CASE_INSENSITIVE_ORDER);
                 modelConfigs.setRowCount(0);
                 for (String instance : instanceCfgNames){
                     modelConfigs.addRow(new Object[]{instance});
@@ -139,11 +171,31 @@ public class PanelConfig extends MonitoredPanel {
             }             
         }).start();
     }    
+    
+    void updateScripts(){
+        new Thread(()->{
+            try {
+                PipelineClient client = new PipelineClient(getUrl());                
+                List<String> scripts = client.getScripts();
+                Collections.sort(scripts); //, String.CASE_INSENSITIVE_ORDER);
+                modelScripts.setRowCount(0);
+                for (String script : scripts){
+                    modelScripts.addRow(new Object[]{script});
+                }    
+                updateButtons();
+            } catch (IOException ex) {
+                Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
+            }             
+        }).start();
+    }        
+    
     @Override
     protected void onShow() {      
+        updateButtons();
         updateServers();
         updateConfigs();
         updatePermanent();
+        updateScripts();
     }
     
         
@@ -167,12 +219,8 @@ public class PanelConfig extends MonitoredPanel {
         int row=tableConfigurations.getSelectedRow();
         if (row<0){
             currentConfig = "";
-            textConfig.setText("");
         } else {
             currentConfig = String.valueOf(tableConfigurations.getValueAt(row, 0));
-            String config = proxy.getConfigStr(currentConfig);
-            textConfig.setText(config);            
-            SwingUtils.scrollToVisible(textConfig, 0);
         }
         updateButtons();
     }
@@ -199,7 +247,8 @@ public class PanelConfig extends MonitoredPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        splitLeft = new javax.swing.JSplitPane();
+        psnelServers = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tableServers = new javax.swing.JTable();
         buttonFixedUndo = new javax.swing.JButton();
@@ -207,28 +256,32 @@ public class PanelConfig extends MonitoredPanel {
         jScrollPane6 = new javax.swing.JScrollPane();
         tableFixedInstances = new javax.swing.JTable();
         buttonFixedDel = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tableConfigurations = new javax.swing.JTable();
-        buttonConfigEdit = new javax.swing.JButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        textConfig = new javax.swing.JTextArea();
-        buttonConfigNew = new javax.swing.JButton();
-        buttonConfigDel = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
+        panelInstances = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablePermanentInstances = new javax.swing.JTable();
         buttonPermUndo = new javax.swing.JButton();
         buttonPermApply = new javax.swing.JButton();
         buttonPermDelete = new javax.swing.JButton();
-        jPanel6 = new javax.swing.JPanel();
+        splitRight = new javax.swing.JSplitPane();
+        panelConfigurations = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableConfigurations = new javax.swing.JTable();
+        buttonConfigEdit = new javax.swing.JButton();
+        buttonConfigNew = new javax.swing.JButton();
+        buttonConfigDel = new javax.swing.JButton();
+        panelScripts = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         tableUserScripts = new javax.swing.JTable();
         buttonScriptNew = new javax.swing.JButton();
-        buttonScriptDel = new javax.swing.JButton();
+        buttonScriptUpload = new javax.swing.JButton();
         buttonScriptEdit = new javax.swing.JButton();
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Servers"));
+        splitLeft.setDividerLocation(320);
+        splitLeft.setDividerSize(3);
+        splitLeft.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        splitLeft.setResizeWeight(0.5);
+
+        psnelServers.setBorder(javax.swing.BorderFactory.createTitledBorder("Servers"));
 
         tableServers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -315,144 +368,43 @@ public class PanelConfig extends MonitoredPanel {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout psnelServersLayout = new javax.swing.GroupLayout(psnelServers);
+        psnelServers.setLayout(psnelServersLayout);
+        psnelServersLayout.setHorizontalGroup(
+            psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(psnelServersLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, psnelServersLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(buttonFixedDel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonFixedUndo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonFixedApply)
+                        .addGap(0, 11, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(buttonFixedDel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonFixedUndo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonFixedApply)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        psnelServersLayout.setVerticalGroup(
+            psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(psnelServersLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonFixedUndo)
                     .addComponent(buttonFixedApply)
                     .addComponent(buttonFixedDel))
                 .addContainerGap())
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Configurations"));
+        splitLeft.setLeftComponent(psnelServers);
 
-        tableConfigurations.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Name"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        tableConfigurations.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tableConfigurations.getTableHeader().setReorderingAllowed(false);
-        tableConfigurations.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                tableConfigurationsMouseReleased(evt);
-            }
-        });
-        tableConfigurations.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                tableConfigurationsKeyReleased(evt);
-            }
-        });
-        jScrollPane2.setViewportView(tableConfigurations);
-
-        buttonConfigEdit.setText("Edit");
-        buttonConfigEdit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonConfigEditActionPerformed(evt);
-            }
-        });
-
-        textConfig.setEditable(false);
-        textConfig.setColumns(20);
-        textConfig.setRows(5);
-        jScrollPane3.setViewportView(textConfig);
-
-        buttonConfigNew.setText("New");
-        buttonConfigNew.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonConfigNewActionPerformed(evt);
-            }
-        });
-
-        buttonConfigDel.setText("Delete");
-        buttonConfigDel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonConfigDelActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
-                        .addComponent(buttonConfigNew)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonConfigDel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonConfigEdit)
-                        .addContainerGap(18, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(jScrollPane3))
-                        .addContainerGap())))
-        );
-
-        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonConfigDel, buttonConfigEdit, buttonConfigNew});
-
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(buttonConfigEdit)
-                    .addComponent(buttonConfigNew)
-                    .addComponent(buttonConfigDel))
-                .addContainerGap())
-        );
-
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Permanent Instances"));
+        panelInstances.setBorder(javax.swing.BorderFactory.createTitledBorder("Permanent Instances"));
 
         tablePermanentInstances.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -512,15 +464,15 @@ public class PanelConfig extends MonitoredPanel {
             }
         });
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        javax.swing.GroupLayout panelInstancesLayout = new javax.swing.GroupLayout(panelInstances);
+        panelInstances.setLayout(panelInstancesLayout);
+        panelInstancesLayout.setHorizontalGroup(
+            panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInstancesLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(buttonPermDelete)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -530,22 +482,125 @@ public class PanelConfig extends MonitoredPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel3Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonPermApply, buttonPermDelete, buttonPermUndo});
+        panelInstancesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonPermApply, buttonPermDelete, buttonPermUndo});
 
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        panelInstancesLayout.setVerticalGroup(
+            panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonPermApply)
                     .addComponent(buttonPermDelete)
                     .addComponent(buttonPermUndo))
                 .addContainerGap())
         );
 
-        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("User Scripts"));
+        splitLeft.setRightComponent(panelInstances);
+
+        splitRight.setDividerLocation(320);
+        splitRight.setDividerSize(3);
+        splitRight.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        splitRight.setResizeWeight(0.5);
+
+        panelConfigurations.setBorder(javax.swing.BorderFactory.createTitledBorder("Configurations"));
+
+        tableConfigurations.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Name"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tableConfigurations.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableConfigurations.getTableHeader().setReorderingAllowed(false);
+        tableConfigurations.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tableConfigurationsMouseReleased(evt);
+            }
+        });
+        tableConfigurations.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableConfigurationsKeyReleased(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tableConfigurations);
+
+        buttonConfigEdit.setText("Edit");
+        buttonConfigEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonConfigEditActionPerformed(evt);
+            }
+        });
+
+        buttonConfigNew.setText("New");
+        buttonConfigNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonConfigNewActionPerformed(evt);
+            }
+        });
+
+        buttonConfigDel.setText("Delete");
+        buttonConfigDel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonConfigDelActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelConfigurationsLayout = new javax.swing.GroupLayout(panelConfigurations);
+        panelConfigurations.setLayout(panelConfigurationsLayout);
+        panelConfigurationsLayout.setHorizontalGroup(
+            panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelConfigurationsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelConfigurationsLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 5, Short.MAX_VALUE)
+                        .addComponent(buttonConfigNew)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonConfigDel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonConfigEdit)
+                        .addContainerGap(13, Short.MAX_VALUE))
+                    .addGroup(panelConfigurationsLayout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addContainerGap())))
+        );
+
+        panelConfigurationsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonConfigDel, buttonConfigEdit, buttonConfigNew});
+
+        panelConfigurationsLayout.setVerticalGroup(
+            panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelConfigurationsLayout.createSequentialGroup()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonConfigEdit)
+                    .addComponent(buttonConfigNew)
+                    .addComponent(buttonConfigDel))
+                .addContainerGap())
+        );
+
+        splitRight.setLeftComponent(panelConfigurations);
+
+        panelScripts.setBorder(javax.swing.BorderFactory.createTitledBorder("User Scripts"));
 
         tableUserScripts.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -591,10 +646,10 @@ public class PanelConfig extends MonitoredPanel {
             }
         });
 
-        buttonScriptDel.setText("Delete");
-        buttonScriptDel.addActionListener(new java.awt.event.ActionListener() {
+        buttonScriptUpload.setText("Upload");
+        buttonScriptUpload.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonScriptDelActionPerformed(evt);
+                buttonScriptUploadActionPerformed(evt);
             }
         });
 
@@ -605,66 +660,56 @@ public class PanelConfig extends MonitoredPanel {
             }
         });
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
+        javax.swing.GroupLayout panelScriptsLayout = new javax.swing.GroupLayout(panelScripts);
+        panelScripts.setLayout(panelScriptsLayout);
+        panelScriptsLayout.setHorizontalGroup(
+            panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelScriptsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                    .addGroup(panelScriptsLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(buttonScriptNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonScriptDel)
+                        .addComponent(buttonScriptUpload)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonScriptEdit)
-                        .addGap(0, 11, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
-        jPanel6Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonScriptDel, buttonScriptEdit, buttonScriptNew});
+        panelScriptsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonScriptEdit, buttonScriptNew, buttonScriptUpload});
 
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
+        panelScriptsLayout.setVerticalGroup(
+            panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelScriptsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonScriptEdit)
                     .addComponent(buttonScriptNew)
-                    .addComponent(buttonScriptDel))
+                    .addComponent(buttonScriptUpload))
                 .addContainerGap())
         );
+
+        splitRight.setRightComponent(panelScripts);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(splitLeft)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addComponent(splitRight))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 0, 0))
+            .addComponent(splitLeft)
+            .addComponent(splitRight, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -685,14 +730,15 @@ public class PanelConfig extends MonitoredPanel {
     }//GEN-LAST:event_tableConfigurationsMouseReleased
 
     private void buttonConfigEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfigEditActionPerformed
-        String config;
         try{
-            ConfigDialog dlg = new ConfigDialog(SwingUtils.getFrame(this), true, currentConfig,textConfig.getText());
-            dlg.setVisible(true);
-            if (dlg.getResult()){
-                proxy.setConfigStr(currentConfig, dlg.ret);
-                onTableInstancesSelection();
-            }    
+            if (currentConfig!=null){
+                String config = proxy.getConfigStr(currentConfig);
+                ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, currentConfig, config, "json");
+                dlg.setVisible(true);
+                if (dlg.getResult()){
+                    proxy.setConfigStr(currentConfig, dlg.ret);
+                }    
+            }
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }        
@@ -710,12 +756,27 @@ public class PanelConfig extends MonitoredPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_buttonScriptNewActionPerformed
 
-    private void buttonScriptDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptDelActionPerformed
+    private void buttonScriptUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptUploadActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_buttonScriptDelActionPerformed
+    }//GEN-LAST:event_buttonScriptUploadActionPerformed
 
     private void buttonScriptEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptEditActionPerformed
-        // TODO add your handling code here:
+        try{
+            int row = tableUserScripts.getSelectedRow();
+            if (row>=0){
+                String name = Str.toString(modelScripts.getValueAt(row, 0));
+                PipelineClient client = new PipelineClient(getUrl());  
+                String script = client.getScript(name);
+                ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, name,script, "py");
+                dlg.setVisible(true);
+                if (dlg.getResult()){
+                    client.setScript(name, dlg.ret);
+                }    
+            }
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }        
+        
     }//GEN-LAST:event_buttonScriptEditActionPerformed
 
     private void buttonPermDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPermDeleteActionPerformed
@@ -802,24 +863,24 @@ public class PanelConfig extends MonitoredPanel {
     private javax.swing.JButton buttonPermApply;
     private javax.swing.JButton buttonPermDelete;
     private javax.swing.JButton buttonPermUndo;
-    private javax.swing.JButton buttonScriptDel;
     private javax.swing.JButton buttonScriptEdit;
     private javax.swing.JButton buttonScriptNew;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel6;
+    private javax.swing.JButton buttonScriptUpload;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JPanel panelConfigurations;
+    private javax.swing.JPanel panelInstances;
+    private javax.swing.JPanel panelScripts;
+    private javax.swing.JPanel psnelServers;
+    private javax.swing.JSplitPane splitLeft;
+    private javax.swing.JSplitPane splitRight;
     private javax.swing.JTable tableConfigurations;
     private javax.swing.JTable tableFixedInstances;
     private javax.swing.JTable tablePermanentInstances;
     private javax.swing.JTable tableServers;
     private javax.swing.JTable tableUserScripts;
-    private javax.swing.JTextArea textConfig;
     // End of variables declaration//GEN-END:variables
 }

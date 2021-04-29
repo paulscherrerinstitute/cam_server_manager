@@ -2,8 +2,6 @@
 package ch.psi.csm;
 
 import ch.psi.camserver.ProxyClient;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -14,6 +12,7 @@ public class PanelServer extends javax.swing.JPanel {
     
     public PanelServer() {
         initComponents();
+        setPipeline(false);
     }
     
     public void setUrl(String url){
@@ -44,6 +43,7 @@ public class PanelServer extends javax.swing.JPanel {
 
    public void setPipeline(boolean value){
        panelStatus.setPipeline(value);
+       panelConfig.setPipeline(value);
    }
    
     /**

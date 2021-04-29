@@ -206,7 +206,7 @@ public class PipelineClient extends InstanceManagerClient{
         checkReturn(map);
         return (String) map.get("background_id");
     }
-
+    
     /**
      * Start pipeline streaming, creating a private instance, and set the stream endpoint to the
      * current stream socket.
@@ -280,6 +280,40 @@ public class PipelineClient extends InstanceManagerClient{
     }
 
     
+    /**
+     * Scripts
+     */
+    public List<String> getScripts() throws IOException {
+        WebTarget resource = client.target(prefix+ "/script");
+        String json = resource.request().accept(MediaType.TEXT_HTML).get(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+        return (List<String>) map.get("scripts");
+    }
+    
+    public String getScript(String name) throws IOException {
+        WebTarget resource = client.target(prefix+ "/script/" + name + "/script_bytes");
+        String json = resource.request().accept(MediaType.TEXT_HTML).get(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+        return (String) map.get("script");
+    }
+    
+    public void setScript(String name, String script) throws IOException {
+        WebTarget resource = client.target(prefix+ "/script/" + name + "/script_bytes");
+        Response r = resource.request().accept(MediaType.TEXT_HTML).put(Entity.text(script));
+        String json = r.readEntity(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);   
+    }                   
+    
+    public void setScriptFile(String instanceId, String fileName) throws IOException {
+        File file = new File(fileName);
+        String script = new String(Files.readAllBytes(file.toPath()));
+        String name = file.getName();
+        setScript(name, script);
+    }     
+    
     public String getFunction(String instanceId) throws IOException {
         Object ret = getInstanceConfigValue(instanceId, "function");
         return ((ret != null) && (ret instanceof String)) ? (String) ret : null;
@@ -293,20 +327,8 @@ public class PipelineClient extends InstanceManagerClient{
     }     
     
     
-    public void sendFunctionScript(String instanceId, String fileName) throws IOException {
-        File file = new File(fileName);
-        String function = new String(Files.readAllBytes(file.toPath()));
-        String name = file.getName();
-        
-        WebTarget resource = client.target(prefix + "/script/" + name + "/script_bytes");
-        Response r = resource.request().accept(MediaType.TEXT_HTML).put(Entity.text(function));
-        String json = r.readEntity(String.class);
-        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
-        checkReturn(map);                       
-    }     
-    
     public void setFunctionScript(String instanceId, String fileName) throws IOException {
-        sendFunctionScript(instanceId, fileName);
+        setScriptFile(instanceId, fileName);
         setFunction(instanceId, new File(fileName).getName());
     }
 

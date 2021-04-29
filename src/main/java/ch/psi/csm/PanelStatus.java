@@ -661,7 +661,7 @@ public class PanelStatus extends MonitoredPanel {
             Map instanceData = instanceInfo.get(currentInstance);
             Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
             String json = JsonSerializer.encode(cfg, true);
-            ConfigDialog dlg = new ConfigDialog(SwingUtils.getFrame(this), true, currentInstance,json);
+            ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, currentInstance, json, "json");
             dlg.setVisible(true);
             if (dlg.getResult()){
                 json = dlg.ret;

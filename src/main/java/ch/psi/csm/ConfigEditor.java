@@ -10,12 +10,12 @@ import javax.swing.table.DefaultTableModel;
 /**
  *
  */
-public class ConfigDialog extends StandardDialog {
+public class ConfigEditor extends StandardDialog {
 
     final String config;
     String ret = null;
 
-    public ConfigDialog(java.awt.Frame parent, boolean modal, String name, String config) {
+    public ConfigEditor(java.awt.Frame parent, boolean modal, String name, String config) {
         super(parent, modal);
         initComponents();
         textName.setText(name);
@@ -75,19 +75,20 @@ public class ConfigDialog extends StandardDialog {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(textName))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 575, Short.MAX_VALUE)))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(198, Short.MAX_VALUE)
                 .addComponent(buttonCancel)
                 .addGap(18, 18, 18)
                 .addComponent(buttonOk)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 193, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textName)))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonCancel, buttonOk});
@@ -99,7 +100,7 @@ public class ConfigDialog extends StandardDialog {
                     .addComponent(jLabel1)
                     .addComponent(textName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonOk)
@@ -111,7 +112,7 @@ public class ConfigDialog extends StandardDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelActionPerformed
-        this.cancel();
+        cancel();
     }//GEN-LAST:event_buttonCancelActionPerformed
 
     private void buttonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOkActionPerformed
@@ -119,8 +120,8 @@ public class ConfigDialog extends StandardDialog {
             String config = textConfig.getText();
             Map<String, Object> map = (Map) JsonSerializer.decode(config, Map.class);
             ret = textConfig.getText();
-            this.accept();
-        } catch (IOException ex) {
+            accept();
+        } catch (Exception ex) {
             showException(ex);
         }
     }//GEN-LAST:event_buttonOkActionPerformed

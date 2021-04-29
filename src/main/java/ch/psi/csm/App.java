@@ -1,5 +1,6 @@
 package ch.psi.csm;
 
+import ch.psi.utils.swing.SwingUtils;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowListener;
 import java.io.File;
@@ -171,6 +172,7 @@ public class App {
                 mainFrame.addWindowListener(windowListener);
                                 
                 boolean forceConfig = hasArgument("config");
+                SwingUtils.centerComponent(null, mainFrame);
                 mainFrame.setVisible(true);
                 if (hasArgument("width")){
                     mainFrame.setSize(Integer.getInteger(getArgumentValue("width")), mainFrame.getHeight());

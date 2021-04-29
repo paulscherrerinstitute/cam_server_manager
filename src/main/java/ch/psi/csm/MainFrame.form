@@ -73,6 +73,9 @@
           </Layout>
           <SubComponents>
             <Component class="ch.psi.csm.PanelServer" name="panelPipelines">
+              <Properties>
+                <Property name="pipeline" type="boolean" value="true"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>

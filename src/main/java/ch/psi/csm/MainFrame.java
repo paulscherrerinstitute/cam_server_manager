@@ -21,7 +21,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
     @Override
     protected void onCreate() {
         panelCameras.setUrl("http://localhost:8888");
-        panelPipelines.setUrl("http://localhost:8889");        
+        panelPipelines.setUrl("http://localhost:8889");    
     }
 
     /**
@@ -85,6 +85,8 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         jToolBar1.setRollover(true);
 
         jToolBar2.setRollover(true);
+
+        panelPipelines.setPipeline(true);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
