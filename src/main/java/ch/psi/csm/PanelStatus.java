@@ -280,110 +280,73 @@ public class PanelStatus extends MonitoredPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        panelProxy = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        table = new javax.swing.JTable();
-        buttonServerLogs = new javax.swing.JButton();
-        buttonServerRestart = new javax.swing.JButton();
-        buttonServerStop = new javax.swing.JButton();
-        panelServer = new javax.swing.JPanel();
+        proxyPanel = new javax.swing.JPanel();
+        buttonProxyLogs = new javax.swing.JButton();
+        buttonProxyRestart = new javax.swing.JButton();
+        textProxy = new javax.swing.JTextField();
+        split = new javax.swing.JSplitPane();
+        panelInstances = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         tableInstances = new javax.swing.JTable();
         buttonRead = new javax.swing.JButton();
         buttonConfig = new javax.swing.JButton();
         buttonInstanceStop = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        buttonProxyLogs = new javax.swing.JButton();
-        buttonProxyRestart = new javax.swing.JButton();
-        textProxy = new javax.swing.JTextField();
+        panelServers = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+        buttonServerLogs = new javax.swing.JButton();
+        buttonServerRestart = new javax.swing.JButton();
+        buttonServerStop = new javax.swing.JButton();
 
-        panelProxy.setBorder(javax.swing.BorderFactory.createTitledBorder("Servers"));
+        proxyPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Proxy"));
 
-        table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Host", "Version", "Load", "CPU", "Memory", "TX", "RX"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        table.getTableHeader().setReorderingAllowed(false);
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                tableMouseReleased(evt);
-            }
-        });
-        table.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                tableKeyReleased(evt);
-            }
-        });
-        jScrollPane1.setViewportView(table);
-
-        buttonServerLogs.setText("Get Logs");
-        buttonServerLogs.addActionListener(new java.awt.event.ActionListener() {
+        buttonProxyLogs.setText("Get Logs");
+        buttonProxyLogs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonServerLogsActionPerformed(evt);
+                buttonProxyLogsActionPerformed(evt);
             }
         });
 
-        buttonServerRestart.setText("Restart");
-        buttonServerRestart.addActionListener(new java.awt.event.ActionListener() {
+        buttonProxyRestart.setText("Restart");
+        buttonProxyRestart.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonServerRestartActionPerformed(evt);
+                buttonProxyRestartActionPerformed(evt);
             }
         });
 
-        buttonServerStop.setText("Stop All ");
-        buttonServerStop.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonServerStopActionPerformed(evt);
-            }
-        });
+        textProxy.setEditable(false);
 
-        javax.swing.GroupLayout panelProxyLayout = new javax.swing.GroupLayout(panelProxy);
-        panelProxy.setLayout(panelProxyLayout);
-        panelProxyLayout.setHorizontalGroup(
-            panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelProxyLayout.createSequentialGroup()
+        javax.swing.GroupLayout proxyPanelLayout = new javax.swing.GroupLayout(proxyPanel);
+        proxyPanel.setLayout(proxyPanelLayout);
+        proxyPanelLayout.setHorizontalGroup(
+            proxyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(proxyPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addComponent(textProxy)
+                .addGap(18, 18, 18)
+                .addComponent(buttonProxyLogs, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(buttonServerLogs, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(buttonServerStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(buttonServerRestart, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(buttonProxyRestart, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        panelProxyLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonServerLogs, buttonServerRestart, buttonServerStop});
+        proxyPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonProxyLogs, buttonProxyRestart});
 
-        panelProxyLayout.setVerticalGroup(
-            panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelProxyLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelProxyLayout.createSequentialGroup()
-                        .addComponent(buttonServerLogs)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonServerRestart)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonServerStop)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap())
+        proxyPanelLayout.setVerticalGroup(
+            proxyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(proxyPanelLayout.createSequentialGroup()
+                .addGroup(proxyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonProxyLogs)
+                    .addComponent(buttonProxyRestart)
+                    .addComponent(textProxy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        panelServer.setBorder(javax.swing.BorderFactory.createTitledBorder("Instances"));
+        split.setDividerSize(4);
+        split.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        split.setResizeWeight(0.5);
+
+        panelInstances.setBorder(javax.swing.BorderFactory.createTitledBorder("Instances"));
 
         tableInstances.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -442,29 +405,29 @@ public class PanelStatus extends MonitoredPanel {
             }
         });
 
-        javax.swing.GroupLayout panelServerLayout = new javax.swing.GroupLayout(panelServer);
-        panelServer.setLayout(panelServerLayout);
-        panelServerLayout.setHorizontalGroup(
-            panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelServerLayout.createSequentialGroup()
+        javax.swing.GroupLayout panelInstancesLayout = new javax.swing.GroupLayout(panelInstances);
+        panelInstances.setLayout(panelInstancesLayout);
+        panelInstancesLayout.setHorizontalGroup(
+            panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(buttonRead, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonInstanceStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        panelServerLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonConfig, buttonInstanceStop, buttonRead});
+        panelInstancesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonConfig, buttonInstanceStop, buttonRead});
 
-        panelServerLayout.setVerticalGroup(
-            panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelServerLayout.createSequentialGroup()
+        panelInstancesLayout.setVerticalGroup(
+            panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelServerLayout.createSequentialGroup()
+                .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelInstancesLayout.createSequentialGroup()
                         .addComponent(buttonRead)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonInstanceStop)
@@ -475,73 +438,110 @@ public class PanelStatus extends MonitoredPanel {
                 .addContainerGap())
         );
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Proxy"));
+        split.setBottomComponent(panelInstances);
 
-        buttonProxyLogs.setText("Get Logs");
-        buttonProxyLogs.addActionListener(new java.awt.event.ActionListener() {
+        panelServers.setBorder(javax.swing.BorderFactory.createTitledBorder("Servers"));
+
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Host", "Version", "Load", "CPU", "Memory", "TX", "RX"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        table.getTableHeader().setReorderingAllowed(false);
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tableMouseReleased(evt);
+            }
+        });
+        table.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableKeyReleased(evt);
+            }
+        });
+        jScrollPane1.setViewportView(table);
+
+        buttonServerLogs.setText("Get Logs");
+        buttonServerLogs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonProxyLogsActionPerformed(evt);
+                buttonServerLogsActionPerformed(evt);
             }
         });
 
-        buttonProxyRestart.setText("Restart");
-        buttonProxyRestart.addActionListener(new java.awt.event.ActionListener() {
+        buttonServerRestart.setText("Restart");
+        buttonServerRestart.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonProxyRestartActionPerformed(evt);
+                buttonServerRestartActionPerformed(evt);
             }
         });
 
-        textProxy.setEditable(false);
+        buttonServerStop.setText("Stop All ");
+        buttonServerStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonServerStopActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout panelServersLayout = new javax.swing.GroupLayout(panelServers);
+        panelServers.setLayout(panelServersLayout);
+        panelServersLayout.setHorizontalGroup(
+            panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelServersLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(textProxy)
-                .addGap(18, 18, 18)
-                .addComponent(buttonProxyLogs, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonProxyRestart, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(buttonServerLogs, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(buttonServerStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(buttonServerRestart, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonProxyLogs, buttonProxyRestart});
+        panelServersLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonServerLogs, buttonServerRestart, buttonServerStop});
 
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(buttonProxyLogs)
-                    .addComponent(buttonProxyRestart)
-                    .addComponent(textProxy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        panelServersLayout.setVerticalGroup(
+            panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelServersLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelServersLayout.createSequentialGroup()
+                        .addComponent(buttonServerLogs)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonServerRestart)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonServerStop)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap())
         );
+
+        split.setTopComponent(panelServers);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(panelProxy, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(panelServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, 0))))
+            .addComponent(proxyPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(split)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelProxy, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(proxyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(split)
+                .addGap(0, 0, 0))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -718,11 +718,12 @@ public class PanelStatus extends MonitoredPanel {
     private javax.swing.JButton buttonServerLogs;
     private javax.swing.JButton buttonServerRestart;
     private javax.swing.JButton buttonServerStop;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JPanel panelProxy;
-    private javax.swing.JPanel panelServer;
+    private javax.swing.JPanel panelInstances;
+    private javax.swing.JPanel panelServers;
+    private javax.swing.JPanel proxyPanel;
+    private javax.swing.JSplitPane split;
     private javax.swing.JTable table;
     private javax.swing.JTable tableInstances;
     private javax.swing.JTextField textProxy;
