@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.Map;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -81,7 +83,12 @@ public class CamServerClient {
         String logs = resource.request().accept(MediaType.TEXT_PLAIN).get(String.class);
         return logs;
     }  
-    
-    public void restart() throws IOException {
-    }      
+
+    public void reset() throws IOException {
+        WebTarget resource = client.target(getUrl() + "/api/v1/reset");
+        Response r = resource.request().accept(MediaType.TEXT_HTML).get();
+        String json = r.readEntity(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+    }  
 }

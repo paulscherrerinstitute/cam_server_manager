@@ -1,17 +1,15 @@
 package ch.psi.csm;
 
 import ch.psi.camserver.CamServerClient;
-import ch.psi.camserver.InstanceManagerClient;
-import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.NamedThreadFactory;
 import ch.psi.utils.Str;
-import ch.psi.bsread.Stream;
-import ch.psi.bsread.StreamValue;
 import ch.psi.utils.swing.SwingUtils;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.TextEditor;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,11 +21,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.zeromq.ZMQ;
 
 /**
  *
@@ -36,21 +35,54 @@ public class PanelStatus extends MonitoredPanel {
     ProxyClient proxy;
     ScheduledExecutorService schedulerPolling;       
     final DefaultTableModel model;
-    final DefaultTableModel modelInstances;
-    final DefaultTreeModel modelInstance;
+    final DefaultTableModel modelInstances;    
     String currentServer;
     String currentInstance;
+    InfoDialog infoDialog;
     
     
     public PanelStatus() {
         initComponents();
         model = (DefaultTableModel) table.getModel();
-        modelInstances = (DefaultTableModel) tableInstances.getModel();
-        modelInstance =(DefaultTreeModel) treeInstance.getModel();
+        modelInstances = (DefaultTableModel) tableInstances.getModel();        
+        
+        
+        tableInstances.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    if ((e.getClickCount() == 2) && (!e.isPopupTrigger())) {
+                        if (currentInstance != null) {
+                            if ((infoDialog==null) || !(infoDialog.isShowing())){
+                                infoDialog = new InfoDialog(getFrame(), false);
+                                infoDialog.setVisible(true);
+                            }                            
+                            infoDialog.setInstance(currentInstance);
+                            infoDialog.update(instanceInfo);
+                        }
+                    }
+                } catch (Exception ex) {
+                    showException(ex);
+                }
+            }
+        });
+        
+        for (int i=1; i<model.getColumnCount();i++){
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+            table.getColumnModel().getColumn(i).setCellRenderer( centerRenderer );
+        }
+        
+        for (int i=1; i<modelInstances.getColumnCount();i++){
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+            tableInstances.getColumnModel().getColumn(i).setCellRenderer( centerRenderer );
+        }        
     }
     
     public void setProxy(ProxyClient proxy){
         this.proxy = proxy;
+        textProxy.setText(getUrl());
     }
     
     public ProxyClient getProxy(){
@@ -137,7 +169,7 @@ public class PanelStatus extends MonitoredPanel {
         }
     }
     
-    String getDisplayValue( Object obj){
+    static String getDisplayValue( Object obj){
         if (obj==null) {
             return "";
         }        
@@ -182,11 +214,16 @@ public class PanelStatus extends MonitoredPanel {
             for (int i =0; i< instances.size(); i++){
                 String instanceName = instances.get(i);
                 modelInstances.setValueAt(instanceName, i, 0);  
-                try{
-                    modelInstances.setValueAt(instanceInfo.get(instanceName).get("stream_address"), i, 1);
-                } catch (Exception ex){
-                    modelInstances.setValueAt("", i, 1);
-                }
+                Map data = instanceInfo.getOrDefault(instanceName, new HashMap());
+                Map stats = (Map) data.getOrDefault("statistics", new HashMap());                     
+                modelInstances.setValueAt(data.getOrDefault("stream_address", ""), i, 1);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("time", "")), i, 2);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("clients", "")), i, 3);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("throughput", "")), i, 4);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("rx", "")), i, 5);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("tx", "")), i, 6);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("cpu", "")), i, 7);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("memory", "")), i, 8);
             }
         } catch (Exception ex){
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
@@ -198,72 +235,15 @@ public class PanelStatus extends MonitoredPanel {
         try{     
             buttonInstanceStop.setEnabled(instanceSelected);
             buttonRead.setEnabled(instanceSelected);
+            buttonConfig.setEnabled(instanceSelected);
         } catch (Exception ex){
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }     
-        
-        DefaultMutableTreeNode root = ((DefaultMutableTreeNode)modelInstance.getRoot());        
-        if (instanceSelected){
-            root.setUserObject(currentInstance);
-            DefaultMutableTreeNode info;
-            DefaultMutableTreeNode config ;  
-            DefaultMutableTreeNode stream ;  
-            DefaultMutableTreeNode start ;  
-            if (root.getChildCount()==0){
-                config = new DefaultMutableTreeNode("Config");
-                info = new DefaultMutableTreeNode("Info");
-                start = new DefaultMutableTreeNode();
-                stream = new DefaultMutableTreeNode();
-                root.add(stream);
-                root.add(start);
-                root.add(config);
-                root.add(info);
-                modelInstance.nodeChanged(root);
-            } else {
-                stream = (DefaultMutableTreeNode) root.getChildAt(0);
-                start = (DefaultMutableTreeNode) root.getChildAt(1);
-                config = (DefaultMutableTreeNode) root.getChildAt(2);
-                info = (DefaultMutableTreeNode) root.getChildAt(3);
-            }
-               
-            Map instanceData = instanceInfo.getOrDefault(currentInstance, new HashMap());
-            stream.setUserObject("Stream: " + instanceData.getOrDefault("stream_address", ""));                      
-            start.setUserObject("Start : " + instanceData.getOrDefault("last_start_time", ""));                      
-            
-            Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());            
-            if (cfg.size()<config.getChildCount()){
-                config.removeAllChildren();
-                modelInstance.nodeStructureChanged(config);
-            }
-            int index = 0;
-            for (Object key : cfg.keySet()){
-                if (index>=config.getChildCount()){
-                    config.add(new DefaultMutableTreeNode()); 
-                    modelInstance.nodeStructureChanged(config);
-                }
-                ((DefaultMutableTreeNode)config.getChildAt(index++)).setUserObject(Str.toString(key) + ": " + Str.toString(cfg.get(key)));                 
-            }              
-            
-            Map stats = (Map) instanceData.getOrDefault("statistics", new HashMap());                     
-            if (stats.size()<info.getChildCount()){
-                info.removeAllChildren();
-                modelInstance.nodeStructureChanged(info);
-            }
-            
-            index = 0;
-            for (Object key : stats.keySet()){
-                if (index>=info.getChildCount()){
-                    info.add(new DefaultMutableTreeNode()); 
-                    modelInstance.nodeStructureChanged(info);
-                }
-                ((DefaultMutableTreeNode)info.getChildAt(index++)).setUserObject(Str.toString(key) + ": " + getDisplayValue(stats.get(key)));                 
-            }              
-            modelInstance.nodeChanged(root);
-        } else {
-            root.removeAllChildren();
-            root.setUserObject("");
-            modelInstance.nodeStructureChanged(root);
-        }        
+
+        if ((infoDialog!=null) &&  infoDialog.isShowing()){
+            infoDialog.setInstance(currentInstance);        
+            infoDialog.update(instanceInfo);        
+        }
     }
     
     
@@ -285,22 +265,21 @@ public class PanelStatus extends MonitoredPanel {
         panelProxy = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
-        buttonProxyLogs = new javax.swing.JButton();
-        buttonProxyRestart = new javax.swing.JButton();
+        buttonServerLogs = new javax.swing.JButton();
+        buttonServerRestart = new javax.swing.JButton();
+        buttonServerStop = new javax.swing.JButton();
         panelServer = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         tableInstances = new javax.swing.JTable();
-        buttonServerLogs = new javax.swing.JButton();
-        buttonServerStop = new javax.swing.JButton();
-        buttonServerRestart = new javax.swing.JButton();
-        panelServer1 = new javax.swing.JPanel();
-        buttonInstanceStop = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        treeInstance = new javax.swing.JTree();
         buttonRead = new javax.swing.JButton();
         buttonConfig = new javax.swing.JButton();
+        buttonInstanceStop = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        buttonProxyLogs = new javax.swing.JButton();
+        buttonProxyRestart = new javax.swing.JButton();
+        textProxy = new javax.swing.JTextField();
 
-        panelProxy.setBorder(javax.swing.BorderFactory.createTitledBorder("Proxy"));
+        panelProxy.setBorder(javax.swing.BorderFactory.createTitledBorder("Servers"));
 
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -331,17 +310,24 @@ public class PanelStatus extends MonitoredPanel {
         });
         jScrollPane1.setViewportView(table);
 
-        buttonProxyLogs.setText("Get Logs");
-        buttonProxyLogs.addActionListener(new java.awt.event.ActionListener() {
+        buttonServerLogs.setText("Get Logs");
+        buttonServerLogs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonProxyLogsActionPerformed(evt);
+                buttonServerLogsActionPerformed(evt);
             }
         });
 
-        buttonProxyRestart.setText("Restart");
-        buttonProxyRestart.addActionListener(new java.awt.event.ActionListener() {
+        buttonServerRestart.setText("Restart");
+        buttonServerRestart.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonProxyRestartActionPerformed(evt);
+                buttonServerRestartActionPerformed(evt);
+            }
+        });
+
+        buttonServerStop.setText("Stop All ");
+        buttonServerStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonServerStopActionPerformed(evt);
             }
         });
 
@@ -354,12 +340,14 @@ public class PanelStatus extends MonitoredPanel {
                 .addComponent(jScrollPane1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(buttonProxyRestart, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonProxyLogs, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(buttonServerLogs, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(buttonServerStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(buttonServerRestart, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        panelProxyLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonProxyLogs, buttonProxyRestart});
+        panelProxyLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonServerLogs, buttonServerRestart, buttonServerStop});
 
         panelProxyLayout.setVerticalGroup(
             panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -367,27 +355,36 @@ public class PanelStatus extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(panelProxyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelProxyLayout.createSequentialGroup()
-                        .addComponent(buttonProxyLogs)
+                        .addComponent(buttonServerLogs)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonProxyRestart)
+                        .addComponent(buttonServerRestart)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonServerStop)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
-        panelServer.setBorder(javax.swing.BorderFactory.createTitledBorder("Server"));
+        panelServer.setBorder(javax.swing.BorderFactory.createTitledBorder("Instances"));
 
         tableInstances.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Active Instance", "Stream"
+                "Instance", "Stream", "Time", "Clients", "Bps", "RX", "TX", "CPU", "Mem"
             }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, false
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
@@ -406,74 +403,6 @@ public class PanelStatus extends MonitoredPanel {
         });
         jScrollPane3.setViewportView(tableInstances);
 
-        buttonServerLogs.setText("Get Logs");
-        buttonServerLogs.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonServerLogsActionPerformed(evt);
-            }
-        });
-
-        buttonServerStop.setText("Stop All ");
-        buttonServerStop.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonServerStopActionPerformed(evt);
-            }
-        });
-
-        buttonServerRestart.setText("Restart");
-        buttonServerRestart.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonServerRestartActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout panelServerLayout = new javax.swing.GroupLayout(panelServer);
-        panelServer.setLayout(panelServerLayout);
-        panelServerLayout.setHorizontalGroup(
-            panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelServerLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(buttonServerLogs, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(buttonServerStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(buttonServerRestart, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
-
-        panelServerLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonServerLogs, buttonServerRestart, buttonServerStop});
-
-        panelServerLayout.setVerticalGroup(
-            panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelServerLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelServerLayout.createSequentialGroup()
-                        .addComponent(buttonServerLogs)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonServerRestart)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonServerStop)
-                        .addGap(6, 6, 6))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-
-        panelServer1.setBorder(javax.swing.BorderFactory.createTitledBorder("Instance"));
-
-        buttonInstanceStop.setText("Stop");
-        buttonInstanceStop.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonInstanceStopActionPerformed(evt);
-            }
-        });
-
-        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("Name");
-        treeInstance.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
-        jScrollPane2.setViewportView(treeInstance);
-
         buttonRead.setText("Inspect");
         buttonRead.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -488,37 +417,88 @@ public class PanelStatus extends MonitoredPanel {
             }
         });
 
-        javax.swing.GroupLayout panelServer1Layout = new javax.swing.GroupLayout(panelServer1);
-        panelServer1.setLayout(panelServer1Layout);
-        panelServer1Layout.setHorizontalGroup(
-            panelServer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelServer1Layout.createSequentialGroup()
+        buttonInstanceStop.setText("Stop");
+        buttonInstanceStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonInstanceStopActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelServerLayout = new javax.swing.GroupLayout(panelServer);
+        panelServer.setLayout(panelServerLayout);
+        panelServerLayout.setHorizontalGroup(
+            panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelServerLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelServer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(buttonRead, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonInstanceStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        panelServer1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonConfig, buttonInstanceStop, buttonRead});
+        panelServerLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonConfig, buttonInstanceStop, buttonRead});
 
-        panelServer1Layout.setVerticalGroup(
-            panelServer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelServer1Layout.createSequentialGroup()
+        panelServerLayout.setVerticalGroup(
+            panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelServerLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelServer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelServer1Layout.createSequentialGroup()
+                .addGroup(panelServerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelServerLayout.createSequentialGroup()
                         .addComponent(buttonRead)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfig)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonInstanceStop)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
+        );
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Proxy"));
+
+        buttonProxyLogs.setText("Get Logs");
+        buttonProxyLogs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonProxyLogsActionPerformed(evt);
+            }
+        });
+
+        buttonProxyRestart.setText("Restart");
+        buttonProxyRestart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonProxyRestartActionPerformed(evt);
+            }
+        });
+
+        textProxy.setEditable(false);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(textProxy)
+                .addGap(18, 18, 18)
+                .addComponent(buttonProxyLogs, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(buttonProxyRestart, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonProxyLogs, buttonProxyRestart});
+
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonProxyLogs)
+                    .addComponent(buttonProxyRestart)
+                    .addComponent(textProxy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -526,22 +506,23 @@ public class PanelStatus extends MonitoredPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(0, 0, 0)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelProxy, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelServer1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(panelProxy, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(panelServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, 0))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelProxy, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelServer1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -605,7 +586,7 @@ public class PanelStatus extends MonitoredPanel {
             schedulerPolling.submit(()->{
                 try{
                     CamServerClient client = new CamServerClient(currentServer,"");
-                    client.restart();
+                    client.reset();
                 } catch (Exception ex){
                     SwingUtils.showException(this, ex);
                 }                    
@@ -678,9 +659,6 @@ public class PanelStatus extends MonitoredPanel {
 
     private void buttonProxyLogsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonProxyLogsActionPerformed
         try{
-            if (currentServer==null){
-                throw new Exception("No server selected");
-            }            
             schedulerPolling.submit(()->{
                 try{
                     String logs = proxy.getLogs();
@@ -701,12 +679,9 @@ public class PanelStatus extends MonitoredPanel {
 
     private void buttonProxyRestartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonProxyRestartActionPerformed
         try{
-            if (currentServer==null){
-                throw new Exception("No server selected");
-            }            
             schedulerPolling.submit(()->{
                 try{
-                    proxy.restart();
+                    proxy.reset();
                 } catch (Exception ex){
                     SwingUtils.showException(this, ex);
                 }                    
@@ -726,14 +701,13 @@ public class PanelStatus extends MonitoredPanel {
     private javax.swing.JButton buttonServerLogs;
     private javax.swing.JButton buttonServerRestart;
     private javax.swing.JButton buttonServerStop;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JPanel panelProxy;
     private javax.swing.JPanel panelServer;
-    private javax.swing.JPanel panelServer1;
     private javax.swing.JTable table;
     private javax.swing.JTable tableInstances;
-    private javax.swing.JTree treeInstance;
+    private javax.swing.JTextField textProxy;
     // End of variables declaration//GEN-END:variables
 }
