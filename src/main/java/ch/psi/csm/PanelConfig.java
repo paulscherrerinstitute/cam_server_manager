@@ -5,9 +5,15 @@ import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,8 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DropMode;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import static org.zeromq.ZMQ.context;
@@ -103,6 +113,79 @@ public class PanelConfig extends MonitoredPanel {
             }
         });
                 
+        tableConfigurations.setDragEnabled(true);
+        tableConfigurations.setTransferHandler(new TransferHandler() {
+            @Override
+            public int getSourceActions(JComponent c) {
+                return DnDConstants.ACTION_COPY_OR_MOVE;
+            }
+            @Override
+            public Transferable createTransferable(JComponent comp) {
+                onTableInstancesSelection();
+                return (currentConfig != null) ? new StringSelection(currentConfig) : null;
+            }
+        });
+        
+        
+        tablePermanentInstances.setDropMode(DropMode.INSERT_ROWS);
+        tablePermanentInstances.setFillsViewportHeight(true);
+        tablePermanentInstances.setTransferHandler(new TransferHandler() {
+            @Override
+            public int getSourceActions(JComponent c) {
+                return DnDConstants.ACTION_COPY_OR_MOVE;
+            }
+
+            @Override
+            public boolean canImport(TransferHandler.TransferSupport info) {
+                return info.isDataFlavorSupported(DataFlavor.stringFlavor);
+            }
+
+            @Override
+            public boolean importData(TransferHandler.TransferSupport support) {
+                if ((!support.isDrop()) ||  (!canImport(support))) {
+                    return false;
+                }
+                try {
+                    JTable.DropLocation dl = (JTable.DropLocation)support.getDropLocation();                    
+                    String name = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);         
+                    modelPermanent.insertRow(dl.getRow(), new Object[]{name,name});
+                } catch (Exception ex) {
+                    return false;
+                }                
+                return true;
+            }
+
+        });
+
+        tableFixedInstances.setDropMode(DropMode.INSERT_ROWS);
+        tableFixedInstances.setFillsViewportHeight(true);
+        tableFixedInstances.setTransferHandler(new TransferHandler() {
+            @Override
+            public int getSourceActions(JComponent c) {
+                return DnDConstants.ACTION_COPY_OR_MOVE;
+            }
+
+            @Override
+            public boolean canImport(TransferHandler.TransferSupport info) {
+                return info.isDataFlavorSupported(DataFlavor.stringFlavor);
+            }
+
+            @Override
+            public boolean importData(TransferHandler.TransferSupport support) {
+                if ((!support.isDrop()) ||  (!canImport(support))) {
+                    return false;
+                }
+                try {
+                    JTable.DropLocation dl = (JTable.DropLocation)support.getDropLocation();                    
+                    String name = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);         
+                    modelFixed.insertRow(dl.getRow(), new Object[]{true,name,""});
+                } catch (Exception ex) {
+                    return false;
+                }                
+                return true;
+            }
+
+        });
         
         updateButtons();
     }
@@ -225,7 +308,7 @@ public class PanelConfig extends MonitoredPanel {
     }    
           
     
-    void onTableInstancesSelection() throws IOException{
+    void onTableInstancesSelection(){
         int row=tableConfigurations.getSelectedRow();
         if (row<0){
             currentConfig = "";
@@ -235,7 +318,7 @@ public class PanelConfig extends MonitoredPanel {
         updateButtons();
     }
     
-    void onTableServersSelection() throws IOException{
+    void onTableServersSelection(){
         int row=tableServers.getSelectedRow();
         if (row<0){
             currentServer = "";
@@ -357,6 +440,7 @@ public class PanelConfig extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        tableFixedInstances.setDropMode(javax.swing.DropMode.INSERT_ROWS);
         tableFixedInstances.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableFixedInstances.getTableHeader().setReorderingAllowed(false);
         tableFixedInstances.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -439,6 +523,7 @@ public class PanelConfig extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        tablePermanentInstances.setDropMode(javax.swing.DropMode.INSERT_ROWS);
         tablePermanentInstances.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tablePermanentInstances.getTableHeader().setReorderingAllowed(false);
         tablePermanentInstances.addMouseListener(new java.awt.event.MouseAdapter() {
