@@ -41,13 +41,16 @@ public class InfoDialog extends StandardDialog {
             DefaultMutableTreeNode config ;  
             DefaultMutableTreeNode stream ;  
             DefaultMutableTreeNode start ;  
+            DefaultMutableTreeNode mode ;  
             if (root.getChildCount()==0){
                 config = new DefaultMutableTreeNode("Config");
                 info = new DefaultMutableTreeNode("Info");
                 start = new DefaultMutableTreeNode();
+                mode = new DefaultMutableTreeNode();
                 stream = new DefaultMutableTreeNode();
                 root.add(stream);
                 root.add(start);
+                root.add(mode);
                 root.add(config);
                 root.add(info);
                 model.nodeChanged(root);
@@ -55,13 +58,15 @@ public class InfoDialog extends StandardDialog {
             } else {
                 stream = (DefaultMutableTreeNode) root.getChildAt(0);
                 start = (DefaultMutableTreeNode) root.getChildAt(1);
-                config = (DefaultMutableTreeNode) root.getChildAt(2);
-                info = (DefaultMutableTreeNode) root.getChildAt(3);
+                mode = (DefaultMutableTreeNode) root.getChildAt(2);
+                config = (DefaultMutableTreeNode) root.getChildAt(3);
+                info = (DefaultMutableTreeNode) root.getChildAt(4);
             }
                
             Map instanceData = instanceInfo.getOrDefault(currentInstance, new HashMap());
             stream.setUserObject("Stream: " + instanceData.getOrDefault("stream_address", ""));                      
             start.setUserObject("Start : " + instanceData.getOrDefault("last_start_time", ""));                      
+            mode.setUserObject("Mode : " + ( PanelStatus.isPush(instanceData) ? "PUSH" : "PUB"));                      
             
             Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());            
             if (cfg.size()<config.getChildCount()){

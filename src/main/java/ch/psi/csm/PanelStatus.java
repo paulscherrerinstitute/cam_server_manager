@@ -246,6 +246,13 @@ public class PanelStatus extends MonitoredPanel {
         }
     }
     
+
+    static boolean isPush(Map instanceData){
+        Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
+        return cfg.getOrDefault("mode", "").equals("PUSH") || cfg.getOrDefault("pipeline_type", "").equals("store");
+    }
+    
+    
     
     public static void main(String[] args) {
         String server = "http://localhost:8889";
@@ -631,9 +638,7 @@ public class PanelStatus extends MonitoredPanel {
         try{
             Map instanceData = instanceInfo.get(currentInstance);
             String address = (String)instanceData.get("stream_address");
-            Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
-            boolean pull = cfg.getOrDefault("mode", "").equals("PUSH") || cfg.getOrDefault("pipeline_type", "").equals("store");
-            StreamDialog dlg = new StreamDialog(SwingUtils.getFrame(this), true, address, pull);
+            StreamDialog dlg = new StreamDialog(SwingUtils.getFrame(this), true, address, isPush(instanceData));
             dlg.setVisible(true);
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
