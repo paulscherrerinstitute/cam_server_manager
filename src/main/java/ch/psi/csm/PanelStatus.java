@@ -27,8 +27,6 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  *
@@ -233,10 +231,20 @@ public class PanelStatus extends MonitoredPanel {
                 modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("time", "")), i, 2);
                 modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("clients", "")), i, 3);
                 modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("throughput", "")), i, 4);
-                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("rx", "")), i, 5);
-                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("tx", "")), i, 6);
+                modelInstances.setValueAt(getDisplayValue(Str.toString(stats.getOrDefault("rx", "")).split(" -")[0]), i, 5);
+                modelInstances.setValueAt(getDisplayValue(Str.toString(stats.getOrDefault("tx", "")).split(" -")[0]), i, 6);
                 modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("cpu", "")), i, 7);
                 modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("memory", "")), i, 8);
+            }
+            
+            if (searchInstance != null){
+                for (int i=0; i< instances.size(); i++){
+                    if (searchInstance.equals(instances.get(i))){
+                        tableInstances.setRowSelectionInterval(i, i);
+                        break;
+                    }
+                }
+                searchInstance = null;
             }
         } catch (Exception ex){
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
@@ -267,6 +275,35 @@ public class PanelStatus extends MonitoredPanel {
     }
     
     
+    String searchString;
+    String searchInstance;
+    void onSearch(){
+        String str = textSearch.getText().trim().toLowerCase();
+        if (!str.equals(searchString)){
+            searchString = str;
+            if (!str.isBlank()){                
+                for (String instance:instanceInfo.keySet()){
+                    if (instance.toLowerCase().contains(str)){
+                        Map instanceData = instanceInfo.get(instance);
+                        String server = Str.toString(instanceData.getOrDefault("host", "")).replace("htttp://","").toLowerCase();
+                        System.out.println(server);
+                        for (int i=0; i<model.getRowCount();i++){
+                            if (Str.toString(model.getValueAt(i, 0)).replace("htttp://","").toLowerCase().equals(server)){
+                                table.setRowSelectionInterval(i, i);
+                                searchInstance = instance;
+                                updateControls();
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            searchInstance = null;
+            table.clearSelection();
+            updateControls();
+        }
+    }
+    
     
     public static void main(String[] args) {
         String server = "http://localhost:8889";
@@ -287,6 +324,8 @@ public class PanelStatus extends MonitoredPanel {
         buttonProxyLogs = new javax.swing.JButton();
         buttonProxyRestart = new javax.swing.JButton();
         textProxy = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        textSearch = new javax.swing.JTextField();
         split = new javax.swing.JSplitPane();
         panelInstances = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -320,6 +359,14 @@ public class PanelStatus extends MonitoredPanel {
 
         textProxy.setEditable(false);
 
+        jLabel1.setText("Search:");
+
+        textSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                textSearchKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout proxyPanelLayout = new javax.swing.GroupLayout(proxyPanel);
         proxyPanel.setLayout(proxyPanelLayout);
         proxyPanelLayout.setHorizontalGroup(
@@ -327,6 +374,10 @@ public class PanelStatus extends MonitoredPanel {
             .addGroup(proxyPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(textProxy)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(textSearch)
                 .addGap(18, 18, 18)
                 .addComponent(buttonProxyLogs, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -342,7 +393,9 @@ public class PanelStatus extends MonitoredPanel {
                 .addGroup(proxyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonProxyLogs)
                     .addComponent(buttonProxyRestart)
-                    .addComponent(textProxy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(textProxy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(textSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -409,7 +462,7 @@ public class PanelStatus extends MonitoredPanel {
             }
         });
 
-        buttonFunction.setText("Function");
+        buttonFunction.setText("Script");
         buttonFunction.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonFunctionActionPerformed(evt);
@@ -732,9 +785,8 @@ public class PanelStatus extends MonitoredPanel {
             Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());                
             String current = (String) cfg.getOrDefault("function", null);       
             current = Arr.containsEqual(scripts, current) ? current : null;
-            String script = SwingUtils.getString(this, 
-                    "Select the user script for the pipeline " + currentInstance + ":" , 
-                    scripts, current);       
+            String msg = "Select the processing script for for the pipeline" + currentInstance + ":";
+            String script = SwingUtils.getString(this, msg, scripts, current);       
             if (script!=null){
                 client.setFunction(currentInstance, script);
             }
@@ -742,6 +794,14 @@ public class PanelStatus extends MonitoredPanel {
             SwingUtils.showException(this, ex);
         }        
     }//GEN-LAST:event_buttonFunctionActionPerformed
+
+    private void textSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textSearchKeyReleased
+        try{     
+            onSearch();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+     }//GEN-LAST:event_textSearchKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -754,6 +814,7 @@ public class PanelStatus extends MonitoredPanel {
     private javax.swing.JButton buttonServerLogs;
     private javax.swing.JButton buttonServerRestart;
     private javax.swing.JButton buttonServerStop;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JPanel panelInstances;
@@ -763,5 +824,6 @@ public class PanelStatus extends MonitoredPanel {
     private javax.swing.JTable table;
     private javax.swing.JTable tableInstances;
     private javax.swing.JTextField textProxy;
+    private javax.swing.JTextField textSearch;
     // End of variables declaration//GEN-END:variables
 }

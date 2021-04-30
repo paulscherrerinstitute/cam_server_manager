@@ -48,6 +48,10 @@
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Component id="textProxy" max="32767" attributes="0"/>
                   <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Component id="textSearch" max="32767" attributes="0"/>
+                  <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
                   <Component id="buttonProxyLogs" linkSize="2" min="-2" pref="100" max="-2" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Component id="buttonProxyRestart" linkSize="2" min="-2" pref="100" max="-2" attributes="0"/>
@@ -62,6 +66,8 @@
                       <Component id="buttonProxyLogs" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="buttonProxyRestart" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="textProxy" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="textSearch" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -89,6 +95,16 @@
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Search:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="textSearch">
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="textSearchKeyReleased"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -263,7 +279,7 @@
             </Component>
             <Component class="javax.swing.JButton" name="buttonFunction">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Function"/>
+                <Property name="text" type="java.lang.String" value="Script"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonFunctionActionPerformed"/>
