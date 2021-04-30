@@ -52,6 +52,8 @@ public class PanelConfig extends MonitoredPanel {
     final DefaultTableModel modelScripts;
     
     boolean modelPermanentChanged;
+    boolean modelFixedChanged;
+    boolean modelServersChanged;
     
     final int SMALL_COL_SZIE = 80;
     
@@ -95,6 +97,16 @@ public class PanelConfig extends MonitoredPanel {
             updateButtons();
         });
         
+        modelFixed.addTableModelListener((TableModelEvent e) -> {
+            modelFixedChanged=true;
+            updateButtons();
+        });
+        
+        modelServers.addTableModelListener((TableModelEvent e) -> {
+            modelServersChanged=true;
+            updateButtons();
+        });        
+
         tableConfigurations.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -148,7 +160,8 @@ public class PanelConfig extends MonitoredPanel {
                 try {
                     JTable.DropLocation dl = (JTable.DropLocation)support.getDropLocation();                    
                     String name = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);         
-                    modelPermanent.insertRow(dl.getRow(), new Object[]{name,name});
+                    modelPermanent.insertRow(dl.getRow(), new Object[]{true, name,name});
+                    updateButtons();
                 } catch (Exception ex) {
                     return false;
                 }                
@@ -179,6 +192,7 @@ public class PanelConfig extends MonitoredPanel {
                     JTable.DropLocation dl = (JTable.DropLocation)support.getDropLocation();                    
                     String name = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);         
                     modelFixed.insertRow(dl.getRow(), new Object[]{true,name,""});
+                    updateButtons();
                 } catch (Exception ex) {
                     return false;
                 }                
@@ -202,11 +216,14 @@ public class PanelConfig extends MonitoredPanel {
         buttonConfigDel.setEnabled(tableConfigurations.getSelectedRow()>=0);
         buttonConfigEdit.setEnabled(tableConfigurations.getSelectedRow()>=0);
         buttonFixedDel.setEnabled(tableFixedInstances.getSelectedRow()>=0);
-        buttonFixedApply.setEnabled(tableFixedInstances.getSelectedRow()>=0);
-        buttonFixedUndo.setEnabled(tableFixedInstances.getSelectedRow()>=0);
+        buttonFixedApply.setEnabled(modelFixedChanged);
+        buttonFixedUndo.setEnabled(modelFixedChanged);
         buttonPermDelete.setEnabled(tablePermanentInstances.getSelectedRow()>=0);
-        buttonPermApply.setEnabled(modelPermanentChanged && (tablePermanentInstances.getSelectedRow()>=0));
-        buttonPermUndo.setEnabled(modelPermanentChanged && (tablePermanentInstances.getSelectedRow()>=0));
+        buttonPermApply.setEnabled(modelPermanentChanged);
+        buttonPermUndo.setEnabled(modelPermanentChanged);
+        //buttonServersDel.setEnabled(tableServers.getSelectedRow()>=0);
+        buttonServersApply.setEnabled(modelServersChanged);
+        buttonServersUndo.setEnabled(modelServersChanged);
         
     }
     
@@ -221,7 +238,7 @@ public class PanelConfig extends MonitoredPanel {
                     modelConfigs.addRow(new Object[]{instance});
                 }                
                 updateButtons();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
         });
@@ -229,8 +246,12 @@ public class PanelConfig extends MonitoredPanel {
         return t;
     }
     
-    void updateServers(){
-        new Thread(()->{
+    Thread updateServers(){
+        if (tableServers.isEditing()){
+            tableServers.getCellEditor().stopCellEditing();
+        }
+        
+        Thread t = new Thread(()->{
             try {
                 serverCfg =proxy.getConfig();
                 modelServers.setRowCount(0);
@@ -239,31 +260,76 @@ public class PanelConfig extends MonitoredPanel {
                     boolean expanding = (Boolean) serverCfg.getOrDefault("expanding", true);
                     boolean enabled = (Boolean) serverCfg.getOrDefault("enabled", true);
                     modelServers.addRow(new Object[]{enabled,server,expanding});
-                }                
+                }      
+                modelServersChanged = false;
                 updateButtons();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
-        }).start();        
+        });
+        t.start();
+        return t;  
     }
     
-    void updatePermanent(){
-        new Thread(()->{
+    Thread updatePermanent(){                
+        
+        if (tablePermanentInstances.isEditing()){
+            tablePermanentInstances.getCellEditor().stopCellEditing();
+        }
+        Thread t = new Thread(()->{
             try {
                 permanentInstances = proxy.getPemanentInstances();
                 modelPermanent.setRowCount(0);
                 for (String config : permanentInstances.keySet()){
-                    modelPermanent.addRow(new Object[]{config, Str.toString(permanentInstances.get(config))});
+                    String name = Str.toString(permanentInstances.get(config));
+                    boolean enabled = true;
+                    if (config.startsWith("#")){
+                        config = config.substring(1);
+                        enabled = false;
+                    }
+                    modelPermanent.addRow(new Object[]{enabled, config, name});
                 }    
                 modelPermanentChanged=false;
                 updateButtons();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
-        }).start();
+        });
+        t.start();
+        return t;  
     }    
     
-    Thread updateScripts(){
+    void updateFixed(){        
+        if (tableFixedInstances.isEditing()){
+            tableFixedInstances.getCellEditor().stopCellEditing();
+        }
+        try {            
+            modelFixed.setRowCount(0);
+            if((currentServer!=null) && (!currentServer.isBlank())){
+                Map serverCfg = (Map) this.serverCfg.get(currentServer);
+                List<String> fixed = (List<String>) serverCfg.getOrDefault("instances", new ArrayList());
+                for (String instance : fixed){
+                    boolean enabled = true;
+                    String port = "";
+                    if (instance.startsWith("#")){
+                        instance = instance.substring(1);
+                        enabled = false;
+                    }
+                    if (instance.contains(":")){
+                        port = instance.substring(instance.lastIndexOf(":") + 1);
+                        instance = instance.substring(0, instance.lastIndexOf(":"));                        
+                    }
+                    modelFixed.addRow(new Object[]{enabled, instance, port});
+                }    
+                modelFixedChanged=false;                
+            }
+            updateButtons();
+        } catch (Exception ex) {
+            Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
+        }             
+    }    
+
+    Thread updateScripts(){        
         Thread t = new Thread(()->{
             try {
                 PipelineClient client = new PipelineClient(getUrl());                
@@ -274,13 +340,26 @@ public class PanelConfig extends MonitoredPanel {
                     modelScripts.addRow(new Object[]{script});
                 }    
                 updateButtons();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
         });
         t.start();
         return t;        
     }        
+    
+    void selectServer(String name){
+        for (int i=0; i<modelServers.getRowCount();i++){
+            if (Str.toString(modelServers.getValueAt(i, 1)).equals(name)){
+                tableServers.setRowSelectionInterval(i, i);
+                SwingUtils.scrollToVisible(tableServers, i, 0);
+                onTableServersSelection();
+                return;
+            }
+        }        
+        tableServers.clearSelection();
+        onTableServersSelection();        
+    }
     
     @Override
     protected void onShow() {      
@@ -321,12 +400,11 @@ public class PanelConfig extends MonitoredPanel {
     void onTableServersSelection(){
         int row=tableServers.getSelectedRow();
         if (row<0){
-            currentServer = "";
-            modelFixed.setNumRows(0);
+            currentServer = "";            
         } else {
-            currentServer = String.valueOf(tableServers.getValueAt(row, 0));
-            
+            currentServer = String.valueOf(tableServers.getValueAt(row, 1));           
         }
+        updateFixed();
         updateButtons();
     }
     
@@ -349,6 +427,9 @@ public class PanelConfig extends MonitoredPanel {
         jScrollPane6 = new javax.swing.JScrollPane();
         tableFixedInstances = new javax.swing.JTable();
         buttonFixedDel = new javax.swing.JButton();
+        buttonServersDel = new javax.swing.JButton();
+        buttonServersUndo = new javax.swing.JButton();
+        buttonServersApply = new javax.swing.JButton();
         panelInstances = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablePermanentInstances = new javax.swing.JTable();
@@ -414,15 +495,25 @@ public class PanelConfig extends MonitoredPanel {
         jScrollPane4.setViewportView(tableServers);
 
         buttonFixedUndo.setText("Undo");
+        buttonFixedUndo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonFixedUndoActionPerformed(evt);
+            }
+        });
 
         buttonFixedApply.setText("Apply");
+        buttonFixedApply.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonFixedApplyActionPerformed(evt);
+            }
+        });
 
         tableFixedInstances.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Enabed", "Instance", "Port"
+                "Enabed", "Fixed Instance", "Port"
             }
         ) {
             Class[] types = new Class [] {
@@ -462,6 +553,28 @@ public class PanelConfig extends MonitoredPanel {
             }
         });
 
+        buttonServersDel.setText("Delete");
+        buttonServersDel.setEnabled(false);
+        buttonServersDel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonServersDelActionPerformed(evt);
+            }
+        });
+
+        buttonServersUndo.setText("Undo");
+        buttonServersUndo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonServersUndoActionPerformed(evt);
+            }
+        });
+
+        buttonServersApply.setText("Apply");
+        buttonServersApply.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonServersApplyActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout psnelServersLayout = new javax.swing.GroupLayout(psnelServers);
         psnelServers.setLayout(psnelServersLayout);
         psnelServersLayout.setHorizontalGroup(
@@ -469,31 +582,50 @@ public class PanelConfig extends MonitoredPanel {
             .addGroup(psnelServersLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, psnelServersLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                    .addGroup(psnelServersLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(buttonFixedDel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonFixedUndo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonFixedApply)
-                        .addGap(0, 11, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(psnelServersLayout.createSequentialGroup()
+                        .addGroup(psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addGroup(psnelServersLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(buttonServersDel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(buttonServersUndo)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(buttonServersApply)
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())))
         );
+
+        psnelServersLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonFixedApply, buttonFixedDel, buttonFixedUndo});
+
+        psnelServersLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonServersApply, buttonServersDel, buttonServersUndo});
+
         psnelServersLayout.setVerticalGroup(
             psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(psnelServersLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonServersUndo)
+                    .addComponent(buttonServersApply)
+                    .addComponent(buttonServersDel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(psnelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonFixedUndo)
                     .addComponent(buttonFixedApply)
-                    .addComponent(buttonFixedDel))
-                .addContainerGap())
+                    .addComponent(buttonFixedDel)))
         );
 
         splitLeft.setLeftComponent(psnelServers);
@@ -505,14 +637,14 @@ public class PanelConfig extends MonitoredPanel {
 
             },
             new String [] {
-                "Instance", "Name"
+                "Enabled", "Instance", "Name"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
+                java.lang.Boolean.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, true
+                true, false, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -565,16 +697,17 @@ public class PanelConfig extends MonitoredPanel {
             panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInstancesLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(buttonPermDelete)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonPermUndo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonPermApply)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInstancesLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(buttonPermDelete)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonPermUndo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonPermApply)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         panelInstancesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonPermApply, buttonPermDelete, buttonPermUndo});
@@ -583,7 +716,7 @@ public class PanelConfig extends MonitoredPanel {
             panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonPermApply)
@@ -667,13 +800,13 @@ public class PanelConfig extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelConfigurationsLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 5, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 2, Short.MAX_VALUE)
                         .addComponent(buttonConfigNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfigDel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfigEdit)
-                        .addContainerGap(13, Short.MAX_VALUE))
+                        .addContainerGap(10, Short.MAX_VALUE))
                     .addGroup(panelConfigurationsLayout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addContainerGap())))
@@ -684,7 +817,8 @@ public class PanelConfig extends MonitoredPanel {
         panelConfigurationsLayout.setVerticalGroup(
             panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelConfigurationsLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonConfigEdit)
@@ -764,7 +898,6 @@ public class PanelConfig extends MonitoredPanel {
                 .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(panelScriptsLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(buttonScriptNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonScriptDel)
@@ -780,7 +913,7 @@ public class PanelConfig extends MonitoredPanel {
             panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelScriptsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonScriptEdit)
@@ -804,7 +937,7 @@ public class PanelConfig extends MonitoredPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(splitLeft)
-            .addComponent(splitRight, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(splitRight)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -947,13 +1080,19 @@ public class PanelConfig extends MonitoredPanel {
     private void buttonPermDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPermDeleteActionPerformed
         try{
             modelPermanent.removeRow(tablePermanentInstances.getSelectedRow());
+            updateButtons();
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
     }//GEN-LAST:event_buttonPermDeleteActionPerformed
 
     private void buttonFixedDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonFixedDelActionPerformed
-        // TODO add your handling code here:
+        try{
+            modelFixed.removeRow(tableFixedInstances.getSelectedRow());
+            updateButtons();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
     }//GEN-LAST:event_buttonFixedDelActionPerformed
 
     private void tableServersKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableServersKeyReleased
@@ -999,6 +1138,7 @@ public class PanelConfig extends MonitoredPanel {
     private void buttonPermUndoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPermUndoActionPerformed
         try{
             updatePermanent();
+            tablePermanentInstances.requestFocus();
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
@@ -1008,14 +1148,85 @@ public class PanelConfig extends MonitoredPanel {
         try{
             Map<String,String> map = new HashMap<>();
             for (int i=0; i<modelPermanent.getRowCount();i++){
-                map.put((String)modelPermanent.getValueAt(i, 0), (String)modelPermanent.getValueAt(i, 1));
+                Boolean enabled = (Boolean)modelPermanent.getValueAt(i, 0);
+                String instance = (String)modelPermanent.getValueAt(i, 1);
+                String name = (String)modelPermanent.getValueAt(i, 2);
+                if (!enabled){
+                    instance="#"+instance;
+                }
+                map.put(instance, name);
             }
             proxy.setPemanentInstances(map);
             updatePermanent();
+            tablePermanentInstances.requestFocus();
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
     }//GEN-LAST:event_buttonPermApplyActionPerformed
+
+    private void buttonFixedUndoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonFixedUndoActionPerformed
+        updateFixed();
+        tableFixedInstances.requestFocus();
+    }//GEN-LAST:event_buttonFixedUndoActionPerformed
+
+    private void buttonServersUndoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonServersUndoActionPerformed
+        updateServers();
+        tableServers.requestFocus();
+    }//GEN-LAST:event_buttonServersUndoActionPerformed
+
+    private void buttonFixedApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonFixedApplyActionPerformed
+        try{
+            List<String> fixed = new ArrayList<>();
+            for (int i=0; i<modelFixed.getRowCount();i++){
+                Boolean enabled = (Boolean)modelFixed.getValueAt(i, 0);
+                String instance = (String)modelFixed.getValueAt(i, 1);
+                String port = ((String)modelFixed.getValueAt(i, 2));
+                if (!enabled){
+                    instance="#"+instance;
+                }
+                if (!port.isBlank()){
+                    instance = instance + ":" + port;
+                }                
+                fixed.add(instance);
+            }
+                        
+            Map cfg = (Map) serverCfg.get(currentServer);                       
+            cfg.put("instances", fixed);            
+            proxy.setConfig(serverCfg);
+            updateServers().join();
+            selectServer(currentServer);
+            tableFixedInstances.requestFocus();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_buttonFixedApplyActionPerformed
+
+    private void buttonServersApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonServersApplyActionPerformed
+        try{
+            for (int i=0; i<modelServers.getRowCount();i++){
+                Boolean enabled = (Boolean)modelServers.getValueAt(i, 0);
+                String server = (String)modelServers.getValueAt(i, 1);
+                Boolean expanding = ((Boolean)modelServers.getValueAt(i, 2));      
+                Map cfg = (Map) serverCfg.get(server);
+                cfg.put("enabled", enabled);
+                cfg.put("expanding", expanding);
+                proxy.setConfig(serverCfg);
+                updateServers();
+                tableServers.requestFocus();        
+            }
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }        
+    }//GEN-LAST:event_buttonServersApplyActionPerformed
+
+    private void buttonServersDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonServersDelActionPerformed
+        try{
+            modelServers.removeRow(tableServers.getSelectedRow());
+            updateButtons();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_buttonServersDelActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1031,6 +1242,9 @@ public class PanelConfig extends MonitoredPanel {
     private javax.swing.JButton buttonScriptDel;
     private javax.swing.JButton buttonScriptEdit;
     private javax.swing.JButton buttonScriptNew;
+    private javax.swing.JButton buttonServersApply;
+    private javax.swing.JButton buttonServersDel;
+    private javax.swing.JButton buttonServersUndo;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
