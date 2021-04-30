@@ -113,6 +113,36 @@ public class App {
     static String expandUserHome(String folder) {
         return folder.replaceFirst("^~", System.getProperty("user.home"));
     }
+    
+    public static String getCameraProxy() {
+        String url = "localhost";
+        if (hasArgument("camera_proxy")){
+            url = getArgumentValue("camera_proxy");
+        }
+        if (url.startsWith("http://")){            
+            url = url.substring(7);
+        }
+        if (!url.contains(":")){
+            url = url + ":8888";
+        }
+        url = "http://" + url;
+        return url;        
+    }    
+
+        public static String getPipelineProxy() {
+        String url = "localhost";
+        if (hasArgument("pipeline_proxy")){
+            url = getArgumentValue("pipeline_proxy");
+        }
+        if (url.startsWith("http://")){
+            url = url.substring(7);
+        }
+        if (!url.contains(":")){
+            url = url + ":8889";
+        }
+        url = "http://" + url;
+        return url;        
+    }    
 
     static void printStartupMessage() {
         System.out.println("CamServer Management Console");
@@ -126,6 +156,8 @@ public class App {
     static void printHelpMessage() {
         System.out.println("Usage: csm [-arg[=value]] filename");
         System.out.println("Arguments: ");
+        System.out.println("\t-camera_proxy=<address[:port]>\tURL of the camera proxy");
+        System.out.println("\t-pipeline_proxy=<address[:port]>\tURL of the pipeline proxy");
         System.out.println("\t-?\t\tPrint this help message");
         System.out.println("\n");
     }
