@@ -1,5 +1,7 @@
 package ch.psi.csm;
 
+import java.util.logging.Logger;
+
 /**
  *
  */
@@ -14,6 +16,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         initComponents();
         instance = this;
         setTitle("CamServer Management Console");
+        loggerPanel.start();
     }
         
     /**
@@ -21,8 +24,9 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
      */
     @Override
     protected void onCreate() {
+        Logger.getLogger(MainFrame.class.getName()).info("Startup");
         panelCameras.setUrl(App.getCameraProxy());
-        panelPipelines.setUrl(App.getPipelineProxy());    
+        panelPipelines.setUrl(App.getPipelineProxy());            
     }
 
     /**
@@ -82,6 +86,9 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         panelPipelines = new ch.psi.csm.PanelServer();
         jPanel2 = new javax.swing.JPanel();
         panelCameras = new ch.psi.csm.PanelServer();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        loggerPanel = new ch.psi.utils.swing.LoggerPanel();
 
         jToolBar1.setRollover(true);
 
@@ -97,7 +104,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPipelines, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
+            .addComponent(panelPipelines, javax.swing.GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Pipelines", jPanel1);
@@ -110,10 +117,38 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelCameras, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
+            .addComponent(panelCameras, javax.swing.GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Cameras", jPanel2);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 774, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 523, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("DataBuffer", jPanel3);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(loggerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 774, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(loggerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
+                .addGap(0, 0, 0))
+        );
+
+        jTabbedPane1.addTab("Logs", jPanel4);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -132,9 +167,12 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
+    private ch.psi.utils.swing.LoggerPanel loggerPanel;
     private ch.psi.csm.PanelServer panelCameras;
     private ch.psi.csm.PanelServer panelPipelines;
     // End of variables declaration//GEN-END:variables
