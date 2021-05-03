@@ -12,6 +12,7 @@ import ch.psi.utils.swing.TextEditor;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -267,14 +268,24 @@ public class PanelStatus extends MonitoredPanel {
             infoDialog.update(instanceInfo);        
         }
     }
+   
     
-
     static boolean isPush(Map instanceData){
+        if (instanceData==null){
+            return false;
+        }
         Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
         return cfg.getOrDefault("mode", "").equals("PUSH") || cfg.getOrDefault("pipeline_type", "").equals("store");
     }
+
+    Map getInstanceCfg(String instance){
+        return instanceInfo.get(instance);
+    } 
     
-    
+    boolean isPush(String instance){
+        return isPush((Map)getInstanceCfg(instance));
+    }    
+        
     String searchString;
     String searchInstance;
     void onSearch(){

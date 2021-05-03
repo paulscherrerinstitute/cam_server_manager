@@ -45,8 +45,7 @@ public class ScriptEditor extends StandardDialog {
         editorPane.getMargin().left = 3;                            
         scrollPane = new RTextScrollPane(editorPane);
         scrollPane.setLineNumbersEnabled(true);
-        
-        
+                
         panel.add(scrollPane);
         Theme theme;
         try {
@@ -62,6 +61,15 @@ public class ScriptEditor extends StandardDialog {
         this.setLocationRelativeTo(parent);
     }
     
+
+    public void setReadOnly(boolean value){
+        editorPane.setEditable(!value);
+        buttonOk.setVisible(!value);
+    }
+
+    public boolean isReadOnly(){
+        return !editorPane.isEditable();
+    }
     
 
     /**

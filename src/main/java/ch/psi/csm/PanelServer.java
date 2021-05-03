@@ -2,6 +2,7 @@
 package ch.psi.csm;
 
 import ch.psi.camserver.ProxyClient;
+import java.util.Map;
 
 /**
  *
@@ -12,7 +13,7 @@ public class PanelServer extends javax.swing.JPanel {
     
     public PanelServer() {
         initComponents();
-        setPipeline(false);
+        setPipeline(false);        
     }
     
     public void setUrl(String url){
@@ -30,6 +31,7 @@ public class PanelServer extends javax.swing.JPanel {
         this.proxy = proxy;
         panelStatus.setProxy(proxy);
         panelConfig.setProxy(proxy);
+        panelCreation.setProxy(proxy);
     }
     
     public ProxyClient getProxy(){
@@ -44,7 +46,17 @@ public class PanelServer extends javax.swing.JPanel {
    public void setPipeline(boolean value){
        panelStatus.setPipeline(value);
        panelConfig.setPipeline(value);
+       panelCreation.setPipeline(value);
    }
+   
+   
+    public Map getInstanceCfg(String instance){
+        return panelStatus.getInstanceCfg(instance);
+    } 
+    
+    public boolean isPush(String instance){
+        return panelStatus.isPush(instance);
+    }    
    
     /**
      * This method is called from within the constructor to initialize the form.
@@ -58,9 +70,11 @@ public class PanelServer extends javax.swing.JPanel {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         panelStatus = new ch.psi.csm.PanelStatus();
         panelConfig = new ch.psi.csm.PanelConfig();
+        panelCreation = new ch.psi.csm.PanelCreation();
 
         jTabbedPane1.addTab("Status", panelStatus);
         jTabbedPane1.addTab("Config", panelConfig);
+        jTabbedPane1.addTab("Creation", panelCreation);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -68,11 +82,11 @@ public class PanelServer extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 637, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 625, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -80,6 +94,7 @@ public class PanelServer extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane jTabbedPane1;
     private ch.psi.csm.PanelConfig panelConfig;
+    private ch.psi.csm.PanelCreation panelCreation;
     private ch.psi.csm.PanelStatus panelStatus;
     // End of variables declaration//GEN-END:variables
 }

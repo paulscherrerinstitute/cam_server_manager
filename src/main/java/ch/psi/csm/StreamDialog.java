@@ -1,60 +1,23 @@
 package ch.psi.csm;
 
-import ch.psi.bsread.Stream;
-import ch.psi.bsread.StreamValue;
-import ch.psi.utils.Str;
 import ch.psi.utils.swing.StandardDialog;
-import ch.psi.utils.swing.SwingUtils;
-import javax.swing.table.DefaultTableModel;
-import org.zeromq.ZMQ;
 
 /**
  *
  */
 public class StreamDialog extends StandardDialog {
 
-    final String address;
-    final DefaultTableModel model;
-
     public StreamDialog(java.awt.Frame parent, boolean modal, String address, boolean pull) {
         super(parent, modal);
         initComponents();
-        this.address = address;
-        model = (DefaultTableModel) table.getModel();
         this.setLocationRelativeTo(parent);
         this.setTitle("Stream Inspector");
-        if (pull) {
-            comboProtocol.setSelectedIndex(1);
-        }
+        panel.configure(address, pull, false);
     }
 
     @Override
     protected void onShow() {
-        textAddress.setText(address);
-        update();
-    }
-
-    void update() {
-        model.setRowCount(0);
-        buttonUpdate.setEnabled(false);
-        comboProtocol.setEnabled(false);
-        new Thread(() -> {
-            try (Stream st = new Stream(address, (comboProtocol.getSelectedIndex() == 1) ? ZMQ.PULL : ZMQ.SUB)) {
-                st.start();
-                StreamValue sv = st.read(5000);
-                for (String key : sv.getKeys()) {
-                    Object val = sv.getValue(key);
-                    String type = val.getClass().getTypeName();
-                    model.addRow(new Object[]{key, type, Str.toString(val, 10)});
-                }
-
-            } catch (Exception ex) {
-                SwingUtils.showException(StreamDialog.this, ex);
-            } finally {
-                buttonUpdate.setEnabled(true);
-                comboProtocol.setEnabled(true);
-            }
-        }).start();
+        panel.update();
     }
 
     /**
@@ -66,56 +29,9 @@ public class StreamDialog extends StandardDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        textAddress = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        table = new javax.swing.JTable();
-        buttonUpdate = new javax.swing.JButton();
-        comboProtocol = new javax.swing.JComboBox<>();
+        panel = new ch.psi.csm.StreamPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        jLabel1.setText("Address:");
-
-        textAddress.setEditable(false);
-
-        jLabel2.setText("Protocol:");
-
-        table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Channel", "Type", "Value"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        table.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(table);
-
-        buttonUpdate.setText("Update");
-        buttonUpdate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonUpdateActionPerformed(evt);
-            }
-        });
-
-        comboProtocol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SUB", "PULL" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -123,38 +39,19 @@ public class StreamDialog extends StandardDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(textAddress)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(comboProtocol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonUpdate)
+                .addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 581, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(textAddress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(buttonUpdate)
-                    .addComponent(comboProtocol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-                .addGap(0, 0, 0))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void buttonUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonUpdateActionPerformed
-        update();
-    }//GEN-LAST:event_buttonUpdateActionPerformed
 
     /**
      * @param args the command line arguments
@@ -199,12 +96,6 @@ public class StreamDialog extends StandardDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton buttonUpdate;
-    private javax.swing.JComboBox<String> comboProtocol;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable table;
-    private javax.swing.JTextField textAddress;
+    private ch.psi.csm.StreamPanel panel;
     // End of variables declaration//GEN-END:variables
 }
