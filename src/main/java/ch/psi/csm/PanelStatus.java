@@ -296,10 +296,10 @@ public class PanelStatus extends MonitoredPanel {
                 for (String instance:instanceInfo.keySet()){
                     if (instance.toLowerCase().contains(str)){
                         Map instanceData = instanceInfo.get(instance);
-                        String server = Str.toString(instanceData.getOrDefault("host", "")).replace("htttp://","").toLowerCase();
+                        String server = Str.toString(instanceData.getOrDefault("host", "")).replace("http://","").toLowerCase();
                         System.out.println(server);
                         for (int i=0; i<model.getRowCount();i++){
-                            if (Str.toString(model.getValueAt(i, 0)).replace("htttp://","").toLowerCase().equals(server)){
+                            if (Str.toString(model.getValueAt(i, 0)).replace("http://","").toLowerCase().equals(server)){
                                 table.setRowSelectionInterval(i, i);
                                 searchInstance = instance;
                                 updateControls();
@@ -307,7 +307,7 @@ public class PanelStatus extends MonitoredPanel {
                             }
                         }
                     }
-                }
+                }                              
             }
             searchInstance = null;
             table.clearSelection();
