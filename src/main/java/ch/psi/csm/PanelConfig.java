@@ -231,17 +231,19 @@ public class PanelConfig extends MonitoredPanel {
             return;
         }
         
+        boolean expert = App.isExpert();
+        
         buttonScriptEdit.setEnabled(tableUserScripts.getSelectedRow()>=0);      
-        buttonScriptDel.setEnabled(tableUserScripts.getSelectedRow()>=0);      
-        buttonConfigDel.setEnabled(tableConfigurations.getSelectedRow()>=0);
+        buttonScriptDel.setEnabled(expert && (tableUserScripts.getSelectedRow()>=0));      
+        buttonConfigDel.setEnabled(expert && (tableConfigurations.getSelectedRow()>=0));
         buttonConfigEdit.setEnabled(tableConfigurations.getSelectedRow()>=0);
-        buttonFixedDel.setEnabled(tableFixedInstances.getSelectedRow()>=0);
+        buttonFixedDel.setEnabled(expert && (tableFixedInstances.getSelectedRow()>=0));
         buttonFixedApply.setEnabled(modelFixedChanged);
         buttonFixedUndo.setEnabled(modelFixedChanged);
-        buttonPermDelete.setEnabled(tablePermanentInstances.getSelectedRow()>=0);
+        buttonPermDelete.setEnabled(expert && (tablePermanentInstances.getSelectedRow()>=0));
         buttonPermApply.setEnabled(modelPermanentChanged);
         buttonPermUndo.setEnabled(modelPermanentChanged);
-        //buttonServersDel.setEnabled(tableServers.getSelectedRow()>=0);
+        buttonServersDel.setEnabled(expert && (tableServers.getSelectedRow()>=0));
         buttonServersApply.setEnabled(modelServersChanged);
         buttonServersUndo.setEnabled(modelServersChanged);
         buttonFixedCamUndo.setEnabled(modelFixedCamsChanged);
@@ -558,7 +560,6 @@ public class PanelConfig extends MonitoredPanel {
         jScrollPane4.setViewportView(tableServers);
 
         buttonServersDel.setText("Delete");
-        buttonServersDel.setEnabled(false);
         buttonServersDel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonServersDelActionPerformed(evt);
@@ -695,14 +696,15 @@ public class PanelConfig extends MonitoredPanel {
         panelFixedCamerasLayout.setHorizontalGroup(
             panelFixedCamerasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelFixedCamerasLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(buttonFixedCamUndo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonFixedCamApply)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(panelFixedCamerasLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
+                .addGroup(panelFixedCamerasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelFixedCamerasLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(buttonFixedCamUndo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonFixedCamApply)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelFixedCamerasLayout.setVerticalGroup(

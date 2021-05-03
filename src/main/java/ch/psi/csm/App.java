@@ -129,7 +129,7 @@ public class App {
         return url;        
     }    
 
-        public static String getPipelineProxy() {
+    public static String getPipelineProxy() {
         String url = "localhost";
         if (hasArgument("pipeline_proxy")){
             url = getArgumentValue("pipeline_proxy");
@@ -143,6 +143,10 @@ public class App {
         url = "http://" + url;
         return url;        
     }    
+    
+    public static boolean isExpert() {
+         return hasArgument("expert");
+    }
 
     static void printStartupMessage() {
         System.out.println("CamServer Management Console");
