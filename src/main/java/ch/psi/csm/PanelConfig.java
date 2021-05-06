@@ -234,13 +234,13 @@ public class PanelConfig extends MonitoredPanel {
         boolean expert = App.isExpert();
         
         buttonScriptEdit.setEnabled(tableUserScripts.getSelectedRow()>=0);      
-        buttonScriptDel.setEnabled(expert && (tableUserScripts.getSelectedRow()>=0));      
-        buttonConfigDel.setEnabled(expert && (tableConfigurations.getSelectedRow()>=0));
+        buttonScriptDel.setEnabled(tableUserScripts.getSelectedRow()>=0);      
+        buttonConfigDel.setEnabled(tableConfigurations.getSelectedRow()>=0);
         buttonConfigEdit.setEnabled(tableConfigurations.getSelectedRow()>=0);
-        buttonFixedDel.setEnabled(expert && (tableFixedInstances.getSelectedRow()>=0));
+        buttonFixedDel.setEnabled(tableFixedInstances.getSelectedRow()>=0);
         buttonFixedApply.setEnabled(modelFixedChanged);
         buttonFixedUndo.setEnabled(modelFixedChanged);
-        buttonPermDelete.setEnabled(expert && (tablePermanentInstances.getSelectedRow()>=0));
+        buttonPermDelete.setEnabled((tablePermanentInstances.getSelectedRow()>=0));
         buttonPermApply.setEnabled(modelPermanentChanged);
         buttonPermUndo.setEnabled(modelPermanentChanged);
         buttonServersDel.setEnabled(expert && (tableServers.getSelectedRow()>=0));
