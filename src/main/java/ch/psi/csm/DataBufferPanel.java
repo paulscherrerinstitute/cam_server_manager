@@ -1,14 +1,11 @@
 package ch.psi.csm;
 
-import ch.psi.bsread.DataBuffer;
 import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -201,9 +198,11 @@ public class DataBufferPanel extends MonitoredPanel {
     private void buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonActionPerformed
         try{
             String camera = Str.toString(model.getValueAt(table.getSelectedRow(), 0));
-            DataBuffer.reconnectCameraSources(camera);                        
+            String ret = DataBuffer.reconnectCameraSources(camera);                        
+            showScrollableMessage( "Success", "Success reconnecting camera sources: " + camera, ret);
         } catch (Exception ex){
-            Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);      
+            Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
+            showException(ex);
         }
     }//GEN-LAST:event_buttonActionPerformed
 

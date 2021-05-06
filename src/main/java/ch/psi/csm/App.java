@@ -147,6 +147,14 @@ public class App {
     public static boolean isExpert() {
          return hasArgument("expert");
     }
+    
+    
+    public static String getDataBufferSourcesRepo(){
+        if ( hasArgument("dbsr")){
+            return getArgumentValue("dbsr");
+        }
+        return "https://git.psi.ch/archiver_config/sf_databuffer.git";
+    }
 
     static void printStartupMessage() {
         System.out.println("CamServer Management Console");
