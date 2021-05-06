@@ -24,6 +24,7 @@ import javax.swing.WindowConstants;
 import ch.psi.utils.swing.SwingUtils.OptionResult;
 import ch.psi.utils.swing.SwingUtils.OptionType;
 import java.applet.Applet;
+import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -45,6 +46,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -323,6 +328,14 @@ public abstract class MainFrame extends JFrame {
         SwingUtils.showScrollableMessage(this, title, description, message);
     }    
 
+    public JDialog showSplash(final Component parent, String title,  Dimension size, String message){
+        return SwingUtils.showSplash(this, title, size, message);
+    }    
+    
+    public JDialog showSplash(final Component parent, String title,  Dimension size, JPanel panel){
+        return SwingUtils.showSplash(this, title, size, panel);
+    } 
+    
     public void showException(Exception ex) {
         SwingUtils.showException(this, ex);
     }
@@ -343,6 +356,22 @@ public abstract class MainFrame extends JFrame {
         return SwingUtils.getString(this, msg, current);
     }
 
+    public String getPassword(Component parent, String title, String msg) {
+        return SwingUtils.getPassword(this, title, msg);
+    }
+
+    public Object getEnum(Component parent, String msg, Class type, Object current) {
+        return SwingUtils.getEnum(this, msg,  type, current);
+    }
+    
+    public JDialog showDialog(String title, Dimension size, JComponent content) {
+        return SwingUtils.showDialog(this, title, size, content);
+    }
+    
+    public JFrame showFrame(String title, Dimension size, JComponent content) {
+        return SwingUtils.showFrame(this, title, size, content);
+    }         
+    
     //LAF
     public static String getNimbusLookAndFeel() {
         return SwingUtils.getNimbusLookAndFeel();

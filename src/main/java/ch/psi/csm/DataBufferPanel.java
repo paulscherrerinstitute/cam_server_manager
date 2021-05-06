@@ -4,12 +4,18 @@ import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
+import ch.psi.utils.swing.SwingUtils;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
@@ -87,7 +93,7 @@ public class DataBufferPanel extends MonitoredPanel {
         t.start();
         return t;
     }    
-    
+        
     @Override
     protected void onShow(){
         updateCameras();
@@ -206,7 +212,14 @@ public class DataBufferPanel extends MonitoredPanel {
     private void buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonActionPerformed
         try{
             String camera = Str.toString(model.getValueAt(table.getSelectedRow(), 0));
-            String ret = DataBuffer.reconnectCameraSources(camera);                        
+            String ret = "";
+            JDialog dialogMessage = showSplash("Data Buffer", new Dimension(400,200), "Reconnecting camera sources...");
+            try{
+                ret = DataBuffer.reconnectCameraSources(camera);                        
+            } finally{
+                dialogMessage.setVisible(false);
+            }
+                        
             showScrollableMessage( "Success", "Success reconnecting camera sources: " + camera, ret);
         } catch (Exception ex){
             Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     

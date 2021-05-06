@@ -79,8 +79,7 @@ public class DataBuffer {
             builder.append(line).append(Sys.getLineSeparator());
         }
         String output = builder.toString();
-        return  output;
-        
+        return  output;        
     }
     
     
