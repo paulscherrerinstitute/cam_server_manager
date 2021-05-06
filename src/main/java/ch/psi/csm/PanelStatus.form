@@ -16,8 +16,14 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="proxyPanel" max="32767" attributes="0"/>
-          <Component id="split" max="32767" attributes="0"/>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="split" max="32767" attributes="0"/>
+                  <Component id="proxyPanel" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -25,8 +31,8 @@
           <Group type="102" alignment="0" attributes="0">
               <Component id="proxyPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
-              <Component id="split" pref="332" max="32767" attributes="0"/>
-              <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+              <Component id="split" pref="326" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -98,7 +104,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Search:"/>
+            <Property name="text" type="java.lang.String" value="Search Instance:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="textSearch">
@@ -110,6 +116,9 @@
     </Container>
     <Container class="javax.swing.JSplitPane" name="split">
       <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="null"/>
+        </Property>
         <Property name="dividerSize" type="int" value="4"/>
         <Property name="orientation" type="int" value="0"/>
         <Property name="resizeWeight" type="double" value="0.5"/>
@@ -136,7 +145,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane3" pref="470" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" pref="462" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="buttonRead" linkSize="3" min="-2" pref="100" max="-2" attributes="0"/>
@@ -306,7 +315,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="470" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="462" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="103" alignment="0" groupAlignment="0" attributes="0">

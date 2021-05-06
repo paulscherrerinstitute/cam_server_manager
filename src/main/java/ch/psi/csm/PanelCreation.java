@@ -95,6 +95,7 @@ public class PanelCreation extends MonitoredPanel {
             return;
         }        
         butttonCreateFromName.setEnabled( (currentConfig != null) &&  (!currentConfig.isBlank()) );
+        butttonCreateFromConfig.setEnabled(!textInstance.getText().isBlank());
     }
     
     
@@ -185,7 +186,7 @@ public class PanelCreation extends MonitoredPanel {
         textInstance = new javax.swing.JTextField();
         buttonStop = new javax.swing.JButton();
 
-        panelConfigurations.setBorder(javax.swing.BorderFactory.createTitledBorder("Configurations"));
+        panelConfigurations.setBorder(javax.swing.BorderFactory.createTitledBorder("Saved Configurations"));
         panelConfigurations.setPreferredSize(new java.awt.Dimension(320, 320));
 
         tableConfigurations.setModel(new javax.swing.table.DefaultTableModel(
@@ -231,7 +232,7 @@ public class PanelCreation extends MonitoredPanel {
             panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelConfigurationsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 555, Short.MAX_VALUE)
+                .addComponent(jScrollPane2)
                 .addContainerGap())
         );
         panelConfigurationsLayout.setVerticalGroup(
@@ -244,14 +245,14 @@ public class PanelCreation extends MonitoredPanel {
 
         streamPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Stream"));
 
-        butttonCreateFromName.setText("Create from Name");
+        butttonCreateFromName.setText("Create from Saved Config");
         butttonCreateFromName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 butttonCreateFromNameActionPerformed(evt);
             }
         });
 
-        butttonCreateFromConfig.setText("Create from Config...");
+        butttonCreateFromConfig.setText("Create with Config Editor...");
         butttonCreateFromConfig.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 butttonCreateFromConfigActionPerformed(evt);
@@ -259,6 +260,18 @@ public class PanelCreation extends MonitoredPanel {
         });
 
         jLabel1.setText("Instance name:");
+
+        textInstance.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        textInstance.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                textInstanceMouseReleased(evt);
+            }
+        });
+        textInstance.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                textInstanceKeyReleased(evt);
+            }
+        });
 
         buttonStop.setText("Stop Instance");
         buttonStop.setEnabled(false);
@@ -272,24 +285,26 @@ public class PanelCreation extends MonitoredPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(streamPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(butttonCreateFromName)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                                 .addComponent(jLabel1))
                             .addComponent(butttonCreateFromConfig))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(buttonStop)
-                            .addComponent(textInstance, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap())
-                    .addComponent(panelConfigurations, javax.swing.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)))
+                            .addComponent(textInstance, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(streamPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(panelConfigurations, javax.swing.GroupLayout.DEFAULT_SIZE, 573, Short.MAX_VALUE))))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonStop, butttonCreateFromConfig, butttonCreateFromName, textInstance});
@@ -308,7 +323,8 @@ public class PanelCreation extends MonitoredPanel {
                     .addComponent(buttonStop)
                     .addComponent(butttonCreateFromConfig))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(streamPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 286, Short.MAX_VALUE))
+                .addComponent(streamPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -408,6 +424,14 @@ public class PanelCreation extends MonitoredPanel {
             tableConfigurations.clearSelection();
         }
     }//GEN-LAST:event_buttonStopActionPerformed
+
+    private void textInstanceMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textInstanceMouseReleased
+        updateButtons();
+    }//GEN-LAST:event_textInstanceMouseReleased
+
+    private void textInstanceKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textInstanceKeyReleased
+        updateButtons();
+    }//GEN-LAST:event_textInstanceKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
