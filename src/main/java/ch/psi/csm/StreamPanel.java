@@ -122,10 +122,10 @@ public class StreamPanel extends MonitoredPanel implements StreamListener {
         model.setNumRows(keys.size());
         for (String key : keys) {
             Object val = sv.getValue(key);
-            String size="1";
+            String size="";
             if (val instanceof String){
                 size = String.valueOf(((String)val).length());
-            } else {
+            } else if (val.getClass().isArray()){
                 int[] shape = Arr.getShape(val);
                 size = Convert.arrayToString(shape, " x ");
             }

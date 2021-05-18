@@ -27,6 +27,7 @@ public class DataBufferPanel extends MonitoredPanel {
     ProxyClient proxy;
     Set<String> permanentPipelineCameras = new HashSet<>();
     final DefaultTableModel model;
+    volatile boolean running = false;
 
     public DataBufferPanel() {
         initComponents();
@@ -59,7 +60,7 @@ public class DataBufferPanel extends MonitoredPanel {
             SwingUtilities.invokeLater(()->{updateButtons();});
             return;
         }        
-        button.setEnabled(table.getSelectedRow()>=0);
+        button.setEnabled((table.getSelectedRow()>=0) && (running==false));
     }
     
     Thread updateCameras(){
@@ -211,16 +212,23 @@ public class DataBufferPanel extends MonitoredPanel {
 
     private void buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonActionPerformed
         try{
-            String camera = Str.toString(model.getValueAt(table.getSelectedRow(), 0));
-            String ret = "";
-            JDialog dialogMessage = showSplash("Data Buffer", new Dimension(400,200), "Reconnecting camera sources...");
-            try{
-                ret = DataBuffer.reconnectCameraSources(camera);                        
-            } finally{
-                dialogMessage.setVisible(false);
-            }
-                        
-            showScrollableMessage( "Success", "Success reconnecting camera sources: " + camera, ret);
+            String camera = Str.toString(model.getValueAt(table.getSelectedRow(), 0));            
+            JDialog dialogMessage = showSplash("Data Buffer", new Dimension(500,200), "Reconnecting camera sources: " + camera);
+            running=true;
+            updateButtons();            
+            new Thread(()->{
+                try{                    
+                    String ret = DataBuffer.reconnectCameraSources(camera);          
+                    showScrollableMessage( "Success", "Success reconnecting camera sources: " + camera, ret);
+                } catch (Exception ex){
+                    Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
+                    showException(ex);                    
+                } finally{
+                    dialogMessage.setVisible(false);
+                    running = false;
+                    updateButtons();
+                }                
+            }).start();                                    
         } catch (Exception ex){
             Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
             showException(ex);
