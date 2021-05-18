@@ -80,8 +80,8 @@ public class PanelStatus extends MonitoredPanel {
             centerRenderer.setHorizontalAlignment( JLabel.CENTER );
             tableInstances.getColumnModel().getColumn(i).setCellRenderer( centerRenderer );
         }       
-        table.getColumnModel().getColumn(0).setPreferredWidth(210);
-        tableInstances.getColumnModel().getColumn(0).setPreferredWidth(210);
+        table.getColumnModel().getColumn(0).setPreferredWidth(230);
+        tableInstances.getColumnModel().getColumn(0).setPreferredWidth(230);
     }
     
     public void setProxy(ProxyClient proxy){
