@@ -17,24 +17,34 @@ public class InfoDialog extends StandardDialog {
 
     final DefaultTreeModel model;
     String currentInstance;
+    boolean changed;
     
     public InfoDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         this.setLocationRelativeTo(parent);
-        this.setTitle("Instance Info");
+        setInstance(null);
         model =(DefaultTreeModel) tree.getModel();  
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     }
     
-    void setInstance(String name){
-        this.setTitle("Info: " + name);
-        currentInstance = name;
+    void setInstance(String name){        
+        if ((name==null) || !name.equals(currentInstance)){
+            this.setTitle((name==null)?  "Instance Info"  :name);
+            currentInstance = name;
+            changed = true;
+        }
     }
     
     void update(Map<String,Map<String, Object>> instanceInfo){
         boolean instanceSelected = (currentInstance !=null) && (instanceInfo!=null);
         DefaultMutableTreeNode root = ((DefaultMutableTreeNode)model.getRoot());        
+        if (changed){
+            root.removeAllChildren();
+            root.setUserObject("");
+            model.nodeStructureChanged(root);
+            changed = false;
+        }
         if (instanceSelected){
             root.setUserObject(currentInstance);
             DefaultMutableTreeNode statistics;
@@ -75,31 +85,32 @@ public class InfoDialog extends StandardDialog {
             mode.setUserObject(PanelStatus.isPush(instanceData) ? "PUSH" : "PUB");                      
             
             Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());            
-            if (cfg.size()<config.getChildCount()){
-                config.removeAllChildren();
+            if (config.getChildCount() != cfg.size()){
+                while (config.getChildCount() > cfg.size()){
+                    config.remove(config.getChildCount() -1);                    
+                }
+                while (config.getChildCount() < cfg.size()){
+                    config.add(new DefaultMutableTreeNode()); 
+                }
                 model.nodeStructureChanged(config);
             }
             int index = 0;
             for (Object key : cfg.keySet()){
-                if (index>=config.getChildCount()){
-                    config.add(new DefaultMutableTreeNode()); 
-                    model.nodeStructureChanged(config);
-                }
                 ((DefaultMutableTreeNode)config.getChildAt(index++)).setUserObject(Str.toString(key) + ": " + Str.toString(cfg.get(key)));                 
             }              
             
             Map stats = (Map) instanceData.getOrDefault("statistics", new HashMap());                     
-            if (stats.size()<statistics.getChildCount()){
-                statistics.removeAllChildren();
+            if (statistics.getChildCount() != stats.size()){
+                while (statistics.getChildCount() > stats.size()){
+                    statistics.remove(statistics.getChildCount() -1);                    
+                }
+                while (statistics.getChildCount() < stats.size()){
+                    statistics.add(new DefaultMutableTreeNode()); 
+                }
                 model.nodeStructureChanged(statistics);
             }
-            
             index = 0;
             for (Object key : stats.keySet()){
-                if (index>=statistics.getChildCount()){
-                    statistics.add(new DefaultMutableTreeNode()); 
-                    model.nodeStructureChanged(statistics);
-                }
                 ((DefaultMutableTreeNode)statistics.getChildAt(index++)).setUserObject(Str.toString(key) + ": " + PanelStatus.getDisplayValue(stats.get(key)));                 
             }              
             model.nodeChanged(root);
@@ -107,7 +118,7 @@ public class InfoDialog extends StandardDialog {
             root.removeAllChildren();
             root.setUserObject("");
             model.nodeStructureChanged(root);
-        }                
+        }             
     }
 
 

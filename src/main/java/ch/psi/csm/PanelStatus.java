@@ -266,11 +266,14 @@ public class PanelStatus extends MonitoredPanel {
         } catch (Exception ex){
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }     
-
-        if ((infoDialog!=null) &&  infoDialog.isShowing()){
-            infoDialog.setInstance(currentInstance);        
-            infoDialog.update(instanceInfo);        
-        }
+        try{
+            if ((infoDialog!=null) &&  infoDialog.isShowing()){
+                infoDialog.setInstance(currentInstance);        
+                infoDialog.update(instanceInfo);        
+            }
+        } catch (Exception ex){
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+        }          
     }
    
     
