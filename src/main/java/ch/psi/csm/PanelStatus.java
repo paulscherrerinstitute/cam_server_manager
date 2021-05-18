@@ -167,14 +167,15 @@ public class PanelStatus extends MonitoredPanel {
                 String memory = getDisplayValue(info.get("memory"));
                 String tx = getDisplayValue(info.get("tx")); 
                 String rx = getDisplayValue(info.get("rx")); 
-                //String instances =  String.valueOf(info.get("instances"));                
-                model.setValueAt(url, i, 0);
-                model.setValueAt(version, i, 1);
-                model.setValueAt(load, i, 2);
-                model.setValueAt(cpu, i, 3);
-                model.setValueAt(memory, i, 4);
-                model.setValueAt(tx, i, 5);
-                model.setValueAt(rx, i, 6);                
+                //String instances =  String.valueOf(info.get("instances"));       
+                int col=0;
+                model.setValueAt(url, i, col++);
+                model.setValueAt(version, i, col++);
+                model.setValueAt(load, i, col++);
+                model.setValueAt(rx, i, col++);                
+                model.setValueAt(tx, i, col++);
+                model.setValueAt(cpu, i, col++);
+                model.setValueAt(memory, i, col++);
                 serverInfo.put(url, info);
             }   
             updateControls();
@@ -227,17 +228,18 @@ public class PanelStatus extends MonitoredPanel {
             }           
             for (int i =0; i< instances.size(); i++){
                 String instanceName = instances.get(i);
-                modelInstances.setValueAt(instanceName, i, 0);  
+                int col=0;
+                modelInstances.setValueAt(instanceName, i, col++);  
                 Map data = instanceInfo.getOrDefault(instanceName, new HashMap());
                 Map stats = (Map) data.getOrDefault("statistics", new HashMap());                     
-                modelInstances.setValueAt(data.getOrDefault("stream_address", ""), i, 1);
-                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("time", "")), i, 2);
-                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("clients", "")), i, 3);
-                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("throughput", "")), i, 4);
-                modelInstances.setValueAt(getDisplayValue(Str.toString(stats.getOrDefault("rx", "")).split(" -")[0]), i, 5);
-                modelInstances.setValueAt(getDisplayValue(Str.toString(stats.getOrDefault("tx", "")).split(" -")[0]), i, 6);
-                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("cpu", "")), i, 7);
-                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("memory", "")), i, 8);
+                //modelInstances.setValueAt(data.getOrDefault("stream_address", ""), i, col++);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("time", "")), i, col++);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("clients", "")), i, col++);
+                //modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("throughput", "")), i, col++);
+                modelInstances.setValueAt(getDisplayValue(Str.toString(stats.getOrDefault("rx", "")).split(" -")[0]), i, col++);
+                modelInstances.setValueAt(getDisplayValue(Str.toString(stats.getOrDefault("tx", "")).split(" -")[0]), i, col++);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("cpu", "")), i, col++);
+                modelInstances.setValueAt(getDisplayValue(stats.getOrDefault("memory", "")), i, col++);
             }
             
             if (searchInstance != null){
@@ -425,14 +427,14 @@ public class PanelStatus extends MonitoredPanel {
 
             },
             new String [] {
-                "Instance", "Stream", "Time", "Clients", "Bps", "RX", "TX", "CPU", "Mem"
+                "Instance", "Time", "Clients", "RX", "TX", "CPU", "Mem"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.String.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -530,7 +532,7 @@ public class PanelStatus extends MonitoredPanel {
 
             },
             new String [] {
-                "Host", "Version", "Load", "CPU", "Memory", "TX", "RX"
+                "Host", "Version", "Load", "RX", "TX", "CPU", "Memory"
             }
         ) {
             boolean[] canEdit = new boolean [] {
