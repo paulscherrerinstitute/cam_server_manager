@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -302,9 +303,19 @@ public class PanelConfig extends MonitoredPanel {
         }
         Thread t = new Thread(()->{
             try {
-                permanentInstances = proxy.getPemanentInstances();
                 modelPermanent.setRowCount(0);
-                for (String config : permanentInstances.keySet()){
+                permanentInstances = proxy.getPemanentInstances();                
+                ArrayList<String> keys = new ArrayList<>(permanentInstances.keySet());
+                Collections.sort(keys, new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        o1 = o1.startsWith("#") ? o1.substring(1) : o1;
+                        o2 = o2.startsWith("#") ? o2.substring(1) : o2;
+                        return o1.compareTo(o2);
+                    }
+                });                
+                for (String config : keys){
+
                     String name = Str.toString(permanentInstances.get(config));
                     boolean enabled = true;
                     if (config.startsWith("#")){

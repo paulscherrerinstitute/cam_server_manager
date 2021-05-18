@@ -416,6 +416,7 @@ public class PanelStatus extends MonitoredPanel {
         split.setResizeWeight(0.5);
 
         panelInstances.setBorder(javax.swing.BorderFactory.createTitledBorder("Instances"));
+        panelInstances.setPreferredSize(new java.awt.Dimension(593, 164));
 
         tableInstances.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -487,7 +488,7 @@ public class PanelStatus extends MonitoredPanel {
             panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
+                .addComponent(jScrollPane3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(buttonRead, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -513,13 +514,14 @@ public class PanelStatus extends MonitoredPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonFunction)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3))
                 .addContainerGap())
         );
 
         split.setBottomComponent(panelInstances);
 
         panelServers.setBorder(javax.swing.BorderFactory.createTitledBorder("Servers"));
+        panelServers.setPreferredSize(new java.awt.Dimension(602, 164));
 
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -577,7 +579,7 @@ public class PanelStatus extends MonitoredPanel {
             panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelServersLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
+                .addComponent(jScrollPane1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -601,7 +603,7 @@ public class PanelStatus extends MonitoredPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonServerStop)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
                 .addContainerGap())
         );
 
