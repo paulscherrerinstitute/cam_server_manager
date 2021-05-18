@@ -3,6 +3,8 @@ package ch.psi.csm;
 import ch.psi.bsread.Stream;
 import ch.psi.bsread.Stream.StreamListener;
 import ch.psi.bsread.StreamValue;
+import ch.psi.utils.Arr;
+import ch.psi.utils.Convert;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
@@ -120,17 +122,26 @@ public class StreamPanel extends MonitoredPanel implements StreamListener {
         model.setNumRows(keys.size());
         for (String key : keys) {
             Object val = sv.getValue(key);
+            String size="1";
+            if (val instanceof String){
+                size = String.valueOf(((String)val).length());
+            } else {
+                int[] shape = Arr.getShape(val);
+                size = Convert.arrayToString(shape, " x ");
+            }
+            
             String type = val.getClass().getTypeName();
             if (index>=model.getRowCount()){
-                model.addRow(new Object[]{"","",""});            
+                model.addRow(new Object[]{"","","",""});            
             } else {
                 model.setValueAt(key, index, 0);
                 model.setValueAt(type, index, 1);
-                model.setValueAt(Str.toString(val, 10), index, 2);
+                model.setValueAt(size, index, 2);
+                model.setValueAt(Str.toString(val, 10), index, 3);
             }
             
             index++;
-        }        
+        }  
     }
     
     /**
@@ -155,14 +166,14 @@ public class StreamPanel extends MonitoredPanel implements StreamListener {
 
             },
             new String [] {
-                "Channel", "Type", "Value"
+                "Channel", "Type", "Size", "Value"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {

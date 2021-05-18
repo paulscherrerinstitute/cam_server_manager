@@ -423,7 +423,9 @@ public class PanelConfig extends MonitoredPanel {
         updateServers();
         updateConfigs();
         updatePermanent();
-        updateScripts();
+        if (isPipeline){
+            updateScripts();
+        }
     }
     
         

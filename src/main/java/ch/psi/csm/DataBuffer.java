@@ -54,11 +54,11 @@ public class DataBuffer {
     public static String reconnectCameraSources(String cameraName) throws IOException, InterruptedException, GitAPIException{
         updateDataSourcesRepo();
         Logger.getLogger(DataBuffer.class.getName()).info("Reconnecting camera  to DataBuffer: " + cameraName);
-        String command = "./bufferutils restart --label " + cameraName;
+        //String command = "./bufferutils restart --label " + cameraName;
         
         List<String> pars = new ArrayList<>();
         
-        pars.add("bufferutils");
+        pars.add("./bufferutils");
         pars.add("restart");
         pars.add("--label");        
         pars.add(cameraName);
