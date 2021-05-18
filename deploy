@@ -1,0 +1,4 @@
+#!/bin/bash
+
+scp ./build/libs/* sf-lc:/sf/controls/applications/csm
+
