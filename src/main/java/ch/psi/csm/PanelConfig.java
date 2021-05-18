@@ -90,6 +90,9 @@ public class PanelConfig extends MonitoredPanel {
         tableFixedInstances.getColumnModel().getColumn(2).setPreferredWidth(SMALL_COL_SZIE);
         tableFixedInstances.getColumnModel().getColumn(2).setMaxWidth(SMALL_COL_SZIE);
         tableFixedInstances.getColumnModel().getColumn(2).setResizable(false);                
+        tablePermanentInstances.getColumnModel().getColumn(0).setPreferredWidth(SMALL_COL_SZIE);
+        tablePermanentInstances.getColumnModel().getColumn(0).setMaxWidth(SMALL_COL_SZIE);
+        tablePermanentInstances.getColumnModel().getColumn(0).setResizable(false);
         
         modelPermanent.addTableModelListener((TableModelEvent e) -> {
             modelPermanentChanged=true;
@@ -233,22 +236,22 @@ public class PanelConfig extends MonitoredPanel {
         }
         
         boolean expert = App.isExpert();
-        
+        boolean serverSelected = (tableServers.getSelectedRow()>=0);
         buttonScriptEdit.setEnabled(tableUserScripts.getSelectedRow()>=0);      
         buttonScriptDel.setEnabled(tableUserScripts.getSelectedRow()>=0);      
         buttonConfigDel.setEnabled(tableConfigurations.getSelectedRow()>=0);
         buttonConfigEdit.setEnabled(tableConfigurations.getSelectedRow()>=0);
-        buttonFixedDel.setEnabled(tableFixedInstances.getSelectedRow()>=0);
-        buttonFixedApply.setEnabled(modelFixedChanged);
-        buttonFixedUndo.setEnabled(modelFixedChanged);
+        buttonFixedDel.setEnabled((tableFixedInstances.getSelectedRow()>=0) && serverSelected);
+        buttonFixedApply.setEnabled(modelFixedChanged && serverSelected);
+        buttonFixedUndo.setEnabled(modelFixedChanged && serverSelected);
         buttonPermDelete.setEnabled((tablePermanentInstances.getSelectedRow()>=0));
         buttonPermApply.setEnabled(modelPermanentChanged);
         buttonPermUndo.setEnabled(modelPermanentChanged);
-        buttonServersDel.setEnabled(expert && (tableServers.getSelectedRow()>=0));
+        buttonServersDel.setEnabled(expert && serverSelected);
         buttonServersApply.setEnabled(modelServersChanged);
         buttonServersUndo.setEnabled(modelServersChanged);
-        buttonFixedCamUndo.setEnabled(modelFixedCamsChanged);
-        buttonFixedCamApply.setEnabled(modelFixedCamsChanged);    
+        buttonFixedCamUndo.setEnabled(modelFixedCamsChanged && serverSelected);
+        buttonFixedCamApply.setEnabled(modelFixedCamsChanged && serverSelected);    
         textFixedCameras.setEnabled((currentServer!=null) && (!currentServer.isBlank()));        
     }
     
