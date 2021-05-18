@@ -79,7 +79,9 @@ public class PanelStatus extends MonitoredPanel {
             DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
             centerRenderer.setHorizontalAlignment( JLabel.CENTER );
             tableInstances.getColumnModel().getColumn(i).setCellRenderer( centerRenderer );
-        }        
+        }       
+        table.getColumnModel().getColumn(0).setPreferredWidth(210);
+        tableInstances.getColumnModel().getColumn(0).setPreferredWidth(210);
     }
     
     public void setProxy(ProxyClient proxy){
