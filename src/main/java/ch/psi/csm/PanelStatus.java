@@ -300,8 +300,7 @@ public class PanelStatus extends MonitoredPanel {
                 for (String instance:instanceInfo.keySet()){
                     if (instance.toLowerCase().contains(str)){
                         Map instanceData = instanceInfo.get(instance);
-                        String server = Str.toString(instanceData.getOrDefault("host", "")).replace("http://","").toLowerCase();
-                        System.out.println(server);
+                        String server = Str.toString(instanceData.getOrDefault("host", "")).replace("http://","").toLowerCase();                        
                         for (int i=0; i<model.getRowCount();i++){
                             if (Str.toString(model.getValueAt(i, 0)).replace("http://","").toLowerCase().equals(server)){
                                 table.setRowSelectionInterval(i, i);
