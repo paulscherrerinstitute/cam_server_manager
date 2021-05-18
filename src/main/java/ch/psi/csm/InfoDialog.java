@@ -28,7 +28,7 @@ public class InfoDialog extends StandardDialog {
     }
     
     void setInstance(String name){
-        this.setTitle("Instance Info: " + name);
+        this.setTitle("Info: " + name);
         currentInstance = name;
     }
     
@@ -37,36 +37,42 @@ public class InfoDialog extends StandardDialog {
         DefaultMutableTreeNode root = ((DefaultMutableTreeNode)model.getRoot());        
         if (instanceSelected){
             root.setUserObject(currentInstance);
-            DefaultMutableTreeNode info;
+            DefaultMutableTreeNode statistics;
             DefaultMutableTreeNode config ;  
             DefaultMutableTreeNode stream ;  
             DefaultMutableTreeNode start ;  
             DefaultMutableTreeNode mode ;  
             if (root.getChildCount()==0){
                 config = new DefaultMutableTreeNode("Config");
-                info = new DefaultMutableTreeNode("Info");
+                statistics = new DefaultMutableTreeNode("Statistics");
                 start = new DefaultMutableTreeNode();
                 mode = new DefaultMutableTreeNode();
                 stream = new DefaultMutableTreeNode();
-                root.add(stream);
-                root.add(start);
-                root.add(mode);
+                DefaultMutableTreeNode streamParent = new DefaultMutableTreeNode("Stream");
+                DefaultMutableTreeNode modeParent = new DefaultMutableTreeNode("Mode");
+                DefaultMutableTreeNode startParent = new DefaultMutableTreeNode("Start");
+                streamParent.add(stream);
+                modeParent.add(mode);
+                startParent.add(start);
+                root.add(streamParent);
+                root.add(modeParent);
+                root.add(startParent);
+                root.add(statistics);
                 root.add(config);
-                root.add(info);
                 model.nodeChanged(root);
                 SwingUtilities.invokeLater(()->{SwingUtils.expandAll(tree);});                
             } else {
-                stream = (DefaultMutableTreeNode) root.getChildAt(0);
-                start = (DefaultMutableTreeNode) root.getChildAt(1);
-                mode = (DefaultMutableTreeNode) root.getChildAt(2);
-                config = (DefaultMutableTreeNode) root.getChildAt(3);
-                info = (DefaultMutableTreeNode) root.getChildAt(4);
+                stream = (DefaultMutableTreeNode) root.getChildAt(0).getChildAt(0);
+                mode = (DefaultMutableTreeNode) root.getChildAt(1).getChildAt(0);
+                start = (DefaultMutableTreeNode) root.getChildAt(2).getChildAt(0);
+                statistics = (DefaultMutableTreeNode) root.getChildAt(3);
+                config = (DefaultMutableTreeNode) root.getChildAt(4);                
             }
                
             Map instanceData = instanceInfo.getOrDefault(currentInstance, new HashMap());
-            stream.setUserObject("Stream: " + instanceData.getOrDefault("stream_address", ""));                      
-            start.setUserObject("Start : " + instanceData.getOrDefault("last_start_time", ""));                      
-            mode.setUserObject("Mode : " + ( PanelStatus.isPush(instanceData) ? "PUSH" : "PUB"));                      
+            stream.setUserObject(instanceData.getOrDefault("stream_address", ""));                      
+            start.setUserObject(instanceData.getOrDefault("last_start_time", ""));                      
+            mode.setUserObject(PanelStatus.isPush(instanceData) ? "PUSH" : "PUB");                      
             
             Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());            
             if (cfg.size()<config.getChildCount()){
@@ -83,18 +89,18 @@ public class InfoDialog extends StandardDialog {
             }              
             
             Map stats = (Map) instanceData.getOrDefault("statistics", new HashMap());                     
-            if (stats.size()<info.getChildCount()){
-                info.removeAllChildren();
-                model.nodeStructureChanged(info);
+            if (stats.size()<statistics.getChildCount()){
+                statistics.removeAllChildren();
+                model.nodeStructureChanged(statistics);
             }
             
             index = 0;
             for (Object key : stats.keySet()){
-                if (index>=info.getChildCount()){
-                    info.add(new DefaultMutableTreeNode()); 
-                    model.nodeStructureChanged(info);
+                if (index>=statistics.getChildCount()){
+                    statistics.add(new DefaultMutableTreeNode()); 
+                    model.nodeStructureChanged(statistics);
                 }
-                ((DefaultMutableTreeNode)info.getChildAt(index++)).setUserObject(Str.toString(key) + ": " + PanelStatus.getDisplayValue(stats.get(key)));                 
+                ((DefaultMutableTreeNode)statistics.getChildAt(index++)).setUserObject(Str.toString(key) + ": " + PanelStatus.getDisplayValue(stats.get(key)));                 
             }              
             model.nodeChanged(root);
         } else {
@@ -103,7 +109,6 @@ public class InfoDialog extends StandardDialog {
             model.nodeStructureChanged(root);
         }                
     }
-
 
 
     /**
@@ -130,14 +135,14 @@ public class InfoDialog extends StandardDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
