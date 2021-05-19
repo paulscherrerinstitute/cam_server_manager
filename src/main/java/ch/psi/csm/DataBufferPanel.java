@@ -8,7 +8,10 @@ import ch.psi.utils.swing.SwingUtils;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -83,9 +86,11 @@ public class DataBufferPanel extends MonitoredPanel {
             } catch (IOException ex) {
                 Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);            
             }
+            List<String> names = new ArrayList<>(permanentPipelineCameras);
+            Collections.sort(names);
             SwingUtilities.invokeLater(()->{        
                 model.setNumRows(0);
-                for (String camera: permanentPipelineCameras){
+                for (String camera: names){
                     model.addRow(new Object[]{camera,});
                 }
                 updateButtons();        
