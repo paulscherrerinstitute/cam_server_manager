@@ -95,7 +95,7 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
             while (!Thread.currentThread().isInterrupted() && started.get()) {
                 Message msg = receiver.receive();
                 if (msg == null) {
-                    System.out.println("Null message");
+                    logger.info("Received null message");
                     started.set(false);
                 } else {
                     Map<String, ValueImpl> data = msg.getValues();
@@ -111,7 +111,7 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
                 }
             }
             if (started.get()) {
-                logger.finer("Receiver thread was interrupted");
+                c("Receiver thread was interrupted");
             } else {
                 logger.finer("Receiver was closed");
             }
