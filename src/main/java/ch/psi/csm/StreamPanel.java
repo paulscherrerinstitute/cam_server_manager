@@ -1,8 +1,8 @@
 package ch.psi.csm;
 
-import ch.psi.bsread.Stream;
-import ch.psi.bsread.Stream.StreamListener;
-import ch.psi.bsread.StreamValue;
+import ch.psi.bs.Stream;
+import ch.psi.bs.Stream.StreamListener;
+import ch.psi.bs.StreamValue;
 import ch.psi.utils.Arr;
 import ch.psi.utils.Convert;
 import ch.psi.utils.Str;
@@ -123,14 +123,16 @@ public class StreamPanel extends MonitoredPanel implements StreamListener {
         for (String key : keys) {
             Object val = sv.getValue(key);
             String size="";
-            if (val instanceof String){
-                size = String.valueOf(((String)val).length());
-            } else if (val.getClass().isArray()){
-                int[] shape = Arr.getShape(val);
-                size = Convert.arrayToString(shape, " x ");
-            }
-            
-            String type = val.getClass().getTypeName();
+            String type = "";
+            if (val!=null){
+                if (val instanceof String){
+                    size = String.valueOf(((String)val).length());
+                } else if (val.getClass().isArray()){
+                    int[] shape = Arr.getShape(val);
+                    size = Convert.arrayToString(shape, " x ");
+                }
+                type = val.getClass().getTypeName();
+            }                        
             if (index>=model.getRowCount()){
                 model.addRow(new Object[]{"","","",""});            
             } else {

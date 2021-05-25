@@ -1,11 +1,12 @@
-package ch.psi.bsread;
+package ch.psi.bs;
 
 import java.io.IOException;
 import ch.psi.bsread.Receiver;
+import ch.psi.bsread.Receiver;
 import ch.psi.bsread.message.Message;
 import ch.psi.bsread.ReceiverConfig;
+import ch.psi.bsread.ReceiverConfig;
 import ch.psi.bsread.message.ValueImpl;
-import ch.psi.bsread.converter.MatlabByteConverter;
 import ch.psi.bsread.impl.StandardMessageExtractor;
 import ch.psi.utils.ObservableBase;
 import ch.psi.utils.Str;
@@ -43,7 +44,6 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
     Thread thread;
     final String address;
     final int socketType;
-    static MatlabByteConverter converter;
     volatile boolean reading;
     volatile AtomicBoolean started = new AtomicBoolean(false);
     volatile AtomicBoolean closing = new AtomicBoolean(false);
@@ -62,9 +62,6 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
      * If provider is null then uses default provider.
      */
     public Stream(String address, int socketType) {
-        if (converter == null) {
-            converter = new MatlabByteConverter();
-        }
         this.address = address;
         this.socketType = socketType;
     }
@@ -98,6 +95,7 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
             while (!Thread.currentThread().isInterrupted() && started.get()) {
                 Message msg = receiver.receive();
                 if (msg == null) {
+                    System.out.println("Null message");
                     started.set(false);
                 } else {
                     Map<String, ValueImpl> data = msg.getValues();
@@ -119,6 +117,7 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
             }
             onStop(null);
         } catch (Throwable ex) {
+            ex.printStackTrace();
             logger.log(Level.FINE, null, ex);
             onStop(ex);
         } finally {
@@ -130,7 +129,7 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
     
     ReceiverConfig getReceiverConfig() {
         MsgAllocator allocator = null;
-        ReceiverConfig config = new ReceiverConfig(address, true, false, new StandardMessageExtractor<>(new MatlabByteConverter()), allocator);
+        ReceiverConfig config = new ReceiverConfig(address, true, false, new StandardMessageExtractor<>(new Converter()), allocator);
         config.setSocketType(getSocketType());
         config.setKeepListeningOnStop(false);
         config.setParallelHandlerProcessing(true);

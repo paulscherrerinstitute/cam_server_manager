@@ -1,4 +1,4 @@
-package ch.psi.bsread;
+package ch.psi.bs;
 
 import java.util.List;
 
