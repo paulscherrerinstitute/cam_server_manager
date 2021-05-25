@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
-//import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 /**
  * File system operations.
@@ -641,7 +641,6 @@ public class IO {
     /**
      * File.deleteOnExit does not work for non-empty folders
      */
-    /*
     public static void deleteFolderOnExit(File folder) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -654,7 +653,7 @@ public class IO {
             }
         });
     }
-    */
+
     public static void setFilePublic(File file){
         file.setReadable(true, false);
         file.setWritable(true, false);        

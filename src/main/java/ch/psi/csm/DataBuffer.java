@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,7 +19,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
  *
  */
 public class DataBuffer {
-    
+    static String dataSourcesRepoFolder;
     
     public static void cloneDataSourcesRepo(String path) throws GitAPIException, IOException{
         File gitFile =  new File(path + "/.git");
@@ -47,8 +49,15 @@ public class DataBuffer {
         }
     }
 
-    public static String getDataSourcesRepoFolder(){
-        return Sys.getUserHome() + "/.csm";
+    
+    public static String getDataSourcesRepoFolder() throws IOException{
+        if (dataSourcesRepoFolder == null){
+            Path tempDir = Files.createTempDirectory("csm");
+            IO.deleteFolderOnExit(tempDir.toFile());
+            dataSourcesRepoFolder = tempDir.toString();
+        }
+        return dataSourcesRepoFolder;
+        //return Sys.getUserHome() + "/.csm";
     }
 
     public static String reconnectCameraSources(String cameraName) throws IOException, InterruptedException, GitAPIException{
