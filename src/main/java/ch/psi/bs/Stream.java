@@ -111,7 +111,7 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
                 }
             }
             if (started.get()) {
-                c("Receiver thread was interrupted");
+                logger.finer("Receiver thread was interrupted");
             } else {
                 logger.finer("Receiver was closed");
             }
