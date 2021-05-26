@@ -8,6 +8,7 @@ import ch.psi.utils.Convert;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
@@ -119,6 +120,7 @@ public class StreamPanel extends MonitoredPanel implements StreamListener {
             return;
         }
         List<String> keys= sv.getKeys();
+        Collections.sort(keys);
         model.setNumRows(keys.size());
         for (String key : keys) {
             Object val = sv.getValue(key);
