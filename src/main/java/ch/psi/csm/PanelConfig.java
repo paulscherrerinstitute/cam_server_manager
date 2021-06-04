@@ -269,7 +269,7 @@ public class PanelConfig extends MonitoredPanel {
             } catch (Exception ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
-        });
+        }, "PC Update Config");
         t.start();
         return t;
     }
@@ -294,7 +294,7 @@ public class PanelConfig extends MonitoredPanel {
             } catch (Exception ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
-        });
+        }, "PC Update Servers");
         t.start();
         return t;  
     }
@@ -332,7 +332,7 @@ public class PanelConfig extends MonitoredPanel {
             } catch (Exception ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
-        });
+        }, "PC Update Permanent");
         t.start();
         return t;  
     }    
@@ -403,7 +403,7 @@ public class PanelConfig extends MonitoredPanel {
             } catch (Exception ex) {
                 Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             }             
-        });
+        }, "PC Update Scripts");
         t.start();
         return t;        
     }        

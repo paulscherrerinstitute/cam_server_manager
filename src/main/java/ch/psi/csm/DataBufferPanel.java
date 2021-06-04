@@ -95,7 +95,7 @@ public class DataBufferPanel extends MonitoredPanel {
                 }
                 updateButtons();        
             });
-        });
+        }, "DBP Cameras Update");
         t.start();
         return t;
     }    
@@ -145,6 +145,7 @@ public class DataBufferPanel extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 tableMouseReleased(evt);
@@ -233,7 +234,7 @@ public class DataBufferPanel extends MonitoredPanel {
                     running = false;
                     updateButtons();
                 }                
-            }).start();                                    
+            },"DBP Reconnect").start();                                    
         } catch (Exception ex){
             Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
             showException(ex);

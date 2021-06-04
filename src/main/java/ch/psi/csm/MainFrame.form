@@ -105,6 +105,15 @@
             </Component>
           </SubComponents>
         </Container>
+        <Component class="ch.psi.csm.BackgroundPanel" name="backgroundPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Background">
+                <Property name="tabTitle" type="java.lang.String" value="Background"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+        </Component>
         <Component class="ch.psi.csm.DataBufferPanel" name="panelDataBuffer">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">

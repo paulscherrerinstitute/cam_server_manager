@@ -87,6 +87,7 @@
                     <Column editable="false" title="Camera Name" type="java.lang.String"/>
                   </Table>
                 </Property>
+                <Property name="selectionMode" type="int" value="0"/>
               </Properties>
               <Events>
                 <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableMouseReleased"/>

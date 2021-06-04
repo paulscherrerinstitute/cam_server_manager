@@ -1,6 +1,9 @@
 package ch.psi.camserver;
 
 import ch.psi.csm.JsonSerializer;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +12,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -207,6 +213,33 @@ public class PipelineClient extends InstanceManagerClient{
         return (String) map.get("background_id");
     }
     
+    public BufferedImage getLastBackgroundImage(String cameraName) throws IOException {
+        return getBackgroundImage(getLastBackground(cameraName));
+    }
+    
+    public BufferedImage getBackgroundImage(String name) throws IOException {
+        WebTarget resource = client.target(prefix + "/background/" + name + "/image");
+        byte[] ret = resource.request().accept(MediaType.APPLICATION_OCTET_STREAM).get(byte[].class);
+        return ImageIO.read(new ByteArrayInputStream(ret));
+    }    
+    
+    public void setBackgroundImage(String name, BufferedImage image) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream ();
+        ImageOutputStream stream = new MemoryCacheImageOutputStream(baos);
+        ImageIO.write(image, "png", stream);
+        stream.close();
+        setBackgroundImage(name, baos.toByteArray());
+    }
+    
+     public void setBackgroundImage(String name, byte[] image) throws IOException {
+        WebTarget resource = client.target(prefix + "/background/" + name + "/image");
+        Response r = resource.request().accept(MediaType.TEXT_HTML).put(Entity.entity(image, MediaType.APPLICATION_OCTET_STREAM));
+        String json = r.readEntity(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);   
+    }       
+    
+
     /**
      * Start pipeline streaming, creating a private instance, and set the stream endpoint to the
      * current stream socket.

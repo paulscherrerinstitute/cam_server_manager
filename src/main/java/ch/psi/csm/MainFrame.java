@@ -28,6 +28,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         panelCameras.setUrl(App.getCameraProxy());
         panelPipelines.setUrl(App.getPipelineProxy());       
         panelDataBuffer.setUrl(App.getPipelineProxy());       
+        backgroundPanel.setUrl(App.getPipelineProxy(), App.getCameraProxy());
     }
 
     /**
@@ -87,6 +88,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         panelPipelines = new ch.psi.csm.PanelServer();
         jPanel2 = new javax.swing.JPanel();
         panelCameras = new ch.psi.csm.PanelServer();
+        backgroundPanel = new ch.psi.csm.BackgroundPanel();
         panelDataBuffer = new ch.psi.csm.DataBufferPanel();
         jPanel4 = new javax.swing.JPanel();
         loggerPanel = new ch.psi.utils.swing.LoggerPanel();
@@ -122,6 +124,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         );
 
         jTabbedPane1.addTab("Cameras", jPanel2);
+        jTabbedPane1.addTab("Background", backgroundPanel);
         jTabbedPane1.addTab("DataBuffer", panelDataBuffer);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -158,6 +161,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private ch.psi.csm.BackgroundPanel backgroundPanel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel4;

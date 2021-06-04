@@ -113,7 +113,7 @@ public class PanelCreation extends MonitoredPanel {
             } catch (Exception ex) {
                 Logger.getLogger(PanelCreation.class.getName()).log(Level.WARNING, null, ex);
             }             
-        });
+        }, "PT Update Config");
         t.start();
         return t;
     }

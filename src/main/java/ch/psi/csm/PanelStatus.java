@@ -447,6 +447,7 @@ public class PanelStatus extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        tableInstances.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableInstances.getTableHeader().setReorderingAllowed(false);
         tableInstances.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
@@ -545,6 +546,7 @@ public class PanelStatus extends MonitoredPanel {
                 return canEdit [columnIndex];
             }
         });
+        table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {

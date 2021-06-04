@@ -63,6 +63,15 @@ public class CameraClient extends InstanceManagerClient{
         return new Dimension(width, height);
     }
 
+    public Boolean isOnline(String cameraName) throws IOException {
+        checkName(cameraName);
+        WebTarget resource = client.target(prefix + "/" + cameraName + "/is_online");
+        String json = resource.request().accept(MediaType.TEXT_HTML).get(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+        Boolean ret = (Boolean) map.get("online");
+        return ret;
+    }
     /**
      * Return the camera image in PNG format.
      */    
