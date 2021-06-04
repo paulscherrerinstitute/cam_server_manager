@@ -2,36 +2,24 @@ package ch.psi.csm;
 
 import ch.psi.camserver.CameraClient;
 import ch.psi.camserver.PipelineClient;
-import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
 import ch.psi.utils.Threading;
 import ch.psi.utils.swing.ExtensionFileFilter;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -153,7 +141,9 @@ public class BackgroundPanel extends MonitoredPanel {
                         }
                         try{
                             lastBackground = pc.getBackgroundImage(textLast.getText());
-                            textGeometryBack.setText(lastBackground.getWidth() + "x" + lastBackground.getHeight());
+                            if ((lastBackground.getWidth()>=0) && ( lastBackground.getHeight()>=0)){
+                                textGeometryBack.setText(lastBackground.getWidth() + "x" + lastBackground.getHeight());
+                            }
                         } catch (Exception ex){ 
                             Logger.getLogger(BackgroundPanel.class.getName()).log(Level.WARNING, null, ex);   
                         }   
