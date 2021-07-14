@@ -1,5 +1,6 @@
 package ch.psi.bs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,11 +49,11 @@ public class StreamValue extends Number {
     }
 
     public java.util.List<String> getKeys(){
-        return identifiers;
+        return new ArrayList<>(identifiers);
     }  
     
     public List getValues() {
-        return values;
+        return new ArrayList<>(values);
     }
 
     public Object getValue(String id) {
