@@ -2,6 +2,7 @@ package ch.psi.csm;
 
 import ch.psi.camserver.CameraClient;
 import ch.psi.camserver.PipelineClient;
+import ch.psi.utils.Chrono;
 import ch.psi.utils.Str;
 import ch.psi.utils.Threading;
 import ch.psi.utils.swing.ExtensionFileFilter;
@@ -31,13 +32,17 @@ public class BackgroundPanel extends MonitoredPanel {
     CameraClient cc;
     Set<String> cameras = new HashSet<>();
     final DefaultTableModel model;
+    final DefaultTableModel modelHistory;
+    
     volatile boolean running = false;
     String camera=null;
-    BufferedImage lastBackground;
+    BufferedImage historyBackground;
+    String historyBackgroundId;
 
     public BackgroundPanel() {
         initComponents();
         model = (DefaultTableModel) table.getModel();
+        modelHistory = (DefaultTableModel) tableHistory.getModel();
     }
     
     
@@ -69,9 +74,8 @@ public class BackgroundPanel extends MonitoredPanel {
         }        
         boolean updating = (cameraUpdateThread!=null);
         buttonCapture.setEnabled(!updating && (camera!=null));
-        buttonSetBackground.setEnabled(false); //(!updating && (camera!=null)); TODO: Implement set_image in CamServer
-        buttonShowLast.setEnabled(!updating &&(lastBackground!=null));
         buttonGetImage.setEnabled(!updating &&(camera!=null));
+        buttonShowHist.setEnabled(!updating &&(tableHistory.getSelectedRow()>=0)&&(historyBackground!=null));
     }
     
     Thread updateCameras(){
@@ -121,32 +125,55 @@ public class BackgroundPanel extends MonitoredPanel {
         selectedIndex = table.getSelectedRow();
         String camera = (selectedIndex>=0) ? Str.toString(model.getValueAt(selectedIndex, 0)) : null;  
         if ((force) || (camera != this.camera)){
-            this.camera = camera;
+            this.camera = camera;            
             textLast.setText("");
-            textGeometryBack.setText("");
+            textGeometryBackHist.setText("");
             checkOnline.setSelected(false);
             textGeometry.setText("");            
-            lastBackground=null;
+            modelHistory.setNumRows(0);
+            historyBackground=null;
             if (camera!=null) {
                 cameraUpdateThread = new Thread(()->{
-                    try{
+                    try{    
+                        String lastBackgroundID = null;
                         try{
-                            textLast.setText(pc.getLastBackground(camera)); 
+                            lastBackgroundID = pc.getLastBackground(camera);
+                            textLast.setText(lastBackgroundID); 
                         } catch (Exception ex){
                              Logger.getLogger(BackgroundPanel.class.getName()).log(Level.WARNING, null, ex);   
                         }
+                        
+                        try{
+                            List<String> bgs = pc.getBackgrounds(camera);
+                            modelHistory.setNumRows(bgs.size());
+                            for (int i=0; i< bgs.size(); i++){
+                                String id = bgs.get(i);
+                                modelHistory.setValueAt(id, i, 0);
+                                if (id.equals(lastBackgroundID)){
+                                    int index=i;
+                                    SwingUtilities.invokeLater(()->{
+                                        tableHistory.setRowSelectionInterval(index, index);
+                                        SwingUtils.scrollToVisible(tableHistory, index, 0);
+                                        updateHistory();
+                                    });                                    
+                                }
+                            }
+                            
+                        } catch (Exception ex){
+                             Logger.getLogger(BackgroundPanel.class.getName()).log(Level.WARNING, null, ex);   
+                             if (lastBackgroundID!=null){
+                                modelHistory.setNumRows(1);
+                                modelHistory.setValueAt(lastBackgroundID, 0, 0);
+                                SwingUtilities.invokeLater(()->{
+                                    tableHistory.setRowSelectionInterval(0, 0);
+                                    updateHistory();
+                                });                                    
+                             }
+                        }                        
                         updateButtons();        
                         if (!camera.equals(this.camera)){
                             return;
                         }
-                        try{
-                            lastBackground = pc.getBackgroundImage(textLast.getText());
-                            if ((lastBackground.getWidth()>=0) && ( lastBackground.getHeight()>=0)){
-                                textGeometryBack.setText(lastBackground.getWidth() + "x" + lastBackground.getHeight());
-                            }
-                        } catch (Exception ex){ 
-                            Logger.getLogger(BackgroundPanel.class.getName()).log(Level.WARNING, null, ex);   
-                        }   
                         updateButtons();        
                         if (!camera.equals(this.camera)){
                             return;
@@ -182,9 +209,32 @@ public class BackgroundPanel extends MonitoredPanel {
         return null;
     }   
     
+    
+    void updateHistory(){
+        int row = tableHistory.getSelectedRow();
+        textGeometryBackHist.setText("");
+        if (row>=0){
+            String id = (String) modelHistory.getValueAt(row, 0);
+            new Thread(()->{
+                try{
+                    historyBackgroundId = id;
+                    historyBackground = pc.getBackgroundImage(historyBackgroundId);
+                    if ((historyBackground.getWidth()>=0) && ( historyBackground.getHeight()>=0)){
+                        textGeometryBackHist.setText(historyBackground.getWidth() + "x" + historyBackground.getHeight());
+                    }                    
+                } catch (Exception ex){
+                     Logger.getLogger(BackgroundPanel.class.getName()).log(Level.WARNING, null, ex);   
+                }         
+                 updateButtons();    
+               }).start();                
+        }
+    }
+    
     @Override
     protected void onShow(){
-        updateCameras();
+        if (model.getRowCount()==0){
+            updateCameras();
+        }
     }
     
 
@@ -201,15 +251,17 @@ public class BackgroundPanel extends MonitoredPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        textLast = new javax.swing.JTextField();
-        buttonShowLast = new javax.swing.JButton();
         buttonCapture = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         spinnerImages = new javax.swing.JSpinner();
-        jLabel5 = new javax.swing.JLabel();
-        textGeometryBack = new javax.swing.JTextField();
-        buttonSetBackground = new javax.swing.JButton();
+        textLast = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableHistory = new javax.swing.JTable();
+        jLabel7 = new javax.swing.JLabel();
+        textGeometryBackHist = new javax.swing.JTextField();
+        buttonShowHist = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         checkOnline = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
@@ -261,7 +313,7 @@ public class BackgroundPanel extends MonitoredPanel {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -274,17 +326,6 @@ public class BackgroundPanel extends MonitoredPanel {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Background"));
 
-        jLabel1.setText("Last:");
-
-        textLast.setEditable(false);
-
-        buttonShowLast.setText("Show");
-        buttonShowLast.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonShowLastActionPerformed(evt);
-            }
-        });
-
         buttonCapture.setText("Capture");
         buttonCapture.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -296,17 +337,59 @@ public class BackgroundPanel extends MonitoredPanel {
 
         spinnerImages.setModel(new javax.swing.SpinnerNumberModel(5, 1, 100, 1));
 
-        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabel5.setText("Geometry:");
+        textLast.setEditable(false);
 
-        textGeometryBack.setEditable(false);
+        jLabel1.setText("Last:");
 
-        buttonSetBackground.setText("Set Background");
-        buttonSetBackground.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSetBackgroundActionPerformed(evt);
+        tableHistory.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Backgroung Image ID"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
+        tableHistory.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableHistory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tableHistoryMouseReleased(evt);
+            }
+        });
+        tableHistory.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableHistoryKeyReleased(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tableHistory);
+
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel7.setText("Size:");
+
+        textGeometryBackHist.setEditable(false);
+
+        buttonShowHist.setText("Show");
+        buttonShowHist.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonShowHistActionPerformed(evt);
+            }
+        });
+
+        jLabel8.setText("History:");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -315,55 +398,57 @@ public class BackgroundPanel extends MonitoredPanel {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(textGeometryBack, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(buttonShowLast))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textLast))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addGap(7, 7, 7)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(textGeometryBackHist, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(buttonShowHist))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(buttonCapture)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(spinnerImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(textLast)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(buttonSetBackground)
-                                .addGap(197, 197, 197)))))
+                                .addComponent(spinnerImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))
                 .addContainerGap())
         );
 
-        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel5});
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel8});
 
-        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonCapture, buttonSetBackground});
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonShowHist, textGeometryBackHist});
 
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(textLast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(textLast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(buttonShowLast)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel5)
-                        .addComponent(textGeometryBack, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, Short.MAX_VALUE)
+                    .addComponent(jLabel8)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(textGeometryBackHist, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7)
+                    .addComponent(buttonShowHist))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonCapture)
                     .addComponent(jLabel2)
                     .addComponent(spinnerImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonSetBackground)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Information"));
@@ -374,7 +459,7 @@ public class BackgroundPanel extends MonitoredPanel {
         jLabel3.setText("Online:");
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabel4.setText("Geometry:");
+        jLabel4.setText("Size:");
 
         buttonGetImage.setText("Get Snapshot");
         buttonGetImage.addActionListener(new java.awt.event.ActionListener() {
@@ -396,13 +481,14 @@ public class BackgroundPanel extends MonitoredPanel {
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(checkOnline)
-                    .addComponent(textGeometry, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(buttonGetImage)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(checkOnline)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(textGeometry, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
+                        .addComponent(buttonGetImage)))
+                .addContainerGap())
         );
 
         jPanel3Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel3, jLabel4});
@@ -417,9 +503,8 @@ public class BackgroundPanel extends MonitoredPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(textGeometry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(buttonGetImage)
+                    .addComponent(textGeometry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonGetImage))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -432,8 +517,9 @@ public class BackgroundPanel extends MonitoredPanel {
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -441,7 +527,7 @@ public class BackgroundPanel extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
@@ -484,20 +570,6 @@ public class BackgroundPanel extends MonitoredPanel {
         }
     }//GEN-LAST:event_buttonCaptureActionPerformed
 
-    private void buttonShowLastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonShowLastActionPerformed
-        try{
-            //BufferedImage img = lastBackground; //pc.getBackgroundImage(textLast.getText());
-            //JLabel label = new JLabel(new ImageIcon(img));
-            //JScrollPane sp = new JScrollPane(label);            
-            //SwingUtils.showDialog(this, textLast.getText() +  " - " +  img.getWidth() + "x" + img.getHeight(), new Dimension (600,400), sp);
-            SwingUtils.showDialog(this, textLast.getText(), new Dimension (600,400),  new ImagePanel(lastBackground));
-            
-        } catch (Exception ex){
-            Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
-            showException(ex);
-        }
-    }//GEN-LAST:event_buttonShowLastActionPerformed
-
     private void buttonGetImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGetImageActionPerformed
         try{
             SwingUtils.showDialog(this, camera + " snapshot", new Dimension (600,400),  new ImagePanel(cc.getImage(camera)));
@@ -507,45 +579,60 @@ public class BackgroundPanel extends MonitoredPanel {
         }
     }//GEN-LAST:event_buttonGetImageActionPerformed
 
-    private void buttonSetBackgroundActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSetBackgroundActionPerformed
+    private void buttonShowHistActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonShowHistActionPerformed
         try{
-            JFileChooser chooser = new JFileChooser();
-            chooser.setAcceptAllFileFilterUsed(false);
-            chooser.addChoosableFileFilter(new ExtensionFileFilter("Image files (*.png, *.bmp, *.gif, *.jpg)", 
-                                         new String[]{"png", "bmp", "gif", "tif", "tiff", "jpg", "jpeg"}));
-            int rVal = chooser.showOpenDialog(this);
-            
-            if (rVal == JFileChooser.APPROVE_OPTION) {
-                byte[] bytes = Files.readAllBytes(chooser.getSelectedFile().toPath());
-                pc.setBackgroundImage(camera+ "_"+ chooser.getSelectedFile().getName(), bytes);
-            }
-   
+            SwingUtils.showDialog(this, historyBackgroundId, new Dimension (600,400),  new ImagePanel(historyBackground));            
         } catch (Exception ex){
             Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
             showException(ex);
         }
-    }//GEN-LAST:event_buttonSetBackgroundActionPerformed
+    }//GEN-LAST:event_buttonShowHistActionPerformed
+
+    private void tableHistoryMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableHistoryMouseReleased
+        try{
+            updateHistory();
+        } catch (Exception ex){
+            Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
+            showException(ex);
+        }
+    }//GEN-LAST:event_tableHistoryMouseReleased
+
+    private void tableHistoryKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableHistoryKeyReleased
+        try{
+            updateHistory();
+        } catch (Exception ex){
+            Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
+            showException(ex);
+        }
+    }//GEN-LAST:event_tableHistoryKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonCapture;
     private javax.swing.JButton buttonGetImage;
-    private javax.swing.JButton buttonSetBackground;
-    private javax.swing.JButton buttonShowLast;
+    private javax.swing.JButton buttonShowHist;
+    private javax.swing.JButton buttonShowLast1;
     private javax.swing.JCheckBox checkOnline;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSpinner spinnerImages;
     private javax.swing.JTable table;
+    private javax.swing.JTable tableHistory;
     private javax.swing.JTextField textGeometry;
-    private javax.swing.JTextField textGeometryBack;
+    private javax.swing.JTextField textGeometryBack1;
+    private javax.swing.JTextField textGeometryBackHist;
     private javax.swing.JTextField textLast;
+    private javax.swing.JTextField textLast1;
     // End of variables declaration//GEN-END:variables
 }

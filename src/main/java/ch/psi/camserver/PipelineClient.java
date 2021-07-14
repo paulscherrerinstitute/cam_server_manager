@@ -213,6 +213,15 @@ public class PipelineClient extends InstanceManagerClient{
         return (String) map.get("background_id");
     }
     
+    public List<String> getBackgrounds(String cameraName) throws IOException {
+        checkName(cameraName);
+        WebTarget resource = client.target(prefix + "/camera/" + cameraName + "/backgrounds");
+        String json = resource.request().accept(MediaType.TEXT_HTML).get(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+        return (List) map.get("background_ids");
+    }    
+    
     public BufferedImage getLastBackgroundImage(String cameraName) throws IOException {
         return getBackgroundImage(getLastBackground(cameraName));
     }
@@ -222,23 +231,7 @@ public class PipelineClient extends InstanceManagerClient{
         byte[] ret = resource.request().accept(MediaType.APPLICATION_OCTET_STREAM).get(byte[].class);
         return ImageIO.read(new ByteArrayInputStream(ret));
     }    
-    
-    public void setBackgroundImage(String name, BufferedImage image) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream ();
-        ImageOutputStream stream = new MemoryCacheImageOutputStream(baos);
-        ImageIO.write(image, "png", stream);
-        stream.close();
-        setBackgroundImage(name, baos.toByteArray());
-    }
-    
-     public void setBackgroundImage(String name, byte[] image) throws IOException {
-        WebTarget resource = client.target(prefix + "/background/" + name + "/image");
-        Response r = resource.request().accept(MediaType.TEXT_HTML).put(Entity.entity(image, MediaType.APPLICATION_OCTET_STREAM));
-        String json = r.readEntity(String.class);
-        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
-        checkReturn(map);   
-    }       
-    
+   
 
     /**
      * Start pipeline streaming, creating a private instance, and set the stream endpoint to the
