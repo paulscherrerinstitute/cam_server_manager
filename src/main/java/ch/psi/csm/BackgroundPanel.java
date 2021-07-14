@@ -161,7 +161,9 @@ public class BackgroundPanel extends MonitoredPanel {
                         }
                         try{
                             Dimension g = cc.getGeometry(camera);
-                            textGeometry.setText(g.width + "x" + g.height);
+                            if ((g.getWidth()>=0) && ( g.getHeight()>=0)){
+                                textGeometry.setText(g.width + "x" + g.height);
+                            }
                         } catch (Exception ex){
                             Logger.getLogger(BackgroundPanel.class.getName()).log(Level.WARNING, null, ex);   
                         }    
