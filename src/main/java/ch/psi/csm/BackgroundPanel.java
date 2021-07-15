@@ -381,6 +381,7 @@ public class BackgroundPanel extends MonitoredPanel {
         jLabel7.setText("Size:");
 
         textGeometryBackHist.setEditable(false);
+        textGeometryBackHist.setHorizontalAlignment(javax.swing.JTextField.CENTER);
 
         buttonShowHist.setText("Show");
         buttonShowHist.addActionListener(new java.awt.event.ActionListener() {
@@ -410,22 +411,21 @@ public class BackgroundPanel extends MonitoredPanel {
                                 .addGap(6, 6, 6)
                                 .addComponent(jLabel7)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(textGeometryBackHist, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(textGeometryBackHist, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(buttonShowHist))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(buttonCapture)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGap(18, 18, 18)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(spinnerImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(spinnerImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))
                 .addContainerGap())
         );
 
         jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel8});
-
-        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonShowHist, textGeometryBackHist});
 
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -443,12 +443,12 @@ public class BackgroundPanel extends MonitoredPanel {
                     .addComponent(textGeometryBackHist, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7)
                     .addComponent(buttonShowHist))
-                .addGap(18, 18, 18)
+                .addGap(30, 30, 30)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonCapture)
                     .addComponent(jLabel2)
                     .addComponent(spinnerImages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addGap(20, 20, 20))
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Information"));
@@ -469,6 +469,7 @@ public class BackgroundPanel extends MonitoredPanel {
         });
 
         textGeometry.setEditable(false);
+        textGeometry.setHorizontalAlignment(javax.swing.JTextField.CENTER);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -485,8 +486,8 @@ public class BackgroundPanel extends MonitoredPanel {
                         .addComponent(checkOnline)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(textGeometry, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
+                        .addComponent(textGeometry, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
                         .addComponent(buttonGetImage)))
                 .addContainerGap())
         );
@@ -611,28 +612,23 @@ public class BackgroundPanel extends MonitoredPanel {
     private javax.swing.JButton buttonCapture;
     private javax.swing.JButton buttonGetImage;
     private javax.swing.JButton buttonShowHist;
-    private javax.swing.JButton buttonShowLast1;
     private javax.swing.JCheckBox checkOnline;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSpinner spinnerImages;
     private javax.swing.JTable table;
     private javax.swing.JTable tableHistory;
     private javax.swing.JTextField textGeometry;
-    private javax.swing.JTextField textGeometryBack1;
     private javax.swing.JTextField textGeometryBackHist;
     private javax.swing.JTextField textLast;
-    private javax.swing.JTextField textLast1;
     // End of variables declaration//GEN-END:variables
 }

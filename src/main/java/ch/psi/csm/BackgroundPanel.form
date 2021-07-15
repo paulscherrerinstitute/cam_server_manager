@@ -127,17 +127,18 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
                                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  <Component id="textGeometryBackHist" linkSize="6" min="-2" pref="64" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="textGeometryBackHist" min="-2" pref="120" max="-2" attributes="0"/>
                                   <EmptySpace max="32767" attributes="0"/>
-                                  <Component id="buttonShowHist" linkSize="6" min="-2" max="-2" attributes="0"/>
+                                  <Component id="buttonShowHist" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="buttonCapture" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
                                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="spinnerImages" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                               <Component id="jScrollPane2" alignment="0" pref="0" max="32767" attributes="0"/>
                           </Group>
@@ -166,13 +167,13 @@
                       <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="buttonShowHist" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="buttonCapture" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="spinnerImages" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -240,6 +241,7 @@
         <Component class="javax.swing.JTextField" name="textGeometryBackHist">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
+            <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="buttonShowHist">
@@ -282,8 +284,8 @@
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" attributes="0">
-                          <Component id="textGeometry" min="-2" pref="112" max="-2" attributes="0"/>
-                          <EmptySpace pref="73" max="32767" attributes="0"/>
+                          <Component id="textGeometry" min="-2" pref="120" max="-2" attributes="0"/>
+                          <EmptySpace pref="65" max="32767" attributes="0"/>
                           <Component id="buttonGetImage" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -339,6 +341,7 @@
         <Component class="javax.swing.JTextField" name="textGeometry">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
+            <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
         </Component>
       </SubComponents>
