@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -158,9 +159,11 @@ public class PanelCreation extends MonitoredPanel {
         updateButtons();
     }
         
-    static boolean isPush(String instanceData){
+    static boolean isPush(String config){
         try {
-            return PanelStatus.isPush((Map) JsonSerializer.decode(instanceData, Map.class));
+            Map instanceData = new HashMap();
+            instanceData.put("config", (Map) JsonSerializer.decode(config, Map.class));
+            return PanelStatus.isPush(instanceData);
         } catch (IOException ex) {
             return false;
         }
