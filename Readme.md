@@ -1,6 +1,6 @@
 # Overview
 
-__csm__ is a managemet console for CamServer. 
+__csm__ is a management console for CamServer. 
 
 
 

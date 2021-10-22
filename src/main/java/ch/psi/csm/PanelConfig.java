@@ -543,7 +543,7 @@ public class PanelConfig extends MonitoredPanel {
 
             },
             new String [] {
-                "Enabed", "Address", "Expanding"
+                "Enabled", "Address", "Expanding"
             }
         ) {
             Class[] types = new Class [] {
@@ -601,7 +601,7 @@ public class PanelConfig extends MonitoredPanel {
 
             },
             new String [] {
-                "Enabed", "Instance", "Port"
+                "Enabled", "Instance", "Port"
             }
         ) {
             Class[] types = new Class [] {
