@@ -27,7 +27,8 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         Logger.getLogger(MainFrame.class.getName()).info("Startup");
         panelCameras.setUrl(App.getCameraProxy());
         panelPipelines.setUrl(App.getPipelineProxy());       
-        panelDataBuffer.setUrl(App.getPipelineProxy());       
+        panelDataBuffer.setUrl(App.getPipelineProxy());  
+        panelUserScripts.setUrl(App.getPipelineProxy());       
         backgroundPanel.setUrl(App.getPipelineProxy(), App.getCameraProxy());
     }
 
@@ -89,6 +90,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         jPanel2 = new javax.swing.JPanel();
         panelCameras = new ch.psi.csm.PanelServer();
         backgroundPanel = new ch.psi.csm.BackgroundPanel();
+        panelUserScripts = new ch.psi.csm.PanelUserScripts();
         panelDataBuffer = new ch.psi.csm.DataBufferPanel();
         jPanel4 = new javax.swing.JPanel();
         loggerPanel = new ch.psi.utils.swing.LoggerPanel();
@@ -107,7 +109,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPipelines, javax.swing.GroupLayout.DEFAULT_SIZE, 613, Short.MAX_VALUE)
+            .addComponent(panelPipelines, javax.swing.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Pipelines", jPanel1);
@@ -120,11 +122,12 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelCameras, javax.swing.GroupLayout.DEFAULT_SIZE, 613, Short.MAX_VALUE)
+            .addComponent(panelCameras, javax.swing.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Cameras", jPanel2);
         jTabbedPane1.addTab("Background", backgroundPanel);
+        jTabbedPane1.addTab("User Scripts", panelUserScripts);
         jTabbedPane1.addTab("DataBuffer", panelDataBuffer);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -140,7 +143,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(loggerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 589, Short.MAX_VALUE)
+                .addComponent(loggerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -172,5 +175,6 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
     private ch.psi.csm.PanelServer panelCameras;
     private ch.psi.csm.DataBufferPanel panelDataBuffer;
     private ch.psi.csm.PanelServer panelPipelines;
+    private ch.psi.csm.PanelUserScripts panelUserScripts;
     // End of variables declaration//GEN-END:variables
 }

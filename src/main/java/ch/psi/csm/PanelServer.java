@@ -45,7 +45,6 @@ public class PanelServer extends javax.swing.JPanel {
 
    public void setPipeline(boolean value){
        panelStatus.setPipeline(value);
-       panelConfig.setPipeline(value);
        panelCreation.setPipeline(value);
    }
    
