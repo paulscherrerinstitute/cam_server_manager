@@ -156,6 +156,13 @@ public class App {
         return "https://git.psi.ch/archiver_config/sf_databuffer.git";
     }
 
+    public static String getImageBufferSourcesRepo(){
+        if ( hasArgument("ibsr")){
+            return getArgumentValue("ibsr");
+        }
+        return "https://git.psi.ch/archiver_config/sf_imagebuffer.git";
+    }
+    
     static void printStartupMessage() {
         System.out.println("CamServer Management Console");
         String version = getApplicationVersion();

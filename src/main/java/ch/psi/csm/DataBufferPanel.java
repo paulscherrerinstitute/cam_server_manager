@@ -63,7 +63,8 @@ public class DataBufferPanel extends MonitoredPanel {
             SwingUtilities.invokeLater(()->{updateButtons();});
             return;
         }        
-        button.setEnabled((table.getSelectedRow()>=0) && (running==false));
+        buttonDataBuffer.setEnabled((table.getSelectedRow()>=0) && (running==false));
+        buttonImageBuffer.setEnabled((table.getSelectedRow()>=0) && (running==false));
     }
     
     Thread updateCameras(){
@@ -118,7 +119,8 @@ public class DataBufferPanel extends MonitoredPanel {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
-        button = new javax.swing.JButton();
+        buttonDataBuffer = new javax.swing.JButton();
+        buttonImageBuffer = new javax.swing.JButton();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Permanent Pipeline Cameras"));
 
@@ -164,7 +166,7 @@ public class DataBufferPanel extends MonitoredPanel {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -175,11 +177,19 @@ public class DataBufferPanel extends MonitoredPanel {
                 .addContainerGap())
         );
 
-        button.setText("Reconnect to DataBuffer");
-        button.setEnabled(false);
-        button.addActionListener(new java.awt.event.ActionListener() {
+        buttonDataBuffer.setText("Reconnect to DataBuffer");
+        buttonDataBuffer.setEnabled(false);
+        buttonDataBuffer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonActionPerformed(evt);
+                buttonDataBufferActionPerformed(evt);
+            }
+        });
+
+        buttonImageBuffer.setText("Reconnect to ImageBuffer");
+        buttonImageBuffer.setEnabled(false);
+        buttonImageBuffer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonImageBufferActionPerformed(evt);
             }
         });
 
@@ -190,19 +200,26 @@ public class DataBufferPanel extends MonitoredPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                .addComponent(button)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(buttonImageBuffer)
+                    .addComponent(buttonDataBuffer))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonDataBuffer, buttonImageBuffer});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 131, Short.MAX_VALUE)
-                        .addComponent(button)
-                        .addGap(0, 132, Short.MAX_VALUE))
+                        .addGap(0, 100, Short.MAX_VALUE)
+                        .addComponent(buttonDataBuffer)
+                        .addGap(18, 18, 18)
+                        .addComponent(buttonImageBuffer)
+                        .addGap(0, 100, Short.MAX_VALUE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -216,7 +233,7 @@ public class DataBufferPanel extends MonitoredPanel {
         updateButtons();
     }//GEN-LAST:event_tableKeyReleased
 
-    private void buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonActionPerformed
+    private void buttonDataBufferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDataBufferActionPerformed
         try{
             String camera = Str.toString(model.getValueAt(table.getSelectedRow(), 0));            
             JDialog dialogMessage = showSplash("Data Buffer", new Dimension(500,200), "Reconnecting camera sources: " + camera);
@@ -224,7 +241,7 @@ public class DataBufferPanel extends MonitoredPanel {
             updateButtons();            
             new Thread(()->{
                 try{                    
-                    String ret = DataBuffer.reconnectCameraSources(camera);          
+                    String ret = DataBuffer.reconnectDataBufferCameraSources(camera);          
                     showScrollableMessage( "Success", "Success reconnecting camera sources: " + camera, ret);
                 } catch (Exception ex){
                     Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
@@ -234,16 +251,42 @@ public class DataBufferPanel extends MonitoredPanel {
                     running = false;
                     updateButtons();
                 }                
-            },"DBP Reconnect").start();                                    
+            },"DB Reconnect").start();                                    
         } catch (Exception ex){
             Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
             showException(ex);
         }
-    }//GEN-LAST:event_buttonActionPerformed
+    }//GEN-LAST:event_buttonDataBufferActionPerformed
+
+    private void buttonImageBufferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonImageBufferActionPerformed
+        try{
+            String camera = Str.toString(model.getValueAt(table.getSelectedRow(), 0));            
+            JDialog dialogMessage = showSplash("Image Buffer", new Dimension(500,200), "Reconnecting camera sources: " + camera);
+            running=true;
+            updateButtons();            
+            new Thread(()->{
+                try{                    
+                    String ret = DataBuffer.reconnectImageBufferCameraSources(camera);          
+                    showScrollableMessage( "Success", "Success reconnecting camera sources: " + camera, ret);
+                } catch (Exception ex){
+                    Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
+                    showException(ex);                    
+                } finally{
+                    dialogMessage.setVisible(false);
+                    running = false;
+                    updateButtons();
+                }                
+            },"IB Reconnect").start();                                    
+        } catch (Exception ex){
+            Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
+            showException(ex);
+        }
+    }//GEN-LAST:event_buttonImageBufferActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton button;
+    private javax.swing.JButton buttonDataBuffer;
+    private javax.swing.JButton buttonImageBuffer;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable table;

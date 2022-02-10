@@ -1089,6 +1089,10 @@ public class SwingUtils {
         tabbedPane.setTabComponentAt(index, new CloseButtonTabComponent(tabbedPane, listener));
     }
 
+    public static boolean isTabClosable(final JTabbedPane tabbedPane, int index) {
+        return (tabbedPane.getTabComponentAt(index) instanceof CloseButtonTabComponent);
+    }
+
     //JTable
     public static boolean isCellVisible(JTable table, int rowIndex, int colIndex) {
         if (!(table.getParent() instanceof JViewport)) {

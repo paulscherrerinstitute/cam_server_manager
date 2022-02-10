@@ -21,9 +21,11 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 public class DataBuffer {
     static String dataSourcesRepoFolder;
     
-    public static void cloneDataSourcesRepo(String path) throws GitAPIException, IOException{
+    public static void cloneDataSourcesRepo(boolean imageBuffer) throws GitAPIException, IOException{
+        String path = getDataSourcesRepoFolder(imageBuffer);
         File gitFile =  new File(path + "/.git");
         if (!gitFile.exists()){
+            String url = imageBuffer ? App.getImageBufferSourcesRepo() : App.getDataBufferSourcesRepo();
             Logger.getLogger(DataBuffer.class.getName()).info("Cloning data sources repo: " + App.getDataBufferSourcesRepo() + " to " + path);
             Git.cloneRepository()
               .setURI(App.getDataBufferSourcesRepo())
@@ -36,19 +38,23 @@ public class DataBuffer {
     }
     
 
-    public static void updateDataSourcesRepo() throws GitAPIException, IOException{
-        String path = getDataSourcesRepoFolder();
+    public static void updateDataSourcesRepo(boolean imageBuffer) throws GitAPIException, IOException{        
         try{
-            cloneDataSourcesRepo(path);
+            cloneDataSourcesRepo(imageBuffer);
         } catch (Exception ex){
             Logger.getLogger(DataBuffer.class.getName()).log(Level.WARNING, null, ex);
             System.out.println(ex);
+            String path = getDataSourcesRepoFolder(imageBuffer);
             Logger.getLogger(DataBuffer.class.getName()).severe("Deleting data sources repo: " + path);
             IO.deleteRecursive(path);
-            cloneDataSourcesRepo(path);
+            cloneDataSourcesRepo(imageBuffer);
         }
     }
 
+    public static String getDataSourcesRepoFolder(boolean imageBuffer) throws IOException{
+        String path = getDataSourcesRepoFolder();
+        return path + "/" + (imageBuffer ? "ib" : "db");
+    }
     
     public static String getDataSourcesRepoFolder() throws IOException{
         if (dataSourcesRepoFolder == null){
@@ -60,9 +66,16 @@ public class DataBuffer {
         //return Sys.getUserHome() + "/.csm";
     }
 
-    public static String reconnectCameraSources(String cameraName) throws IOException, InterruptedException, GitAPIException{
-        updateDataSourcesRepo();
-        Logger.getLogger(DataBuffer.class.getName()).info("Reconnecting camera  to DataBuffer: " + cameraName);
+    public static String reconnectDataBufferCameraSources(String cameraName) throws IOException, InterruptedException, GitAPIException{
+        return reconnectCameraSources(cameraName, false);
+    }
+    public static String reconnectImageBufferCameraSources(String cameraName) throws IOException, InterruptedException, GitAPIException{
+        return reconnectCameraSources(cameraName, true);
+    }
+    
+    static String reconnectCameraSources(String cameraName, boolean imageBuffer) throws IOException, InterruptedException, GitAPIException{
+        updateDataSourcesRepo(imageBuffer);
+        Logger.getLogger(DataBuffer.class.getName()).info("Reconnecting camera  to " +  (imageBuffer ? "ImageBuffer: " : "DataBuffer: ") + cameraName);
         //String command = "./bufferutils restart --label " + cameraName;
         
         List<String> pars = new ArrayList<>();
@@ -73,7 +86,7 @@ public class DataBuffer {
         pars.add(cameraName);
                 
         ProcessBuilder pb = new ProcessBuilder(pars);
-        pb.directory(new File(getDataSourcesRepoFolder()));
+        pb.directory(new File(getDataSourcesRepoFolder(imageBuffer)));
         pb.redirectErrorStream(true);
         Process p = pb.start();
         p.waitFor();
@@ -94,7 +107,7 @@ public class DataBuffer {
     
     public static void main(String[] args) {
         try{
-            String ret = reconnectCameraSources("test");
+            String ret = reconnectCameraSources("test", false);
             System.out.println(ret);
         } catch (Exception ex){
             System.err.println(ex);
