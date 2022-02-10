@@ -81,7 +81,7 @@ public class DataBufferPanel extends MonitoredPanel {
                             permanentPipelineCameras.add(camera);
                         }
                     } catch (Exception ex) {
-                        Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);
+                        Logger.getLogger(DataBufferPanel.class.getName()).log(Level.FINE, "Cannot get config of pipeline: " + pipeline);
                     }
                 }
             } catch (IOException ex) {
