@@ -26,7 +26,7 @@ public class DataBuffer {
         File gitFile =  new File(path + "/.git");
         if (!gitFile.exists()){
             String url = imageBuffer ? App.getImageBufferSourcesRepo() : App.getDataBufferSourcesRepo();
-            Logger.getLogger(DataBuffer.class.getName()).info("Cloning data sources repo: " + App.getDataBufferSourcesRepo() + " to " + path);
+            Logger.getLogger(DataBuffer.class.getName()).info("Cloning data sources repo: " + url + " to " + path);
             Git.cloneRepository()
               .setURI(App.getDataBufferSourcesRepo())
               .setDirectory(new File(path)) 
