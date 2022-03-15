@@ -46,10 +46,10 @@ public class InfoDialog extends StandardDialog {
             root.removeAllChildren();
             root.setUserObject("");
             model.nodeStructureChanged(root);
-            changed = false;
             initCountTx = null;
             initCountRx = null;
-            initTime = null;            
+            initTime = null;              
+            changed = false;          
         }
         if (instanceSelected){
             root.setUserObject(currentInstance);
@@ -115,7 +115,7 @@ public class InfoDialog extends StandardDialog {
                 tx = Integer.valueOf(((String)stats.get("tx")).split(" - ")[1]);
             } catch (Exception ex){                                        
             }
-            if ((initCountTx == null) && (tx!=null) && (rx!=null)){
+            if ((initTime == null) && (tx!=null) && (rx!=null)){
                 initCountTx = tx;
                 initCountRx = rx;
                 initTime = System.currentTimeMillis();
@@ -124,6 +124,8 @@ public class InfoDialog extends StandardDialog {
                 if (!stats.containsKey("frame_shape")){
                     stats.put("frame_shape", "unknown        ");
                 }
+                stats.put("average_rx", "undefined        ");
+                stats.put("average_tx", "undefined        ");
                 if (initTime!=null){
                     double span = (System.currentTimeMillis()-initTime)/1000.0;
                     if (span>0){
@@ -147,6 +149,7 @@ public class InfoDialog extends StandardDialog {
             for (Object key : stats.keySet()){
                 ((DefaultMutableTreeNode)statistics.getChildAt(index++)).setUserObject(Str.toString(key) + ": " + PanelStatus.getDisplayValue(stats.get(key)));                 
             }              
+            model.nodeChanged(statistics);
             model.nodeChanged(root);
         } else {
             root.removeAllChildren();
