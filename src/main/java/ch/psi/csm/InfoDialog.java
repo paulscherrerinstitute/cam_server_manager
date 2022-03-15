@@ -18,6 +18,9 @@ public class InfoDialog extends StandardDialog {
     final DefaultTreeModel model;
     String currentInstance;
     boolean changed;
+    Integer initCountTx;
+    Integer initCountRx;
+    Long  initTime;
     
     public InfoDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -99,7 +102,30 @@ public class InfoDialog extends StandardDialog {
                 ((DefaultMutableTreeNode)config.getChildAt(index++)).setUserObject(Str.toString(key) + ": " + Str.toString(cfg.get(key)));                 
             }              
             
-            Map stats = (Map) instanceData.getOrDefault("statistics", new HashMap());                     
+            Map stats = (Map) instanceData.getOrDefault("statistics", new HashMap());  
+            Integer rx=null, tx=null;
+            try{
+                rx = Integer.valueOf(((String)stats.get("rx")).split(" - ")[1]);
+            } catch (Exception ex){                                        
+            }
+            try{
+                tx = Integer.valueOf(((String)stats.get("tx")).split(" - ")[1]);
+            } catch (Exception ex){                                        
+            }
+            if ((initCountTx == null) && (tx!=null) && (rx!=null)){
+                initCountTx = tx;
+                initCountRx = rx;
+                initTime = System.currentTimeMillis();
+            }
+            if (stats.size()>0){
+                if (initTime!=null){
+                    double span = (System.currentTimeMillis()-initTime)/1000.0;
+                    double fpsrx = (rx-initCountRx) / span;
+                    double fpstx = (tx-initCountTx) / span;
+                    stats.put("average_rx", String.format("%1.2f fps     ", fpsrx));
+                    stats.put("average_tx", String.format("%1.2f fps     ", fpstx));
+                }
+            }
             if (statistics.getChildCount() != stats.size()){
                 while (statistics.getChildCount() > stats.size()){
                     statistics.remove(statistics.getChildCount() -1);                    
