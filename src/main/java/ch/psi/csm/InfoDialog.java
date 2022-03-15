@@ -123,10 +123,12 @@ public class InfoDialog extends StandardDialog {
                 }
                 if (initTime!=null){
                     double span = (System.currentTimeMillis()-initTime)/1000.0;
-                    double fpsrx = (rx-initCountRx) / span;
-                    double fpstx = (tx-initCountTx) / span;
-                    stats.put("average_rx", String.format("%1.2f fps     ", fpsrx));
-                    stats.put("average_tx", String.format("%1.2f fps     ", fpstx));
+                    if (span>0){
+                        double fpsrx = (rx-initCountRx) / span;
+                        double fpstx = (tx-initCountTx) / span;
+                        stats.put("average_rx", String.format("%1.2f fps     ", fpsrx));
+                        stats.put("average_tx", String.format("%1.2f fps     ", fpstx));
+                    }
                 }
             }
             if (statistics.getChildCount() != stats.size()){
