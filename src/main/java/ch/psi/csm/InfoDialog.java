@@ -118,6 +118,9 @@ public class InfoDialog extends StandardDialog {
                 initTime = System.currentTimeMillis();
             }
             if (stats.size()>0){
+                if (!stats.containsKey("frame_shape")){
+                    stats.put("frame_shape", "unknown        ");
+                }
                 if (initTime!=null){
                     double span = (System.currentTimeMillis()-initTime)/1000.0;
                     double fpsrx = (rx-initCountRx) / span;
