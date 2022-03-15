@@ -47,6 +47,9 @@ public class InfoDialog extends StandardDialog {
             root.setUserObject("");
             model.nodeStructureChanged(root);
             changed = false;
+            initCountTx = null;
+            initCountRx = null;
+            initTime = null;            
         }
         if (instanceSelected){
             root.setUserObject(currentInstance);
