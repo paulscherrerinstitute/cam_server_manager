@@ -28,7 +28,7 @@ public class DataBuffer {
             String url = imageBuffer ? App.getImageBufferSourcesRepo() : App.getDataBufferSourcesRepo();
             Logger.getLogger(DataBuffer.class.getName()).info("Cloning data sources repo: " + url + " to " + path);
             Git.cloneRepository()
-              .setURI(App.getDataBufferSourcesRepo())
+              .setURI(url)
               .setDirectory(new File(path)) 
               .call();
         }        
