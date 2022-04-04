@@ -803,7 +803,7 @@ public class PanelStatus extends MonitoredPanel {
 
     private void buttonFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonFunctionActionPerformed
         try{     
-            PipelineClient client = new PipelineClient(currentServer);
+            PipelineClient client = new PipelineClient(getUrl());
             Map instanceData = instanceInfo.get(currentInstance);
             List<String> ret = client.getScripts();
             Collections.sort(ret);
