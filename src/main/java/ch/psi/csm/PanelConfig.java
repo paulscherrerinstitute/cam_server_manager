@@ -275,7 +275,8 @@ public class PanelConfig extends MonitoredPanel {
     }
     
     Thread updatePermanent(){                
-        
+        modelPermanentChanged=false; //So that disable update button immediately
+        updateButtons();
         if (tablePermanentInstances.isEditing()){
             tablePermanentInstances.getCellEditor().stopCellEditing();
         }
@@ -1054,19 +1055,21 @@ public class PanelConfig extends MonitoredPanel {
 
     private void buttonPermApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPermApplyActionPerformed
         try{
-            Map<String,String> map = new HashMap<>();
-            for (int i=0; i<modelPermanent.getRowCount();i++){
-                Boolean enabled = (Boolean)modelPermanent.getValueAt(i, 0);
-                String instance = (String)modelPermanent.getValueAt(i, 1);
-                String name = (String)modelPermanent.getValueAt(i, 2);
-                if (!enabled){
-                    instance="#"+instance;
+            if (modelPermanentChanged){
+                Map<String,String> map = new HashMap<>();
+                for (int i=0; i<modelPermanent.getRowCount();i++){
+                    Boolean enabled = (Boolean)modelPermanent.getValueAt(i, 0);
+                    String instance = (String)modelPermanent.getValueAt(i, 1);
+                    String name = (String)modelPermanent.getValueAt(i, 2);
+                    if (!enabled){
+                        instance="#"+instance;
+                    }
+                    map.put(instance, name);
                 }
-                map.put(instance, name);
+                proxy.setPemanentInstances(map);
+                updatePermanent();
+                tablePermanentInstances.requestFocus();
             }
-            proxy.setPemanentInstances(map);
-            updatePermanent();
-            tablePermanentInstances.requestFocus();
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
