@@ -282,8 +282,8 @@ public class PanelConfig extends MonitoredPanel {
         }
         Thread t = new Thread(()->{
             try {
+                permanentInstances = proxy.getPemanentInstances();   
                 modelPermanent.setRowCount(0);
-                permanentInstances = proxy.getPemanentInstances();                
                 ArrayList<String> keys = new ArrayList<>(permanentInstances.keySet());
                 Collections.sort(keys, new Comparator<String>() {
                     @Override
@@ -362,6 +362,7 @@ public class PanelConfig extends MonitoredPanel {
             updateButtons();
         } catch (Exception ex) {
             Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
+            textFixedCameras.setText("");
         }                      
     }    
         
@@ -878,13 +879,13 @@ public class PanelConfig extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelConfigurationsLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                         .addComponent(buttonConfigNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfigDel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfigEdit)
-                        .addContainerGap(13, Short.MAX_VALUE))
+                        .addContainerGap(27, Short.MAX_VALUE))
                     .addGroup(panelConfigurationsLayout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addContainerGap())))
