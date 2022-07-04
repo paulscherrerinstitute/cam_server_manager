@@ -56,7 +56,11 @@ public class PanelServer extends javax.swing.JPanel {
     public boolean isPush(String instance){
         return panelStatus.isPush(instance);
     }    
-   
+    
+    public PanelConfig getPanelConfig(){
+        return panelConfig;
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

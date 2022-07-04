@@ -1,7 +1,7 @@
 #!/bin/bash
 
 /opt/gfa/java/openjdk-11_28/bin/java \
-	-jar ./build/libs/csm-1.1.5-fat.jar \
+	-jar ./build/libs/csm-1.5.0-fat.jar \
         camera_proxy=sf-daqsync-01:8888 \
         pipeline_proxy=sf-daqsync-01:8889 \
         ${1+"$@"}

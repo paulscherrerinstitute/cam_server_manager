@@ -17,6 +17,7 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         instance = this;
         setTitle("CamServer Management Console");
         loggerPanel.start();
+        panelCameras.getPanelConfig().disableFixedCameras();
     }
         
     /**

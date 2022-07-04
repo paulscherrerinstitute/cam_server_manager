@@ -56,6 +56,7 @@ public class PanelConfig extends MonitoredPanel {
     
     public PanelConfig() {
         initComponents();
+        splitTop.setDividerLocation(0.5);
         
         buttonConfigEdit.setEnabled(false);
         
@@ -205,6 +206,11 @@ public class PanelConfig extends MonitoredPanel {
         updateButtons();
     }
     
+    public void disableFixedCameras(){
+        if (tabFixed.getTabCount()>1){
+            tabFixed.removeTabAt(1);
+        }
+    }
     
     void updateButtons(){
         if (!SwingUtilities.isEventDispatchThread()){
@@ -345,21 +351,23 @@ public class PanelConfig extends MonitoredPanel {
 
     void updateCamFixed(){        
         try {       
-            if((currentServer!=null) && (!currentServer.isBlank())){
-                textFixedCameras.setEnabled(true);
-                Map cfg = (Map) this.serverCfg.get(currentServer);
-                List<String> cameras = (List<String>) cfg.get("cameras");
-                if (cameras!=null){
-                    textFixedCameras.setText(String.join("\n", cameras));
+            if (tabFixed.getTabCount()>1){
+                if((currentServer!=null) && (!currentServer.isBlank())){
+                    textFixedCameras.setEnabled(true);
+                    Map cfg = (Map) this.serverCfg.get(currentServer);
+                    List<String> cameras = (List<String>) cfg.get("cameras");
+                    if (cameras!=null){
+                        textFixedCameras.setText(String.join("\n", cameras));
+                    } else {
+                        textFixedCameras.setText("");
+                    }
                 } else {
                     textFixedCameras.setText("");
+                    textFixedCameras.setEnabled(false);
                 }
-            } else {
-                textFixedCameras.setText("");
-                textFixedCameras.setEnabled(false);
+                modelFixedCamsChanged = false;
+                updateButtons();
             }
-            modelFixedCamsChanged = false;
-            updateButtons();
         } catch (Exception ex) {
             Logger.getLogger(PanelConfig.class.getName()).log(Level.WARNING, null, ex);
             textFixedCameras.setText("");
@@ -437,6 +445,7 @@ public class PanelConfig extends MonitoredPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        splitTop = new javax.swing.JSplitPane();
         splitLeft = new javax.swing.JSplitPane();
         panelServers = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
@@ -469,9 +478,10 @@ public class PanelConfig extends MonitoredPanel {
         buttonConfigNew = new javax.swing.JButton();
         buttonConfigDel = new javax.swing.JButton();
 
+        splitTop.setResizeWeight(1.0);
+
         splitLeft.setBorder(null);
         splitLeft.setDividerLocation(350);
-        splitLeft.setDividerSize(3);
         splitLeft.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         splitLeft.setResizeWeight(0.5);
 
@@ -619,7 +629,7 @@ public class PanelConfig extends MonitoredPanel {
         panelFixedInstancesLayout.setVerticalGroup(
             panelFixedInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelFixedInstancesLayout.createSequentialGroup()
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelFixedInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonFixedUndo)
@@ -660,13 +670,13 @@ public class PanelConfig extends MonitoredPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonFixedCamApply)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelFixedCamerasLayout.setVerticalGroup(
             panelFixedCamerasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelFixedCamerasLayout.createSequentialGroup()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelFixedCamerasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonFixedCamUndo)
@@ -700,7 +710,7 @@ public class PanelConfig extends MonitoredPanel {
             panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelServersLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelServersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonServersUndo)
@@ -799,7 +809,7 @@ public class PanelConfig extends MonitoredPanel {
             panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonPermApply)
@@ -809,6 +819,8 @@ public class PanelConfig extends MonitoredPanel {
         );
 
         splitLeft.setRightComponent(panelInstances);
+
+        splitTop.setLeftComponent(splitLeft);
 
         panelConfigurations.setBorder(javax.swing.BorderFactory.createTitledBorder("Saved Configurations"));
         panelConfigurations.setPreferredSize(new java.awt.Dimension(320, 320));
@@ -879,13 +891,13 @@ public class PanelConfig extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelConfigurationsLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
                         .addComponent(buttonConfigNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfigDel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfigEdit)
-                        .addContainerGap(27, Short.MAX_VALUE))
+                        .addContainerGap(51, Short.MAX_VALUE))
                     .addGroup(panelConfigurationsLayout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addContainerGap())))
@@ -906,24 +918,20 @@ public class PanelConfig extends MonitoredPanel {
                 .addContainerGap())
         );
 
+        splitTop.setRightComponent(panelConfigurations);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(splitLeft, javax.swing.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelConfigurations, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(splitTop, javax.swing.GroupLayout.DEFAULT_SIZE, 622, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(panelConfigurations, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 571, Short.MAX_VALUE)
-                    .addComponent(splitLeft, javax.swing.GroupLayout.DEFAULT_SIZE, 571, Short.MAX_VALUE))
-                .addContainerGap())
+            .addComponent(splitTop, javax.swing.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1196,6 +1204,7 @@ public class PanelConfig extends MonitoredPanel {
     private javax.swing.JPanel panelInstances;
     private javax.swing.JPanel panelServers;
     private javax.swing.JSplitPane splitLeft;
+    private javax.swing.JSplitPane splitTop;
     private javax.swing.JTabbedPane tabFixed;
     private javax.swing.JTable tableConfigurations;
     private javax.swing.JTable tableFixedInstances;

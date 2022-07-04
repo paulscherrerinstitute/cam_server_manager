@@ -4,7 +4,7 @@ plugins {
     id "nebula.ospackage" version "9.1.1"
 }
 
-version = '1.4.0' 
+version = '1.5.0' 
 group = 'ch.psi'
 ext.timestamp = new Date().format("yyMMddHHmm")
 sourceCompatibility = '1.11'
@@ -59,7 +59,7 @@ task fatJar(type: Jar, dependsOn: jar) {
         )
     }    
     doFirst {
-        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } } 
+        from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } } 
     }
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'     
         
