@@ -4,8 +4,6 @@ import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
-import ch.psi.utils.swing.SwingUtils;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,8 +15,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
@@ -28,7 +24,7 @@ import javax.swing.table.DefaultTableModel;
 public class DataBufferPanel extends MonitoredPanel {
 
     ProxyClient proxy;
-    Set<String> permanentPipelineCameras = new HashSet<>();
+    Set<String> permanentPipelineLabels = new HashSet<>();
     final DefaultTableModel model;
     volatile boolean running = false;
 
@@ -63,23 +59,26 @@ public class DataBufferPanel extends MonitoredPanel {
             SwingUtilities.invokeLater(()->{updateButtons();});
             return;
         }        
-        buttonDataBuffer.setEnabled((table.getSelectedRow()>=0) && (running==false));
-        buttonImageBuffer.setEnabled((table.getSelectedRow()>=0) && (running==false));
+        buttonDataBuffer.setEnabled(!textLabel.getText().isBlank());
+        buttonImageBuffer.setEnabled(!textLabel.getText().isBlank());
     }
     
-    Thread updateCameras(){
+    Thread updateLabels(){
         Thread t = new Thread(()->{
             //model.setNumRows(0);
             PipelineClient client = new PipelineClient(getUrl());   
-            permanentPipelineCameras = new HashSet<>();
+            permanentPipelineLabels = new HashSet<>();
             try {
                 for (String pipeline:getProxy().getPemanentInstances().keySet()){
                     try {
                         Map<String, Object> cfg = client.getConfig(pipeline);
                         String camera = Str.toString(cfg.getOrDefault("camera_name", "")).trim();
                         if (!camera.isBlank()){
-                            permanentPipelineCameras.add(camera);
+                            permanentPipelineLabels.add(camera.trim());
+                        } else {
+                            permanentPipelineLabels.add(pipeline.split("_")[0]);
                         }
+                        
                     } catch (Exception ex) {
                         Logger.getLogger(DataBufferPanel.class.getName()).log(Level.FINE, "Cannot get config of pipeline: " + pipeline);
                     }
@@ -87,7 +86,7 @@ public class DataBufferPanel extends MonitoredPanel {
             } catch (IOException ex) {
                 Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);            
             }
-            List<String> names = new ArrayList<>(permanentPipelineCameras);
+            List<String> names = new ArrayList<>(permanentPipelineLabels);
             Collections.sort(names);
             SwingUtilities.invokeLater(()->{        
                 model.setNumRows(0);
@@ -103,7 +102,7 @@ public class DataBufferPanel extends MonitoredPanel {
         
     @Override
     protected void onShow(){
-        updateCameras();
+        updateLabels();
     }
     
 
@@ -121,15 +120,17 @@ public class DataBufferPanel extends MonitoredPanel {
         table = new javax.swing.JTable();
         buttonDataBuffer = new javax.swing.JButton();
         buttonImageBuffer = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        textLabel = new javax.swing.JTextField();
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Permanent Pipeline Cameras"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Permanent Pipelines"));
 
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Camera Name"
+                "Pipeline Label"
             }
         ) {
             Class[] types = new Class [] {
@@ -193,6 +194,15 @@ public class DataBufferPanel extends MonitoredPanel {
             }
         });
 
+        jLabel1.setText("Label:");
+
+        textLabel.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        textLabel.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                textLabelKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -203,46 +213,55 @@ public class DataBufferPanel extends MonitoredPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(buttonImageBuffer)
-                    .addComponent(buttonDataBuffer))
+                    .addComponent(buttonDataBuffer)
+                    .addComponent(textLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonDataBuffer, buttonImageBuffer});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonDataBuffer, buttonImageBuffer, textLabel});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 100, Short.MAX_VALUE)
+                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(42, Short.MAX_VALUE)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
                         .addComponent(buttonDataBuffer)
                         .addGap(18, 18, 18)
                         .addComponent(buttonImageBuffer)
-                        .addGap(0, 100, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 77, Short.MAX_VALUE)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void tableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseReleased
+        textLabel.setText((table.getSelectedRow()>=0) ? Str.toString(model.getValueAt(table.getSelectedRow(), 0)) : "");
         updateButtons();
     }//GEN-LAST:event_tableMouseReleased
 
     private void tableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyReleased
+        textLabel.setText((table.getSelectedRow()>=0) ? Str.toString(model.getValueAt(table.getSelectedRow(), 0)) : "");
         updateButtons();
     }//GEN-LAST:event_tableKeyReleased
 
     private void buttonDataBufferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDataBufferActionPerformed
         try{
-            String camera = Str.toString(model.getValueAt(table.getSelectedRow(), 0));            
-            JDialog dialogMessage = showSplash("Data Buffer", new Dimension(500,200), "Reconnecting camera sources: " + camera);
+            String label = textLabel.getText().trim();            
+            JDialog dialogMessage = showSplash("Data Buffer", new Dimension(500,200), "Reconnecting camera sources: " + label);
             running=true;
             updateButtons();            
             new Thread(()->{
                 try{                    
-                    String ret = DataBuffer.reconnectDataBufferCameraSources(camera);          
-                    showScrollableMessage( "Success", "Success reconnecting camera sources: " + camera, ret);
+                    String ret = DataBuffer.reconnectDataBufferCameraSources(label);          
+                    showScrollableMessage( "Success", "Success reconnecting to label: " + label, ret);
                 } catch (Exception ex){
                     Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
                     showException(ex);                    
@@ -260,14 +279,14 @@ public class DataBufferPanel extends MonitoredPanel {
 
     private void buttonImageBufferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonImageBufferActionPerformed
         try{
-            String camera = Str.toString(model.getValueAt(table.getSelectedRow(), 0));            
-            JDialog dialogMessage = showSplash("Image Buffer", new Dimension(500,200), "Reconnecting camera sources: " + camera);
+            String label = textLabel.getText().trim();              
+            JDialog dialogMessage = showSplash("Image Buffer", new Dimension(500,200), "Reconnecting camera sources: " + label);
             running=true;
             updateButtons();            
             new Thread(()->{
                 try{                    
-                    String ret = DataBuffer.reconnectImageBufferCameraSources(camera);          
-                    showScrollableMessage( "Success", "Success reconnecting camera sources: " + camera, ret);
+                    String ret = DataBuffer.reconnectImageBufferCameraSources(label);          
+                    showScrollableMessage( "Success",  "Success reconnecting to label: " + label, ret);
                 } catch (Exception ex){
                     Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
                     showException(ex);                    
@@ -283,12 +302,18 @@ public class DataBufferPanel extends MonitoredPanel {
         }
     }//GEN-LAST:event_buttonImageBufferActionPerformed
 
+    private void textLabelKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textLabelKeyReleased
+        updateButtons();
+    }//GEN-LAST:event_textLabelKeyReleased
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonDataBuffer;
     private javax.swing.JButton buttonImageBuffer;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable table;
+    private javax.swing.JTextField textLabel;
     // End of variables declaration//GEN-END:variables
 }
