@@ -299,12 +299,12 @@ public class PanelConfig extends MonitoredPanel {
                         return o1.compareTo(o2);
                     }
                 });                
-                for (String config : keys){
+                for (String name : keys){
 
-                    String name = Str.toString(permanentInstances.get(config));
+                    String config = Str.toString(permanentInstances.get(name));
                     boolean enabled = true;
-                    if (config.startsWith("#")){
-                        config = config.substring(1);
+                    if (name.startsWith("#")){
+                        name = name.substring(1);
                         enabled = false;
                     }
                     modelPermanent.addRow(new Object[]{enabled, config, name});
@@ -1071,9 +1071,9 @@ public class PanelConfig extends MonitoredPanel {
                     String instance = (String)modelPermanent.getValueAt(i, 1);
                     String name = (String)modelPermanent.getValueAt(i, 2);
                     if (!enabled){
-                        instance="#"+instance;
+                        name="#"+name;
                     }
-                    map.put(instance, name);
+                    map.put(name, instance);
                 }
                 proxy.setPemanentInstances(map);
                 updatePermanent();

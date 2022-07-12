@@ -282,7 +282,19 @@ public class PanelStatus extends MonitoredPanel {
             return false;
         }
         Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
-        return cfg.getOrDefault("mode", "").equals("PUSH") || cfg.getOrDefault("pipeline_type", "").equals("store");
+        if (cfg.getOrDefault("pipeline_type", "").equals("store")){
+            return true;
+        }
+        if (cfg.getOrDefault("mode", "").equals("PUSH")){
+            return true;
+        }
+        if (cfg.getOrDefault("mode", "").equals("PULL")){
+            return false;
+        }
+        if (cfg.getOrDefault("pipeline_type", "").equals("fanout")){
+            return true;
+        }
+        return false;
     }
 
     Map getInstanceCfg(String instance){
