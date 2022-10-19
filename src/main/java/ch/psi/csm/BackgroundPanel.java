@@ -346,7 +346,7 @@ public class BackgroundPanel extends MonitoredPanel {
 
             },
             new String [] {
-                "Backgroung Image ID"
+                "Background Image ID"
             }
         ) {
             Class[] types = new Class [] {
