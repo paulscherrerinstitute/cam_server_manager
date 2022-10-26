@@ -8,6 +8,7 @@ import ch.psi.bsread.ReceiverConfig;
 import ch.psi.bsread.ReceiverConfig;
 import ch.psi.bsread.message.ValueImpl;
 import ch.psi.bsread.impl.StandardMessageExtractor;
+import ch.psi.bsread.message.ChannelConfig;
 import ch.psi.utils.ObservableBase;
 import ch.psi.utils.Str;
 import ch.psi.utils.Threading;
@@ -105,7 +106,8 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
                             long pulseId = msg.getMainHeader().getPulseId();
                             long timestamp = msg.getMainHeader().getGlobalTimestamp().getAsMillis();
                             long nanosOffset = msg.getMainHeader().getGlobalTimestamp().getNs() % 1000000L;
-                            onMessage(pulseId, timestamp, nanosOffset, data);
+                            Map<String, ChannelConfig> channelConfig = msg.getDataHeader().getChannelsMapping();
+                            onMessage(pulseId, timestamp, nanosOffset, data,channelConfig);
                         }
                     }
                 }
@@ -396,7 +398,7 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
 
     LinkedHashMap<String, Object> streamCache = new LinkedHashMap<>();
 
-    protected void onMessage(long pulse_id, long timestamp, long nanosOffset, Map<String, ValueImpl> data) {
+    protected void onMessage(long pulse_id, long timestamp, long nanosOffset, Map<String, ValueImpl> data, Map<String, ChannelConfig> config) {
         streamCache.clear();
         for (String channel : data.keySet()) {
             ValueImpl v = data.get(channel);
@@ -406,7 +408,7 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
             }
             streamCache.put(channel, val);
         }
-        setCache(new StreamValue(pulse_id, timestamp, nanosOffset, new ArrayList(streamCache.keySet()), new ArrayList(streamCache.values())));
+        setCache(new StreamValue(pulse_id, timestamp, nanosOffset, new ArrayList(streamCache.keySet()), new ArrayList(streamCache.values()),config));
     }
 
     StreamValue getCurrentValue() {
@@ -433,7 +435,22 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
     public Object getValue(int index) {
         return getCurrentValue().getValue(index);
     }
-
+    
+    public  ChannelConfig  getChannelConfig(String id) {
+         return getCurrentValue().getChannelConfig(id);
+    }     
+    
+    public  ChannelConfig  getChannelConfig(int index) {
+         return getCurrentValue().getChannelConfig(index);
+    }     
+    
+    public int[]  getShape(String id) {
+         return getCurrentValue().getShape(id);
+    }     
+    
+    public int[]  getShape(int index) {
+         return getCurrentValue().getShape(index);
+    }   
     @Override
     public void close() {
         stop();

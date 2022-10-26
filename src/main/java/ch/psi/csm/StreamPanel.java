@@ -130,7 +130,11 @@ public class StreamPanel extends MonitoredPanel implements StreamListener {
                 if (val instanceof String){
                     size = String.valueOf(((String)val).length());
                 } else if (val.getClass().isArray()){
-                    int[] shape = Arr.getShape(val);
+                    int[] shape = sv.getShape(key);
+ 
+                    if (shape==null){
+                        shape = Arr.getShape(val);
+                    }
                     size = Convert.arrayToString(shape, " x ");
                 }
                 type = val.getClass().getTypeName();

@@ -3,7 +3,6 @@ package ch.psi.camserver;
 import ch.psi.csm.JsonSerializer;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -341,7 +338,7 @@ public class PipelineClient extends InstanceManagerClient{
         checkReturn(map);
     }   
     
-    public void setScriptFile(String instanceId, String fileName) throws IOException {
+    public void setScriptFile(String fileName) throws IOException {
         File file = new File(fileName);
         String script = new String(Files.readAllBytes(file.toPath()));
         String name = file.getName();
@@ -362,7 +359,7 @@ public class PipelineClient extends InstanceManagerClient{
     
     
     public void setFunctionScript(String instanceId, String fileName) throws IOException {
-        setScriptFile(instanceId, fileName);
+        setScriptFile(fileName);
         setFunction(instanceId, new File(fileName).getName());
     }
 

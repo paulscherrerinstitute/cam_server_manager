@@ -2,6 +2,7 @@ package ch.psi.bs;
 
 import java.util.ArrayList;
 import java.util.List;
+import ch.psi.bsread.message.ChannelConfig;
 
 /**
  * Entity containing the current value for a stream, including a list of identifiers, their values,
@@ -14,17 +15,19 @@ public class StreamValue extends Number {
     final long nanosOffset;
     final List<String> identifiers;
     final List values;
+    final java.util.Map<String, ChannelConfig> config;
 
-    StreamValue(long pulseId, long timestamp, List<String> identifiers, List values) {
-        this(pulseId, timestamp, 0, identifiers, values);
+    StreamValue(long pulseId, long timestamp, List<String> identifiers, List values, java.util.Map<String, ChannelConfig>config) {
+        this(pulseId, timestamp, 0, identifiers, values, config);
     }
 
-    StreamValue(long pulseId, long timestamp, long nanosOffset, List<String> identifiers, List values) {
+    StreamValue(long pulseId, long timestamp, long nanosOffset, List<String> identifiers, List values, java.util.Map<String, ChannelConfig>config) {
         this.pulseId = pulseId;
         this.values = values;
         this.timestamp = timestamp;
         this.nanosOffset = nanosOffset;
         this.identifiers = identifiers;
+        this.config = config;
     }
 
     public long getPulseId() {
@@ -42,6 +45,10 @@ public class StreamValue extends Number {
     public long getTimestampNanos() {
         return (timestamp * 1000000) + nanosOffset;
     }
+    
+    public  java.util.Map<String, ChannelConfig> getConfig() {
+        return config;
+    }        
 
     //Backward compatibility
     public List<String> getIdentifiers() {
@@ -68,6 +75,24 @@ public class StreamValue extends Number {
         return getValues().get(index);
     }
 
+    public  ChannelConfig  getChannelConfig(String id) {
+        return (config==null) ? null : config.get(id);
+    }     
+    
+    public  ChannelConfig  getChannelConfig(int index) {
+        return ((index<0) || (index>=identifiers.size())) ? null : config.get(identifiers.get(index));
+    }     
+    
+    public int[]  getShape(String id) {
+        ChannelConfig  config = getChannelConfig(id);
+        return (config==null) ? null : config.getShape();
+    }     
+    
+    public int[]  getShape(int index) {
+        ChannelConfig  config = getChannelConfig(index);
+        return (config==null) ? null : config.getShape();
+    }        
+    
     @Override
     public String toString() {
         return String.valueOf(pulseId);
