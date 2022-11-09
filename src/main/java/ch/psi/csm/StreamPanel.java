@@ -137,7 +137,8 @@ public class StreamPanel extends MonitoredPanel implements StreamListener {
                     }
                     size = Convert.arrayToString(shape, " x ");
                 }
-                type = val.getClass().getTypeName();
+                //type = val.getClass().getTypeName();
+                type = Str.toString(sv.getType(key));
             }                        
             if (index>=model.getRowCount()){
                 model.addRow(new Object[]{"","","",""});            

@@ -3,6 +3,7 @@ package ch.psi.bs;
 import java.util.ArrayList;
 import java.util.List;
 import ch.psi.bsread.message.ChannelConfig;
+import ch.psi.bsread.message.Type;
 
 /**
  * Entity containing the current value for a stream, including a list of identifiers, their values,
@@ -93,6 +94,15 @@ public class StreamValue extends Number {
         return (config==null) ? null : config.getShape();
     }        
     
+    public Type getType(String id) {
+        ChannelConfig  config = getChannelConfig(id);
+        return (config==null) ? null : config.getType();
+    }     
+     
+    public Type getType(int index) {
+        ChannelConfig  config = getChannelConfig(index);
+        return (config==null) ? null : config.getType();
+    }        
     @Override
     public String toString() {
         return String.valueOf(pulseId);

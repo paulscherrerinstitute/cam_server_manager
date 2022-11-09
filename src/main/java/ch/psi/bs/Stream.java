@@ -9,6 +9,7 @@ import ch.psi.bsread.ReceiverConfig;
 import ch.psi.bsread.message.ValueImpl;
 import ch.psi.bsread.impl.StandardMessageExtractor;
 import ch.psi.bsread.message.ChannelConfig;
+import ch.psi.bsread.message.Type;
 import ch.psi.utils.ObservableBase;
 import ch.psi.utils.Str;
 import ch.psi.utils.Threading;
@@ -451,6 +452,14 @@ public class Stream extends ObservableBase<Stream.StreamListener> implements Aut
     public int[]  getShape(int index) {
          return getCurrentValue().getShape(index);
     }   
+    
+    public Type getType(String id) {
+        return getCurrentValue().getType(id);
+    }     
+     
+    public Type getType(int index) {
+        return getCurrentValue().getType(index);
+    }      
     @Override
     public void close() {
         stop();
