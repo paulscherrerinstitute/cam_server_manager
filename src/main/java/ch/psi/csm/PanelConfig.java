@@ -11,6 +11,7 @@ import java.awt.dnd.DnDConstants;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.DropMode;
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -36,6 +38,7 @@ public class PanelConfig extends MonitoredPanel {
     ProxyClient proxy;
     Map<String, Object> serverCfg = null;
     List<String> instanceCfgNames = new ArrayList<>();
+    List<String> instanceCfgNamesVisible = new ArrayList<>();
     List<String> scriptsNames = new ArrayList<>();
     Map<String, String> permanentInstances = new HashMap<>();
     String currentConfig = "" ;
@@ -242,8 +245,15 @@ public class PanelConfig extends MonitoredPanel {
             try {
                 instanceCfgNames =proxy.getConfigNames();
                 Collections.sort(instanceCfgNames); //, String.CASE_INSENSITIVE_ORDER);
+                instanceCfgNamesVisible = List.copyOf(instanceCfgNames);
+                if ((filterName!=null) && (!filterName.isBlank())){
+                    instanceCfgNamesVisible = instanceCfgNamesVisible
+                        .stream()
+                        .filter(c -> c.toLowerCase().contains(filterName))
+                        .collect(Collectors.toList());                            
+                }
                 modelConfigs.setRowCount(0);
-                for (String instance : instanceCfgNames){
+                for (String instance : instanceCfgNamesVisible){
                     modelConfigs.addRow(new Object[]{instance});
                 }                
                 updateButtons();
@@ -435,6 +445,20 @@ public class PanelConfig extends MonitoredPanel {
         updateButtons();
     }
     
+    void setFilter(String str){        
+        if (str==null){
+            str="";
+        }
+        if (!str.equals(filterName)){
+            filterName = str;
+            updateConfigs();
+        }
+    }
+    
+    String filterName;
+    void onFilter(){
+        setFilter(textFilter.getText().trim().toLowerCase());
+    }    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -477,10 +501,11 @@ public class PanelConfig extends MonitoredPanel {
         buttonConfigEdit = new javax.swing.JButton();
         buttonConfigNew = new javax.swing.JButton();
         buttonConfigDel = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        textFilter = new javax.swing.JTextField();
 
         splitTop.setResizeWeight(1.0);
 
-        splitLeft.setBorder(null);
         splitLeft.setDividerLocation(350);
         splitLeft.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         splitLeft.setResizeWeight(0.5);
@@ -883,6 +908,14 @@ public class PanelConfig extends MonitoredPanel {
             }
         });
 
+        jLabel1.setText("Filter Name:");
+
+        textFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                textFilterKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelConfigurationsLayout = new javax.swing.GroupLayout(panelConfigurations);
         panelConfigurations.setLayout(panelConfigurationsLayout);
         panelConfigurationsLayout.setHorizontalGroup(
@@ -891,16 +924,18 @@ public class PanelConfig extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelConfigurationsLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textFilter))
+                    .addGroup(panelConfigurationsLayout.createSequentialGroup()
                         .addComponent(buttonConfigNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfigDel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonConfigEdit)
-                        .addContainerGap(51, Short.MAX_VALUE))
-                    .addGroup(panelConfigurationsLayout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addContainerGap())))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         panelConfigurationsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonConfigDel, buttonConfigEdit, buttonConfigNew});
@@ -908,8 +943,11 @@ public class PanelConfig extends MonitoredPanel {
         panelConfigurationsLayout.setVerticalGroup(
             panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelConfigurationsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2)
+                .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonConfigEdit)
@@ -974,15 +1012,21 @@ public class PanelConfig extends MonitoredPanel {
                     throw new Exception("Configuration name is already used: " + name);
                 }
                 proxy.setNamedConfig(name, "{}");
+                
+                textFilter.setText("");
+                filterName = null;
                 updateConfigs().join();
+                
                 if (!instanceCfgNames.contains(name)){
                     throw new Exception("Error adding configuration: " + name);
                 }
-                int index = instanceCfgNames.indexOf(name);
-                tableConfigurations.setRowSelectionInterval(index, index);
-                SwingUtils.scrollToVisible(tableConfigurations, index, 0);
-                currentConfig = name;
-                buttonConfigEditActionPerformed(null);                
+                int index = instanceCfgNamesVisible.indexOf(name);
+                if (index>=0){
+                    tableConfigurations.setRowSelectionInterval(index, index);
+                    SwingUtils.scrollToVisible(tableConfigurations, index, 0);
+                    currentConfig = name;
+                    buttonConfigEditActionPerformed(null);                
+                } 
             }
         } catch (Exception ex){
             SwingUtils.showException(this, ex); 
@@ -1177,6 +1221,14 @@ public class PanelConfig extends MonitoredPanel {
         }
     }//GEN-LAST:event_buttonFixedCamApplyActionPerformed
 
+    private void textFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textFilterKeyReleased
+        try{
+            onFilter();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_textFilterKeyReleased
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonConfigDel;
@@ -1193,6 +1245,7 @@ public class PanelConfig extends MonitoredPanel {
     private javax.swing.JButton buttonServersApply;
     private javax.swing.JButton buttonServersDel;
     private javax.swing.JButton buttonServersUndo;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1210,6 +1263,7 @@ public class PanelConfig extends MonitoredPanel {
     private javax.swing.JTable tableFixedInstances;
     private javax.swing.JTable tablePermanentInstances;
     private javax.swing.JTable tableServers;
+    private javax.swing.JTextField textFilter;
     private javax.swing.JTextArea textFixedCameras;
     // End of variables declaration//GEN-END:variables
 }
