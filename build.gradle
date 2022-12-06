@@ -4,7 +4,7 @@ plugins {
     id "nebula.ospackage" version "9.1.1"
 }
 
-version = '1.5.0' 
+version = '1.6.0' 
 group = 'ch.psi'
 ext.timestamp = new Date().format("yyMMddHHmm")
 sourceCompatibility = '1.11'
@@ -98,8 +98,8 @@ def sys_lib ='/usr/local/lib/'
 
 task generateRpm(type: Rpm) {
     //Commented as is being executed in clean+build
-    //dependsOn 'clean' 
-    //dependsOn 'fatJar' 
+    dependsOn 'clean' 
+    dependsOn 'fatJar' 
 
     packageName project.name
     requires 'java-11-openjdk'
@@ -159,9 +159,9 @@ publishing {
         MyPublication(MavenPublication) {
             from components.java
             artifact sourcesJar
-            artifact javadocJar
-            artifact generateRpm
+            //artifact javadocJar
             artifact fatJar
+            //artifact generateRpm
             groupId group
             artifactId project.name
             version version

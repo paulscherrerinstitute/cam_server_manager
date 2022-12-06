@@ -222,7 +222,7 @@ public class PanelUserScripts extends MonitoredPanel {
             String name = SwingUtils.getString(this, "Enter script name: ", "");
             if (name != null) {
 
-                if (!name.endsWith(".py")) {
+                if (!name.endsWith(".py") && !name.endsWith(".c")) {
                     name = name + ".py";
                 }
 
@@ -273,7 +273,8 @@ public class PanelUserScripts extends MonitoredPanel {
                 String name = Str.toString(modelScripts.getValueAt(row, 0));
                 PipelineClient client = new PipelineClient(getUrl());
                 String script = client.getScript(name);
-                ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, name, script, "py");
+                String type = name.endsWith(".c") ? "c" : "py";
+                ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, name, script, type);
                 dlg.setVisible(true);
                 if (dlg.getResult()) {
                     client.setScript(name, dlg.ret);

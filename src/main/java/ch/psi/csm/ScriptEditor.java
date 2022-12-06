@@ -31,6 +31,8 @@ public class ScriptEditor extends StandardDialog {
             syntax = SyntaxConstants.SYNTAX_STYLE_PYTHON;
         } else if (syntax == "json"){
             syntax = SyntaxConstants.SYNTAX_STYLE_JSON;
+        } else if (syntax == "c"){
+            syntax = SyntaxConstants.SYNTAX_STYLE_C;
         } 
         this.syntax = syntax;
         

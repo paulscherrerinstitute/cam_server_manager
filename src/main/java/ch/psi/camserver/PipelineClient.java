@@ -295,7 +295,7 @@ public class PipelineClient extends InstanceManagerClient{
         return (String) getInstanceInfo(instanceId).get("stream_address");
     }
 
-    /**
+    /**             
      * Return the current instance camera.
      */
     public String getCameraName(String instanceId) throws IOException {
