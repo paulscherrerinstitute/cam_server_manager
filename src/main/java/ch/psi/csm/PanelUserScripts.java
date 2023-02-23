@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
@@ -23,6 +24,7 @@ public class PanelUserScripts extends MonitoredPanel {
     ProxyClient proxy;
     List<String> scriptsNames = new ArrayList<>();
     final DefaultTableModel modelScripts;
+    List<String> visibleNames = new ArrayList<>();
 
     public void setUrl(String url){
         setProxy(new ProxyClient(url));
@@ -61,8 +63,18 @@ public class PanelUserScripts extends MonitoredPanel {
                 PipelineClient client = new PipelineClient(getUrl());
                 scriptsNames = client.getScripts();
                 Collections.sort(scriptsNames); //, String.CASE_INSENSITIVE_ORDER);
+                
+            
+                visibleNames = List.copyOf(scriptsNames);
+                if ((filterName!=null) && (!filterName.isBlank())){
+                    visibleNames = visibleNames
+                        .stream()
+                        .filter(c -> c.toLowerCase().contains(filterName))
+                        .collect(Collectors.toList());                            
+                }                
+                
                 modelScripts.setRowCount(0);
-                for (String script : scriptsNames) {
+                for (String script : visibleNames) {
                     modelScripts.addRow(new Object[]{script});
                 }
                 updateButtons();
@@ -94,6 +106,21 @@ public class PanelUserScripts extends MonitoredPanel {
         }
         return proxy.getUrl();
     }
+    
+    String filterName;
+    void setFilter(String str){        
+        if (str==null){
+            str="";
+        }
+        if (!str.equals(filterName)){
+            filterName = str;
+            updateScripts();
+        }
+    }
+        
+    void onFilter(){
+        setFilter(textFilter.getText().trim().toLowerCase());
+    }        
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -110,6 +137,8 @@ public class PanelUserScripts extends MonitoredPanel {
         buttonScriptNew = new javax.swing.JButton();
         buttonScriptDel = new javax.swing.JButton();
         buttonScriptEdit = new javax.swing.JButton();
+        textFilter = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
 
         panelScripts.setPreferredSize(new java.awt.Dimension(288, 250));
 
@@ -171,6 +200,14 @@ public class PanelUserScripts extends MonitoredPanel {
             }
         });
 
+        textFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                textFilterKeyReleased(evt);
+            }
+        });
+
+        jLabel5.setText("Filter:");
+
         javax.swing.GroupLayout panelScriptsLayout = new javax.swing.GroupLayout(panelScripts);
         panelScripts.setLayout(panelScriptsLayout);
         panelScriptsLayout.setHorizontalGroup(
@@ -179,14 +216,18 @@ public class PanelUserScripts extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelScriptsLayout.createSequentialGroup()
-                        .addGap(0, 40, Short.MAX_VALUE)
+                        .addGap(0, 58, Short.MAX_VALUE)
                         .addComponent(buttonScriptNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonScriptDel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonScriptEdit)
-                        .addGap(0, 40, Short.MAX_VALUE))
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addGap(0, 58, Short.MAX_VALUE))
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(panelScriptsLayout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textFilter)))
                 .addContainerGap())
         );
 
@@ -196,7 +237,11 @@ public class PanelUserScripts extends MonitoredPanel {
             panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelScriptsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonScriptEdit)
@@ -213,7 +258,7 @@ public class PanelUserScripts extends MonitoredPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelScripts, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
+            .addComponent(panelScripts, javax.swing.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -239,10 +284,12 @@ public class PanelUserScripts extends MonitoredPanel {
                 if (!scriptsNames.contains(name)) {
                     throw new Exception("Error adding script: " + name);
                 }
-                int index = scriptsNames.indexOf(name);
-                tableUserScripts.setRowSelectionInterval(index, index);
-                SwingUtils.scrollToVisible(tableUserScripts, index, 0);
-                buttonScriptEditActionPerformed(null);
+                int index = visibleNames.indexOf(name);
+                if (index>=0){
+                    tableUserScripts.setRowSelectionInterval(index, index);
+                    SwingUtils.scrollToVisible(tableUserScripts, index, 0);
+                    buttonScriptEditActionPerformed(null);          
+                }                 
             }
         } catch (Exception ex) {
             SwingUtils.showException(this, ex);
@@ -294,13 +341,23 @@ public class PanelUserScripts extends MonitoredPanel {
         updateButtons();
     }//GEN-LAST:event_tableUserScriptsMouseReleased
 
+    private void textFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textFilterKeyReleased
+        try{
+            onFilter();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_textFilterKeyReleased
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonScriptDel;
     private javax.swing.JButton buttonScriptEdit;
     private javax.swing.JButton buttonScriptNew;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JPanel panelScripts;
     private javax.swing.JTable tableUserScripts;
+    private javax.swing.JTextField textFilter;
     // End of variables declaration//GEN-END:variables
 }

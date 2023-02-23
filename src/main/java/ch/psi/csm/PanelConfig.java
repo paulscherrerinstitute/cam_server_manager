@@ -38,7 +38,7 @@ public class PanelConfig extends MonitoredPanel {
     ProxyClient proxy;
     Map<String, Object> serverCfg = null;
     List<String> instanceCfgNames = new ArrayList<>();
-    List<String> instanceCfgNamesVisible = new ArrayList<>();
+    List<String> visibleNames = new ArrayList<>();
     List<String> scriptsNames = new ArrayList<>();
     Map<String, String> permanentInstances = new HashMap<>();
     String currentConfig = "" ;
@@ -245,15 +245,15 @@ public class PanelConfig extends MonitoredPanel {
             try {
                 instanceCfgNames =proxy.getConfigNames();
                 Collections.sort(instanceCfgNames); //, String.CASE_INSENSITIVE_ORDER);
-                instanceCfgNamesVisible = List.copyOf(instanceCfgNames);
+                visibleNames = List.copyOf(instanceCfgNames);
                 if ((filterName!=null) && (!filterName.isBlank())){
-                    instanceCfgNamesVisible = instanceCfgNamesVisible
+                    visibleNames = visibleNames
                         .stream()
                         .filter(c -> c.toLowerCase().contains(filterName))
                         .collect(Collectors.toList());                            
                 }
                 modelConfigs.setRowCount(0);
-                for (String instance : instanceCfgNamesVisible){
+                for (String instance : visibleNames){
                     modelConfigs.addRow(new Object[]{instance});
                 }                
                 updateButtons();
@@ -946,9 +946,9 @@ public class PanelConfig extends MonitoredPanel {
                 .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 489, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelConfigurationsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonConfigEdit)
                     .addComponent(buttonConfigNew)
@@ -1020,7 +1020,7 @@ public class PanelConfig extends MonitoredPanel {
                 if (!instanceCfgNames.contains(name)){
                     throw new Exception("Error adding configuration: " + name);
                 }
-                int index = instanceCfgNamesVisible.indexOf(name);
+                int index = visibleNames.indexOf(name);
                 if (index>=0){
                     tableConfigurations.setRowSelectionInterval(index, index);
                     SwingUtils.scrollToVisible(tableConfigurations, index, 0);

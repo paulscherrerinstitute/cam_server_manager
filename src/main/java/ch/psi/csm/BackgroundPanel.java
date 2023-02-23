@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
@@ -38,6 +39,7 @@ public class BackgroundPanel extends MonitoredPanel {
     String camera=null;
     BufferedImage historyBackground;
     String historyBackgroundId;
+    List<String> visibleNames = new ArrayList<>();
 
     public BackgroundPanel() {
         initComponents();
@@ -98,9 +100,17 @@ public class BackgroundPanel extends MonitoredPanel {
             }
             List<String> names = new ArrayList<>(cameras);
             Collections.sort(names);
+            visibleNames = List.copyOf(names);
+            if ((filterName!=null) && (!filterName.isBlank())){
+                visibleNames = visibleNames
+                    .stream()
+                    .filter(c -> c.toLowerCase().contains(filterName))
+                    .collect(Collectors.toList());                            
+            }
+                        
             SwingUtilities.invokeLater(()->{        
                 model.setNumRows(0);
-                for (String camera: names){
+                for (String camera: visibleNames){
                     model.addRow(new Object[]{camera,});
                 }
                 updateButtons();        
@@ -237,6 +247,20 @@ public class BackgroundPanel extends MonitoredPanel {
         }
     }
     
+    String filterName;
+    void setFilter(String str){        
+        if (str==null){
+            str="";
+        }
+        if (!str.equals(filterName)){
+            filterName = str;
+            updateCameras();
+        }
+    }
+        
+    void onFilter(){
+        setFilter(textFilter.getText().trim().toLowerCase());
+    }       
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -250,6 +274,8 @@ public class BackgroundPanel extends MonitoredPanel {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
+        jLabel5 = new javax.swing.JLabel();
+        textFilter = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         buttonCapture = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
@@ -307,20 +333,36 @@ public class BackgroundPanel extends MonitoredPanel {
         });
         jScrollPane1.setViewportView(table);
 
+        jLabel5.setText("Filter:");
+
+        textFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                textFilterKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textFilter)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -607,6 +649,14 @@ public class BackgroundPanel extends MonitoredPanel {
         }
     }//GEN-LAST:event_tableHistoryKeyReleased
 
+    private void textFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textFilterKeyReleased
+        try{
+            onFilter();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_textFilterKeyReleased
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonCapture;
@@ -617,6 +667,7 @@ public class BackgroundPanel extends MonitoredPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
@@ -627,6 +678,7 @@ public class BackgroundPanel extends MonitoredPanel {
     private javax.swing.JSpinner spinnerImages;
     private javax.swing.JTable table;
     private javax.swing.JTable tableHistory;
+    private javax.swing.JTextField textFilter;
     private javax.swing.JTextField textGeometry;
     private javax.swing.JTextField textGeometryBackHist;
     private javax.swing.JTextField textLast;

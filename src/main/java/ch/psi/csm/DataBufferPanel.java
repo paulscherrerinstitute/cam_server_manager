@@ -4,6 +4,7 @@ import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.MonitoredPanel;
+import ch.psi.utils.swing.SwingUtils;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
@@ -25,6 +27,7 @@ public class DataBufferPanel extends MonitoredPanel {
 
     ProxyClient proxy;
     Set<String> permanentPipelineLabels = new HashSet<>();
+    List<String> visibleNames = new ArrayList<>();
     final DefaultTableModel model;
     volatile boolean running = false;
 
@@ -88,9 +91,18 @@ public class DataBufferPanel extends MonitoredPanel {
             }
             List<String> names = new ArrayList<>(permanentPipelineLabels);
             Collections.sort(names);
+            
+            visibleNames = List.copyOf(names);
+            if ((filterName!=null) && (!filterName.isBlank())){
+                visibleNames = visibleNames
+                    .stream()
+                    .filter(c -> c.toLowerCase().contains(filterName))
+                    .collect(Collectors.toList());                            
+            }
+            
             SwingUtilities.invokeLater(()->{        
                 model.setNumRows(0);
-                for (String camera: names){
+                for (String camera: visibleNames){
                     model.addRow(new Object[]{camera,});
                 }
                 updateButtons();        
@@ -105,6 +117,21 @@ public class DataBufferPanel extends MonitoredPanel {
         updateLabels();
     }
     
+    String filterName;
+    void setFilter(String str){        
+        if (str==null){
+            str="";
+        }
+        if (!str.equals(filterName)){
+            filterName = str;
+            updateLabels();
+        }
+    }
+        
+    void onFilter(){
+        setFilter(textFilter.getText().trim().toLowerCase());
+    }        
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -118,6 +145,8 @@ public class DataBufferPanel extends MonitoredPanel {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
+        textFilter = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
         buttonDataBuffer = new javax.swing.JButton();
         buttonImageBuffer = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -161,20 +190,36 @@ public class DataBufferPanel extends MonitoredPanel {
         });
         jScrollPane1.setViewportView(table);
 
+        textFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                textFilterKeyReleased(evt);
+            }
+        });
+
+        jLabel5.setText("Filter:");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textFilter)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -306,14 +351,24 @@ public class DataBufferPanel extends MonitoredPanel {
         updateButtons();
     }//GEN-LAST:event_textLabelKeyReleased
 
+    private void textFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textFilterKeyReleased
+        try{
+            onFilter();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_textFilterKeyReleased
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonDataBuffer;
     private javax.swing.JButton buttonImageBuffer;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable table;
+    private javax.swing.JTextField textFilter;
     private javax.swing.JTextField textLabel;
     // End of variables declaration//GEN-END:variables
 }
