@@ -665,8 +665,9 @@ public class PanelStatus extends MonitoredPanel {
             }            
             schedulerPolling.submit(()->{
                 try{
-                    CamServerClient client = new CamServerClient(currentServer, "");
-                    String logs = client.getLogs();
+                    //CamServerClient client = new CamServerClient(currentServer, "");
+                    //String logs = client.getLogs();
+                    String logs = proxy.getLogs(currentServer);
                     TextEditor editor = new TextEditor();
                     editor.setText(logs);
                     editor.setEditorFont(editor.getEditorFont().deriveFont(10.0f));

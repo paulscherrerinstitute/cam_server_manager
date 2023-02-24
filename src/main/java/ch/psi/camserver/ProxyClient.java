@@ -152,11 +152,24 @@ public class ProxyClient extends CamServerClient{
         Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
         checkReturn(map);
     }    
+        
+     /**
+     * Get server logs
+     */
+    public String getLogs(int serverIndex) throws IOException {
+        WebTarget resource = client.target(prefix+ "/server/logs/" + serverIndex + "/txt");
+        String logs = resource.request().accept(MediaType.TEXT_PLAIN).get(String.class);
+        return logs;
+    }    
     
+    public String getLogs(String server) throws IOException {
+        String compactName = server.replace("http", "").replace("/", "").replace(":", "");        
+        WebTarget resource = client.target(prefix+ "/server/logs/" + compactName + "/txt");
+        String logs = resource.request().accept(MediaType.TEXT_PLAIN).get(String.class);
+        return logs;
+    }    
     
-
-    
-
+  
     public static void main(String[] args) throws IOException {
         ProxyClient proxy =  new ProxyClient(null);
          Map<String, Object> info = proxy.getInfo();
