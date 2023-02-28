@@ -263,6 +263,7 @@ public class PanelStatus extends MonitoredPanel {
             buttonRead.setEnabled(instanceSelected);
             buttonConfig.setEnabled(instanceSelected);
             buttonFunction.setEnabled(instanceSelected);
+            buttonInstanceLogs.setEnabled(instanceSelected);
         } catch (Exception ex){
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }     
@@ -363,6 +364,7 @@ public class PanelStatus extends MonitoredPanel {
         buttonConfig = new javax.swing.JButton();
         buttonInstanceStop = new javax.swing.JButton();
         buttonFunction = new javax.swing.JButton();
+        buttonInstanceLogs = new javax.swing.JButton();
         panelServers = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
@@ -428,7 +430,6 @@ public class PanelStatus extends MonitoredPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        split.setBorder(null);
         split.setDividerSize(4);
         split.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         split.setResizeWeight(0.5);
@@ -501,6 +502,13 @@ public class PanelStatus extends MonitoredPanel {
             }
         });
 
+        buttonInstanceLogs.setText("Get Logs");
+        buttonInstanceLogs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonInstanceLogsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelInstancesLayout = new javax.swing.GroupLayout(panelInstances);
         panelInstances.setLayout(panelInstancesLayout);
         panelInstancesLayout.setHorizontalGroup(
@@ -513,7 +521,8 @@ public class PanelStatus extends MonitoredPanel {
                     .addComponent(buttonRead, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonInstanceStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(buttonFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonInstanceLogs, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -532,6 +541,8 @@ public class PanelStatus extends MonitoredPanel {
                         .addComponent(buttonConfig)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonFunction)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonInstanceLogs)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jScrollPane3))
                 .addContainerGap())
@@ -842,10 +853,40 @@ public class PanelStatus extends MonitoredPanel {
         }
      }//GEN-LAST:event_textSearchKeyReleased
 
+    private void buttonInstanceLogsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonInstanceLogsActionPerformed
+        try{
+            if (currentServer==null){
+                throw new Exception("No server selected");
+            }            
+            
+            if (currentInstance==null){
+                throw new Exception("No instance selected");
+            }
+            schedulerPolling.submit(()->{
+                try{
+                    //CamServerClient client = new CamServerClient(currentServer, "");
+                    //String logs = client.getLogs();
+                    String logs = proxy.getLogs(currentServer, currentInstance);
+                    TextEditor editor = new TextEditor();
+                    editor.setText(logs);
+                    editor.setEditorFont(editor.getEditorFont().deriveFont(10.0f));
+                    editor.setContentWidth(3000);
+                    editor.setReadOnly(true);
+                    SwingUtils.showDialog(PanelStatus.this, "Instance Logs - " + currentInstance, new Dimension(800,600), editor);
+                } catch (Exception ex){
+                    SwingUtils.showException(this, ex);
+                }                    
+            });           
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_buttonInstanceLogsActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonConfig;
     private javax.swing.JButton buttonFunction;
+    private javax.swing.JButton buttonInstanceLogs;
     private javax.swing.JButton buttonInstanceStop;
     private javax.swing.JButton buttonProxyLogs;
     private javax.swing.JButton buttonProxyRestart;
