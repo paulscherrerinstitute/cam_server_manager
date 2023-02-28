@@ -674,21 +674,8 @@ public class PanelStatus extends MonitoredPanel {
             if (currentServer==null){
                 throw new Exception("No server selected");
             }            
-            schedulerPolling.submit(()->{
-                try{
-                    //CamServerClient client = new CamServerClient(currentServer, "");
-                    //String logs = client.getLogs();
-                    String logs = proxy.getLogs(currentServer);
-                    TextEditor editor = new TextEditor();
-                    editor.setText(logs);
-                    editor.setEditorFont(editor.getEditorFont().deriveFont(10.0f));
-                    editor.setContentWidth(3000);
-                    editor.setReadOnly(true);
-                    SwingUtils.showDialog(PanelStatus.this, "Servers Logs - " + currentServer, new Dimension(800,600), editor);
-                } catch (Exception ex){
-                    SwingUtils.showException(this, ex);
-                }                    
-            });           
+            String server = currentServer;
+            LoggerPanel.show(this,  "Servers Logs - " + currentServer, schedulerPolling, ()->{return proxy.getLogs(server);});
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
@@ -793,19 +780,7 @@ public class PanelStatus extends MonitoredPanel {
 
     private void buttonProxyLogsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonProxyLogsActionPerformed
         try{
-            schedulerPolling.submit(()->{
-                try{
-                    String logs = proxy.getLogs();
-                    TextEditor editor = new TextEditor();
-                    editor.setText(logs);
-                    editor.setEditorFont(editor.getEditorFont().deriveFont(10.0f));
-                    editor.setContentWidth(3000);
-                    editor.setReadOnly(true);
-                    SwingUtils.showDialog(PanelStatus.this, "Proxy Logs ", new Dimension(800,600), editor);
-                } catch (Exception ex){
-                    SwingUtils.showException(this, ex);
-                }                    
-            });           
+            LoggerPanel.show(this,  "Proxy Logs" + currentInstance, schedulerPolling, ()->{return proxy.getLogs();});
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
@@ -862,21 +837,9 @@ public class PanelStatus extends MonitoredPanel {
             if (currentInstance==null){
                 throw new Exception("No instance selected");
             }
-            schedulerPolling.submit(()->{
-                try{
-                    //CamServerClient client = new CamServerClient(currentServer, "");
-                    //String logs = client.getLogs();
-                    String logs = proxy.getLogs(currentServer, currentInstance);
-                    TextEditor editor = new TextEditor();
-                    editor.setText(logs);
-                    editor.setEditorFont(editor.getEditorFont().deriveFont(10.0f));
-                    editor.setContentWidth(3000);
-                    editor.setReadOnly(true);
-                    SwingUtils.showDialog(PanelStatus.this, "Instance Logs - " + currentInstance, new Dimension(800,600), editor);
-                } catch (Exception ex){
-                    SwingUtils.showException(this, ex);
-                }                    
-            });           
+            String server = currentServer;
+            String instance = currentInstance;
+            LoggerPanel.show(this,  "Instance Logs - " + currentInstance, schedulerPolling, ()->{return proxy.getLogs(server, instance);});
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
