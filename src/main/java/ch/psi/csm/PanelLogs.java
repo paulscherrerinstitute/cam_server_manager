@@ -2,6 +2,7 @@ package ch.psi.csm;
 
 import ch.psi.utils.Str;
 import ch.psi.utils.Arr;
+import ch.psi.utils.LogManager;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
 import java.awt.Color;
@@ -25,12 +26,12 @@ import javax.swing.table.TableColumn;
 /**
  *
  */
-public class LoggerPanel extends MonitoredPanel {
+public class PanelLogs extends MonitoredPanel {
 
-    final Color colorInfo = new Color(187, 187, 187);
-    final Color colorWarning =  Color.ORANGE;
-    final Color colorError =  new Color(210, 21, 73);
-    public static final String FILE_SEPARATOR = " - ";    
+    public static final Color INFO_COLOR = ch.psi.utils.swing.MainFrame.isDark() ? new Color(187, 187, 187) : Color.BLACK;
+    public static final Color WARNING_COLOR = Color.ORANGE;
+    public static final Color ERROR_COLOR = ch.psi.utils.swing.MainFrame.isDark() ? new Color(210, 21, 73) : Color.RED;
+    public static final String FILE_SEPARATOR = LogManager.FILE_SEPARATOR;    
     
     final DefaultTableModel model;
     final ExecutorService executorService;
@@ -47,13 +48,13 @@ public class LoggerPanel extends MonitoredPanel {
 
     
     public static JDialog show(Component parent, String title, ExecutorService executorService, LoggerRetrieveFunction function){
-        LoggerPanel panel = new LoggerPanel(executorService, function);
+        PanelLogs panel = new PanelLogs(executorService, function);
         JDialog dlg =  SwingUtils.showDialog(parent, title, new Dimension(800,400), panel);        
         panel.update();
         return dlg;
     }
-    
-    public LoggerPanel(ExecutorService executorService, LoggerRetrieveFunction function) {
+
+    public PanelLogs(ExecutorService executorService, LoggerRetrieveFunction function) {
         initComponents();
         this.executorService = executorService;
         this.function = function;
@@ -70,12 +71,12 @@ public class LoggerPanel extends MonitoredPanel {
                 @Override
                 public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                     Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                    comp.setForeground(colorInfo);
+                    comp.setForeground(INFO_COLOR);
                     String cell = (String) table.getModel().getValueAt(row, 3);
                     if (Level.SEVERE.toString().equalsIgnoreCase(cell)) {
-                        comp.setForeground(colorError);
+                        comp.setForeground(ERROR_COLOR);
                     } else if (Level.WARNING.toString().equalsIgnoreCase(cell)) {
-                        comp.setForeground(colorWarning);
+                        comp.setForeground(WARNING_COLOR);
                     }
                     return comp;
                 }
@@ -268,9 +269,7 @@ public class LoggerPanel extends MonitoredPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(scrollPane)
-                        .addContainerGap())
+                    .addComponent(scrollPane)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -278,8 +277,8 @@ public class LoggerPanel extends MonitoredPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 397, Short.MAX_VALUE)
                         .addComponent(buttonUpdate)
                         .addGap(18, 18, 18)
-                        .addComponent(buttonClose)
-                        .addContainerGap())))
+                        .addComponent(buttonClose)))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonClose, buttonUpdate});

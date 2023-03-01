@@ -675,7 +675,7 @@ public class PanelStatus extends MonitoredPanel {
                 throw new Exception("No server selected");
             }            
             String server = currentServer;
-            LoggerPanel.show(this,  "Servers Logs - " + currentServer, schedulerPolling, ()->{return proxy.getLogs(server);});
+            PanelLogs.show(this,  "Servers Logs - " + currentServer, schedulerPolling, ()->{return proxy.getLogs(server);});
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
@@ -780,7 +780,7 @@ public class PanelStatus extends MonitoredPanel {
 
     private void buttonProxyLogsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonProxyLogsActionPerformed
         try{
-            LoggerPanel.show(this,  "Proxy Logs" + currentInstance, schedulerPolling, ()->{return proxy.getLogs();});
+            PanelLogs.show(this,  "Proxy Logs" + currentInstance, schedulerPolling, ()->{return proxy.getLogs();});
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
@@ -839,7 +839,7 @@ public class PanelStatus extends MonitoredPanel {
             }
             String server = currentServer;
             String instance = currentInstance;
-            LoggerPanel.show(this,  "Instance Logs - " + currentInstance, schedulerPolling, ()->{return proxy.getLogs(server, instance);});
+            PanelLogs.show(this,  "Instance Logs - " + currentInstance, schedulerPolling, ()->{return proxy.getLogs(server, instance);});
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
