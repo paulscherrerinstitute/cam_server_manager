@@ -43,6 +43,18 @@ public class InstanceManagerClient extends CamServerClient{
         Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
         checkReturn(map);
     }
+    
+    /**
+     * Stop and delete instance.
+     */
+    public void deleteInstance(String instanceName) throws IOException {
+        checkName(instanceName);
+        WebTarget resource = client.target(prefix + "/" + instanceName + "/del");
+        String json = resource.request().accept(MediaType.TEXT_HTML).delete(String.class);
+        Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
+        checkReturn(map);
+    }
+    
    
     public boolean isInstanceRunning(String instanceName) throws IOException{    
         checkName(instanceName);

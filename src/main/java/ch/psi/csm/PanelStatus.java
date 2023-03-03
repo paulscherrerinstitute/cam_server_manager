@@ -106,7 +106,8 @@ public class PanelStatus extends MonitoredPanel {
 
    public void setPipeline(boolean value){
        isPipeline = value;
-       buttonConfig.setVisible(value);
+       //buttonConfig.setVisible(value);
+       buttonConfig.setText(isPipeline ? "Config" : "Delete");
        buttonFunction.setVisible(value);
    }
 
@@ -761,18 +762,35 @@ public class PanelStatus extends MonitoredPanel {
     }//GEN-LAST:event_buttonReadActionPerformed
 
     private void buttonConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfigActionPerformed
-        try{            
-            Map instanceData = instanceInfo.get(currentInstance);
-            Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
-            String json = JsonSerializer.encode(cfg, true);
-            ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, currentInstance, json, "json");
-            dlg.setVisible(true);
-            if (dlg.getResult()){
-                json = dlg.ret;
-                cfg = (Map) JsonSerializer.decode(json, Map.class);
-                PipelineClient client = new PipelineClient(currentServer);
-                client.setInstanceConfig(currentInstance, cfg);
-            }        
+        try{       
+            if (currentServer==null){
+                throw new Exception("No server selected");
+            }
+            if (currentInstance==null){
+                throw new Exception("No insatance selected");
+            }
+            
+            if (isPipeline){
+                Map instanceData = instanceInfo.get(currentInstance);
+                Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
+                String json = JsonSerializer.encode(cfg, true);
+                ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, currentInstance, json, "json");
+                dlg.setVisible(true);
+                if (dlg.getResult()){
+                    json = dlg.ret;
+                    cfg = (Map) JsonSerializer.decode(json, Map.class);
+                    PipelineClient client = new PipelineClient(currentServer);
+                    client.setInstanceConfig(currentInstance, cfg);
+                }        
+            } else {                        
+                schedulerPolling.submit(()->{
+                    try{
+                        proxy.deleteInstance(currentInstance);
+                    } catch (Exception ex){
+                        SwingUtils.showException(this, ex);
+                    }                    
+                });             
+            }
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }        
