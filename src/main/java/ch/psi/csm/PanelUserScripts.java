@@ -3,21 +3,21 @@ package ch.psi.csm;
 import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
-import ch.psi.utils.swing.ExtensionFileFilter;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
@@ -29,8 +29,14 @@ public class PanelUserScripts extends MonitoredPanel {
     ProxyClient proxy;
     List<String> scriptsNames = new ArrayList<>();
     final DefaultTableModel modelScripts;
-    List<String> visibleNames = new ArrayList<>();
+    List<String> visibleScriptNames = new ArrayList<>();
 
+    
+    List<String> libsNames = new ArrayList<>();
+    final DefaultTableModel modelLibs;
+    List<String> visibleLibNames = new ArrayList<>();
+
+    
     public void setUrl(String url){
         setProxy(new ProxyClient(url));
     }       
@@ -48,6 +54,8 @@ public class PanelUserScripts extends MonitoredPanel {
                 }
             }
         });
+        
+        modelLibs = (DefaultTableModel) tableLibs.getModel();
         updateButtons();
     }
 
@@ -60,6 +68,9 @@ public class PanelUserScripts extends MonitoredPanel {
         }
         buttonScriptEdit.setEnabled(tableUserScripts.getSelectedRow() >= 0);
         buttonScriptDel.setEnabled(tableUserScripts.getSelectedRow() >= 0);
+
+        buttonLibDownload.setEnabled(tableLibs.getSelectedRow() >= 0);
+        buttonLibDel.setEnabled(tableLibs.getSelectedRow() >= 0);
     }
 
     Thread updateScripts() {
@@ -70,31 +81,61 @@ public class PanelUserScripts extends MonitoredPanel {
                 Collections.sort(scriptsNames); //, String.CASE_INSENSITIVE_ORDER);
                 
             
-                visibleNames = List.copyOf(scriptsNames);
-                if ((filterName!=null) && (!filterName.isBlank())){
-                    visibleNames = visibleNames
+                visibleScriptNames = List.copyOf(scriptsNames);
+                if ((scriptFilterName!=null) && (!scriptFilterName.isBlank())){
+                    visibleScriptNames = visibleScriptNames
                         .stream()
-                        .filter(c -> c.toLowerCase().contains(filterName))
+                        .filter(c -> c.toLowerCase().contains(scriptFilterName))
                         .collect(Collectors.toList());                            
                 }                
                 
                 modelScripts.setRowCount(0);
-                for (String script : visibleNames) {
+                for (String script : visibleScriptNames) {
                     modelScripts.addRow(new Object[]{script});
                 }
                 updateButtons();
             } catch (Exception ex) {
                 Logger.getLogger(PanelUserScripts.class.getName()).log(Level.WARNING, null, ex);
             }
-        }, "PC Update Scripts");
+        }, "Task Update Scripts");
         t.start();
         return t;
     }
 
+    Thread updateLibs() {
+        Thread t = new Thread(() -> {
+            try {
+                PipelineClient client = new PipelineClient(getUrl());
+                libsNames = client.getLibs();
+                Collections.sort(libsNames); //, String.CASE_INSENSITIVE_ORDER);
+                
+            
+                visibleLibNames = List.copyOf(libsNames);
+                if ((libFilterName!=null) && (!libFilterName.isBlank())){
+                    visibleLibNames = visibleLibNames
+                        .stream()
+                        .filter(c -> c.toLowerCase().contains(libFilterName))
+                        .collect(Collectors.toList());                            
+                }                
+                
+                modelLibs.setRowCount(0);
+                for (String lib : visibleLibNames) {
+                    modelLibs.addRow(new Object[]{lib});
+                }
+                updateButtons();
+            } catch (Exception ex) {
+                Logger.getLogger(PanelUserScripts.class.getName()).log(Level.WARNING, null, ex);
+            }
+        }, "Task Update Libs");
+        t.start();
+        return t;
+    }
+    
     @Override
     protected void onShow() {
         updateButtons();
         updateScripts();
+        updateLibs();
     }
 
     public void setProxy(ProxyClient proxy) {
@@ -112,19 +153,35 @@ public class PanelUserScripts extends MonitoredPanel {
         return proxy.getUrl();
     }
     
-    String filterName;
-    void setFilter(String str){        
+    String scriptFilterName;
+    void setScriptFilter(String str){        
         if (str==null){
             str="";
         }
-        if (!str.equals(filterName)){
-            filterName = str;
+        if (!str.equals(scriptFilterName)){
+            scriptFilterName = str;
             updateScripts();
         }
     }
         
-    void onFilter(){
-        setFilter(textScriptFilter.getText().trim().toLowerCase());
+    void onScriptFilter(){
+        setScriptFilter(textScriptFilter.getText().trim().toLowerCase());
+    }        
+    
+    
+    String libFilterName;
+    void setLibFilter(String str){        
+        if (str==null){
+            str="";
+        }
+        if (!str.equals(libFilterName)){
+            libFilterName = str;
+            updateLibs();
+        }
+    }
+        
+    void onLibFilter(){
+        setLibFilter(textLibFilter.getText().trim().toLowerCase());
     }        
 
     /**
@@ -146,6 +203,14 @@ public class PanelUserScripts extends MonitoredPanel {
         textScriptFilter = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         buttonScriptUpload = new javax.swing.JButton();
+        panelScripts1 = new javax.swing.JPanel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        tableLibs = new javax.swing.JTable();
+        buttonLibDel = new javax.swing.JButton();
+        textLibFilter = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        buttonLibUpload = new javax.swing.JButton();
+        buttonLibDownload = new javax.swing.JButton();
 
         panelScripts.setPreferredSize(new java.awt.Dimension(288, 250));
 
@@ -247,7 +312,7 @@ public class PanelUserScripts extends MonitoredPanel {
                 .addContainerGap())
         );
 
-        panelScriptsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonScriptDel, buttonScriptEdit, buttonScriptNew});
+        panelScriptsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonScriptDel, buttonScriptEdit, buttonScriptNew, buttonScriptUpload});
 
         panelScriptsLayout.setVerticalGroup(
             panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -268,6 +333,118 @@ public class PanelUserScripts extends MonitoredPanel {
         );
 
         jTabbedPane1.addTab("Processing Functions", panelScripts);
+
+        panelScripts1.setPreferredSize(new java.awt.Dimension(288, 250));
+
+        tableLibs.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Name"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tableLibs.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableLibs.getTableHeader().setReorderingAllowed(false);
+        tableLibs.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tableLibsMouseReleased(evt);
+            }
+        });
+        tableLibs.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableLibsKeyReleased(evt);
+            }
+        });
+        jScrollPane6.setViewportView(tableLibs);
+
+        buttonLibDel.setText("Delete");
+        buttonLibDel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonLibDelActionPerformed(evt);
+            }
+        });
+
+        textLibFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                textLibFilterKeyReleased(evt);
+            }
+        });
+
+        jLabel6.setText("Filter:");
+
+        buttonLibUpload.setText("Upload");
+        buttonLibUpload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonLibUploadActionPerformed(evt);
+            }
+        });
+
+        buttonLibDownload.setText("Download");
+        buttonLibDownload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonLibDownloadActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelScripts1Layout = new javax.swing.GroupLayout(panelScripts1);
+        panelScripts1.setLayout(panelScripts1Layout);
+        panelScripts1Layout.setHorizontalGroup(
+            panelScripts1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelScripts1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelScripts1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelScripts1Layout.createSequentialGroup()
+                        .addGap(0, 34, Short.MAX_VALUE)
+                        .addComponent(buttonLibUpload)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonLibDownload)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonLibDel)
+                        .addGap(0, 34, Short.MAX_VALUE))
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(panelScripts1Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textLibFilter)))
+                .addContainerGap())
+        );
+
+        panelScripts1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {buttonLibDel, buttonLibDownload, buttonLibUpload});
+
+        panelScripts1Layout.setVerticalGroup(
+            panelScripts1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelScripts1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelScripts1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(textLibFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelScripts1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonLibDel)
+                    .addComponent(buttonLibUpload)
+                    .addComponent(buttonLibDownload, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Libraries", panelScripts1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -391,7 +568,7 @@ public class PanelUserScripts extends MonitoredPanel {
                 if (!scriptsNames.contains(name)) {
                     throw new Exception("Error adding script: " + name);
                 }
-                int index = visibleNames.indexOf(name);
+                int index = visibleScriptNames.indexOf(name);
                 if (index>=0){
                     tableUserScripts.setRowSelectionInterval(index, index);
                     SwingUtils.scrollToVisible(tableUserScripts, index, 0);
@@ -450,7 +627,7 @@ public class PanelUserScripts extends MonitoredPanel {
 
     private void textScriptFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textScriptFilterKeyReleased
         try{
-            onFilter();
+            onScriptFilter();
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
@@ -481,17 +658,108 @@ public class PanelUserScripts extends MonitoredPanel {
         }
     }//GEN-LAST:event_buttonScriptUploadActionPerformed
 
+    private void tableLibsMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableLibsMouseReleased
+         updateButtons();
+    }//GEN-LAST:event_tableLibsMouseReleased
+
+    private void tableLibsKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableLibsKeyReleased
+         updateButtons();
+    }//GEN-LAST:event_tableLibsKeyReleased
+
+    private void buttonLibDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonLibDelActionPerformed
+        try {
+            int row = tableLibs.getSelectedRow();
+            if (row >= 0) {
+                String name = Str.toString(modelLibs.getValueAt(row, 0));
+                Object[] options = new Object[]{"No", "Yes"};
+                if (SwingUtils.showOption(this, "Delete Library", "Are you sure to delete the library file: " + name + "?", options, options[0]) == 1) {
+                    PipelineClient client = new PipelineClient(getUrl());
+                    client.deleteLib(name);
+                    updateLibs();
+                }
+            }
+        } catch (Exception ex) {
+            SwingUtils.showException(this, ex);        
+        }    }//GEN-LAST:event_buttonLibDelActionPerformed
+
+    private void textLibFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textLibFilterKeyReleased
+        try{
+            onLibFilter();
+        } catch (Exception ex){
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_textLibFilterKeyReleased
+
+    private void buttonLibUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonLibUploadActionPerformed
+        try {
+            JFileChooser chooser = new JFileChooser();
+            int rVal = chooser.showOpenDialog(this);
+            if (rVal == JFileChooser.APPROVE_OPTION) {
+                String name = chooser.getSelectedFile().getName();
+                if (libsNames.contains(name)) {
+                    Object[] options = new Object[]{"No", "Yes"};
+                    if (SwingUtils.showOption(this, "Upload Library", "Overwrite the library: " + name + "?", options, options[0]) != 1) {
+                        return;
+                    }
+                }
+                PipelineClient client = new PipelineClient(getUrl());
+                client.setLibFile(chooser.getSelectedFile().getAbsolutePath());
+                updateLibs();
+            }
+            
+        } catch (Exception ex) {
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_buttonLibUploadActionPerformed
+
+    private void buttonLibDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonLibDownloadActionPerformed
+        try {
+            int row = tableLibs.getSelectedRow();
+            if (row >= 0) {
+                String name = Str.toString(modelLibs.getValueAt(row, 0));
+
+                JFileChooser chooser = new JFileChooser();
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                int rVal = chooser.showSaveDialog(this);
+                if (rVal == JFileChooser.APPROVE_OPTION) {
+                    PipelineClient client = new PipelineClient(getUrl());
+                    byte[] lib  = client.getLib(name);
+                    Path path = Paths.get(chooser.getSelectedFile().toString(), name);
+                    if (path.toFile().exists()){
+                        Object[] options = new Object[]{"No", "Yes"};
+                        if (SwingUtils.showOption(this, "Download Library", "Overwrite local file: " + path.toString() + "?", options, options[0]) != 1) {
+                            return;
+                        }                        
+                    }
+                    Files.write(path, lib);
+                    SwingUtils.showMessage(this, "Download Library", "Success downloading library: " + name);
+                }
+            }
+        } catch (Exception ex) {
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_buttonLibDownloadActionPerformed
+
+    /*    */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton buttonLibDel;
+    private javax.swing.JButton buttonLibDownload;
+    private javax.swing.JButton buttonLibUpload;
     private javax.swing.JButton buttonScriptDel;
     private javax.swing.JButton buttonScriptEdit;
     private javax.swing.JButton buttonScriptNew;
     private javax.swing.JButton buttonScriptUpload;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JPanel panelScripts;
+    private javax.swing.JPanel panelScripts1;
+    private javax.swing.JTable tableLibs;
     private javax.swing.JTable tableUserScripts;
+    private javax.swing.JTextField textLibFilter;
     private javax.swing.JTextField textScriptFilter;
     // End of variables declaration//GEN-END:variables
 }
