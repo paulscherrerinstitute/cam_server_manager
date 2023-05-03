@@ -3,17 +3,22 @@ package ch.psi.csm;
 import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Str;
+import ch.psi.utils.swing.ExtensionFileFilter;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -119,7 +124,7 @@ public class PanelUserScripts extends MonitoredPanel {
     }
         
     void onFilter(){
-        setFilter(textFilter.getText().trim().toLowerCase());
+        setFilter(textScriptFilter.getText().trim().toLowerCase());
     }        
 
     /**
@@ -131,14 +136,16 @@ public class PanelUserScripts extends MonitoredPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         panelScripts = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         tableUserScripts = new javax.swing.JTable();
         buttonScriptNew = new javax.swing.JButton();
         buttonScriptDel = new javax.swing.JButton();
         buttonScriptEdit = new javax.swing.JButton();
-        textFilter = new javax.swing.JTextField();
+        textScriptFilter = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
+        buttonScriptUpload = new javax.swing.JButton();
 
         panelScripts.setPreferredSize(new java.awt.Dimension(288, 250));
 
@@ -200,13 +207,20 @@ public class PanelUserScripts extends MonitoredPanel {
             }
         });
 
-        textFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+        textScriptFilter.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                textFilterKeyReleased(evt);
+                textScriptFilterKeyReleased(evt);
             }
         });
 
         jLabel5.setText("Filter:");
+
+        buttonScriptUpload.setText("Upload");
+        buttonScriptUpload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonScriptUploadActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelScriptsLayout = new javax.swing.GroupLayout(panelScripts);
         panelScripts.setLayout(panelScriptsLayout);
@@ -216,18 +230,20 @@ public class PanelUserScripts extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelScriptsLayout.createSequentialGroup()
-                        .addGap(0, 58, Short.MAX_VALUE)
+                        .addGap(0, 19, Short.MAX_VALUE)
                         .addComponent(buttonScriptNew)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonScriptUpload)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonScriptDel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonScriptEdit)
-                        .addGap(0, 58, Short.MAX_VALUE))
+                        .addGap(0, 19, Short.MAX_VALUE))
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(panelScriptsLayout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(textFilter)))
+                        .addComponent(textScriptFilter)))
                 .addContainerGap())
         );
 
@@ -239,29 +255,102 @@ public class PanelUserScripts extends MonitoredPanel {
                 .addContainerGap()
                 .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(textScriptFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelScriptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonScriptEdit)
                     .addComponent(buttonScriptNew)
-                    .addComponent(buttonScriptDel))
+                    .addComponent(buttonScriptDel)
+                    .addComponent(buttonScriptUpload))
                 .addContainerGap())
         );
+
+        jTabbedPane1.addTab("Processing Functions", panelScripts);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelScripts, javax.swing.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelScripts, javax.swing.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    String templateProc   =   "from cam_server.pipeline.data_processing import functions, processor\n"
+                            + "\n"
+                            + "def process_image(image, pulse_id, timestamp, x_axis, y_axis, parameters, bsdata=None):\n"
+                            + "    ret = processor.process_image(image, pulse_id, timestamp, x_axis, y_axis, parameters, bsdata)\n"
+                            + "    return ret";
+
+    String templateStream =   "\n"
+                            + "def process(data, pulse_id, timestamp, params):\n"
+                            + "    return data";
+
+    String templateCustom =   "import time\n"
+                            + "import numpy\n"         
+                            + "from collections import OrderedDict\n"         
+                            + "\n"
+                            + "def process(parameters, init=False):\n"         
+                            + "    data = OrderedDict()\n"         
+                            + "    data['image'] = numpy.random.randint(1, 101, 200, \"uint16\").reshape((10, 20))\n"         
+                            + "    timestamp = time.time()\n"         
+                            + "    pulse_id = None\n"         
+                            + "    rx_size = data['image'].size\n"         
+                            + "    return data, timestamp, pulse_id, rx_size\n";       
+
+            
+    String templateScripted = "from cam_server.pipeline.utils import *\n"
+                            + "from logging import getLogger\n"
+                            + "import time\n"
+                            + "from cam_server.utils import update_statistics, init_statistics\n"
+                            + "\n"
+                            + "_logger = getLogger(__name__)\n"
+                            + "\n"
+                            + "def run(stop_event, statistics, parameter_queue, logs_queue, cam_client, pipeline_config, output_stream_port,\n"
+                            + "        background_manager, user_scripts_manager=None):\n"
+                            + "    set_log_tag('custom_pipeline')\n"
+                            + "    exit_code = 0\n"
+                            + "    init_pipeline_parameters(pipeline_config)\n"
+                            + "    try:\n"
+                            + "        init_statistics(statistics)\n"
+                            + "        set_log_tag(' [' + str(pipeline_config.get_name()) + ':' + str(output_stream_port) + ']')\n"
+                            + "        sender = create_sender(output_stream_port, stop_event)\n"
+                            + "        _logger.debug('Transceiver started. %s' % log_tag)\n"
+                            + "        # Indicate that the startup was successful.\n"
+                            + "        stop_event.clear()\n"
+                            + "        \n"
+                            + "        while not stop_event.is_set():\n"
+                            + "            try:\n"
+                            + "                data = {'status': 'ok'}\n"
+                            + "                timestamp = time.time()\n"
+                            + "                pulse_id = None\n"
+                            + "                send(sender, data, timestamp, pulse_id)\n"
+                            + "                update_statistics(sender)\n"
+                            + "                time.sleep(0.1)\n"
+                            + "            except Exception as e:\n"
+                            + "                _logger.exception('Could not process message: ' + str(e) + '. %s' % log_tag)\n"
+                            + "                if abort_on_error():\n"
+                            + "                    stop_event.set()\n"
+                            + "        _logger.info('Stopping transceiver. %s' % log_tag)\n"
+                            + "    except:\n"
+                            + "        _logger.exception('Exception while trying to start the receive and process thread. %s' % log_tag)\n"
+                            + "        exit_code = 1\n"
+                            + "        raise\n"
+                            + "    finally:\n"
+                            + "        _logger.info('Stopping transceiver. %s' % log_tag)\n"
+                            + "        if sender:\n"
+                            + "            try:\n"
+                            + "                sender.close()\n"
+                            + "            except:\n"
+                            + "                pass\n"
+                            + "        sys.exit(exit_code)\n";
+    
+    
     private void buttonScriptNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptNewActionPerformed
         try {
             String name = SwingUtils.getString(this, "Enter script name: ", "");
@@ -274,11 +363,29 @@ public class PanelUserScripts extends MonitoredPanel {
                 if (scriptsNames.contains(name)) {
                     throw new Exception("Script name is already used: " + name);
                 }
+                                
+                
+                Object[] options = new Object[]{"Scripted", "Custom", "Stream", "Processing"};
+                int type = SwingUtils.showOption(this, "New Script", "Which is the type pipeline for this script?", options, options[0]);
+                String script;
+                switch(type){
+                    case 3:
+                        script = templateProc;
+                        break;
+                    case 2:
+                        script = templateStream;
+                        break;
+                    case 1:
+                        script = templateCustom;
+                        break;
+                    case 0:
+                        script = templateScripted;
+                        break;
+                    default:
+                        return;
+                }
+                                               
                 PipelineClient client = new PipelineClient(getUrl());
-                String script = "from cam_server.pipeline.data_processing import functions, processor\n\n"
-                        + "def process_image(image, pulse_id, timestamp, x_axis, y_axis, parameters, bsdata=None):\n"
-                        + "    ret = processor.process_image(image, pulse_id, timestamp, x_axis, y_axis, parameters, bsdata)\n"
-                        + "    return ret";
                 client.setScript(name, script);
                 updateScripts().join();
                 if (!scriptsNames.contains(name)) {
@@ -341,23 +448,50 @@ public class PanelUserScripts extends MonitoredPanel {
         updateButtons();
     }//GEN-LAST:event_tableUserScriptsMouseReleased
 
-    private void textFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textFilterKeyReleased
+    private void textScriptFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textScriptFilterKeyReleased
         try{
             onFilter();
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
-    }//GEN-LAST:event_textFilterKeyReleased
+    }//GEN-LAST:event_textScriptFilterKeyReleased
+
+    private void buttonScriptUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonScriptUploadActionPerformed
+        try {
+            JFileChooser chooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Script files", "py", "c");
+            chooser.setFileFilter(filter);
+            chooser.setAcceptAllFileFilterUsed(false);
+            int rVal = chooser.showOpenDialog(this);
+            if (rVal == JFileChooser.APPROVE_OPTION) {
+                String name = chooser.getSelectedFile().getName();
+                if (scriptsNames.contains(name)) {
+                    Object[] options = new Object[]{"No", "Yes"};
+                    if (SwingUtils.showOption(this, "Upload Script", "Overwrite the processing script: " + name + "?", options, options[0]) != 1) {
+                        return;
+                    }
+                }
+                PipelineClient client = new PipelineClient(getUrl());
+                client.setScriptFile(chooser.getSelectedFile().getAbsolutePath());
+                updateScripts();
+            }
+            
+        } catch (Exception ex) {
+            SwingUtils.showException(this, ex);
+        }
+    }//GEN-LAST:event_buttonScriptUploadActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonScriptDel;
     private javax.swing.JButton buttonScriptEdit;
     private javax.swing.JButton buttonScriptNew;
+    private javax.swing.JButton buttonScriptUpload;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JPanel panelScripts;
     private javax.swing.JTable tableUserScripts;
-    private javax.swing.JTextField textFilter;
+    private javax.swing.JTextField textScriptFilter;
     // End of variables declaration//GEN-END:variables
 }
