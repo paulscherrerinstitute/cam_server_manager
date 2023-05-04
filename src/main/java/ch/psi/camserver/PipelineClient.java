@@ -378,7 +378,7 @@ public class PipelineClient extends InstanceManagerClient{
         String json = resource.request().accept(MediaType.TEXT_HTML).get(String.class);
         Map<String, Object> map = (Map) JsonSerializer.decode(json, Map.class);
         checkReturn(map);
-        Boolean base64 = (Boolean) map.get("base64");
+        Boolean base64 = (Boolean) map.getOrDefault("base64", false);
         String ret = (String)map.get("lib");
         if (base64){
             return  Base64.getDecoder().decode(ret);
