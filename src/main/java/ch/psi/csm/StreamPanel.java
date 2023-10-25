@@ -124,22 +124,18 @@ public class StreamPanel extends MonitoredPanel implements StreamListener {
         model.setNumRows(keys.size());
         for (String key : keys) {
             Object val = sv.getValue(key);
-            String size="";
-            String type = "";
+            int[] shape = sv.getShape(key);
+            String type =  Str.toString(sv.getType(key));
             if (val!=null){
-                if (val instanceof String){
-                    size = String.valueOf(((String)val).length());
-                } else if (val.getClass().isArray()){
-                    int[] shape = sv.getShape(key);
- 
-                    if (shape==null){
+                if (shape==null){
+                    if (val instanceof String){
+                        shape =new int[] {((String)val).length()};
+                    } else if (val.getClass().isArray()){
                         shape = Arr.getShape(val);
-                    }
-                    size = Convert.arrayToString(shape, " x ");
+                    }                    
                 }
-                //type = val.getClass().getTypeName();
-                type = Str.toString(sv.getType(key));
-            }                        
+            }        
+            String size = Convert.arrayToString(shape, " x ");
             if (index>=model.getRowCount()){
                 model.addRow(new Object[]{"","","",""});            
             } else {
