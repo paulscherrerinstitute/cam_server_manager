@@ -92,7 +92,9 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         panelCameras = new ch.psi.csm.PanelServer();
         backgroundPanel = new ch.psi.csm.BackgroundPanel();
         panelUserScripts = new ch.psi.csm.PanelUserScripts();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
         panelDataBuffer = new ch.psi.csm.DataBufferPanel();
+        imageBufferConfigPanel1 = new ch.psi.csm.ImageBufferConfigPanel();
         jPanel4 = new javax.swing.JPanel();
         loggerPanel = new ch.psi.utils.swing.LoggerPanel();
 
@@ -129,7 +131,11 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
         jTabbedPane1.addTab("Cameras", jPanel2);
         jTabbedPane1.addTab("Background", backgroundPanel);
         jTabbedPane1.addTab("User Scripts", panelUserScripts);
-        jTabbedPane1.addTab("DataBuffer", panelDataBuffer);
+
+        jTabbedPane2.addTab("Reconnection", panelDataBuffer);
+        jTabbedPane2.addTab("ImageBuffer Config", imageBufferConfigPanel1);
+
+        jTabbedPane1.addTab("DataBuffer", jTabbedPane2);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -166,10 +172,12 @@ public class MainFrame extends ch.psi.utils.swing.MainFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private ch.psi.csm.BackgroundPanel backgroundPanel;
+    private ch.psi.csm.ImageBufferConfigPanel imageBufferConfigPanel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
     private ch.psi.utils.swing.LoggerPanel loggerPanel;

@@ -3,6 +3,7 @@ package ch.psi.csm;
 import ch.psi.bs.Stream;
 import ch.psi.bs.StreamValue;
 import ch.psi.csm.DataBuffer.CameraInfo;
+import ch.psi.utils.swing.CommitDialog;
 import ch.psi.utils.swing.MonitoredPanel;
 import ch.psi.utils.swing.SwingUtils;
 import java.awt.Dimension;
@@ -158,32 +159,35 @@ public class ImageBufferConfigPanel extends MonitoredPanel {
     
     void apply() throws Exception{
         if (!updating){            
-            String group = currentGroup();
-            List<CameraInfo> updatedCameras = new ArrayList<CameraInfo>();
-            
-            for (int i=0; i< groupCameras.size(); i++){
-                if (!modelCameras.getValueAt(i, 0).equals(groupCameras.get(i).enabled)){
-                    updatedCameras.add(groupCameras.get(i).copyToggleEnable());
+            CommitDialog dlg = new CommitDialog(ImageBufferConfigPanel.this.getFrame(), true);
+            dlg.setVisible(true);
+            if (dlg.getResult()){                
+                buttonApply.setEnabled(false);
+                String group = currentGroup();
+                List<CameraInfo> updatedCameras = new ArrayList<CameraInfo>();            
+                for (int i=0; i< groupCameras.size(); i++){
+                    if (!modelCameras.getValueAt(i, 0).equals(groupCameras.get(i).enabled)){
+                        updatedCameras.add(groupCameras.get(i).copyToggleEnable());
+                    }
                 }
-            }
-            JDialog dialogMessage = showSplash("Image Buffer", new Dimension(500,200), "Updating image buffer configuration");
-            
-            tableGroups.clearSelection();    
-            updateButtons();
-            new Thread(()->{
-                try{                    
-                    String ret = DataBuffer.updateImageBufferConfig(updatedCameras);
-                    updateFile(group);
-                    showScrollableMessage( "Success",  "Success updating image buffer configuration", ret);
-                } catch (Exception ex){
-                    Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
-                    showException(ex);                    
-                } finally{
-                    dialogMessage.setVisible(false);
-                    updateButtons();
-                }                
-            },"Update IB config").start();                                    
-        }        
+                tableGroups.clearSelection();    
+                updateButtons();                
+                JDialog dialogMessage = showSplash("Image Buffer", new Dimension(500,200), "Updating image buffer configuration");            
+                new Thread(()->{
+                    try{                    
+                        String ret = DataBuffer.updateImageBufferConfig(updatedCameras, dlg.getUser(), dlg.getPassword(), dlg.getMesssage());
+                        updateFile(group);
+                        showScrollableMessage( "Success",  "Success updating image buffer configuration", ret);
+                    } catch (Exception ex){
+                        Logger.getLogger(DataBufferPanel.class.getName()).log(Level.WARNING, null, ex);     
+                        showException(ex);                    
+                    } finally{
+                        dialogMessage.setVisible(false);
+                        updateButtons();
+                    }                
+                },"Update IB config").start();                                    
+            }        
+        }
     }
     
     void checkStreams() throws Exception{
@@ -402,8 +406,7 @@ public class ImageBufferConfigPanel extends MonitoredPanel {
 
     private void buttonApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonApplyActionPerformed
         try{
-            apply();
-            buttonApply.setEnabled(false);
+            apply();            
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }

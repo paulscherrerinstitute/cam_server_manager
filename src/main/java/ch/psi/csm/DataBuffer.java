@@ -2,6 +2,7 @@ package ch.psi.csm;
 
 import ch.psi.utils.IO;
 import ch.psi.utils.Sys;
+import ch.psi.utils.swing.CommitDialog;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /**
  *
@@ -42,15 +44,20 @@ public class DataBuffer {
         return git;
     }
     
-    public static void commitRepo(Git git) throws GitAPIException, IOException{
-        git.commit().setAll(true).setMessage("Updated by CSM").call();
+    public static void commitRepo(Git git, String msg) throws GitAPIException, IOException{
+        git.commit().setAll(true).setMessage(msg).call();
     }    
 
-    public static void pushRepo(Git git) throws GitAPIException, IOException{
-        git.push().setForce(true).call();
-    }    
+    public static void pushRepo(Git git, String usr, String pwd) throws GitAPIException, IOException{
+        UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(usr, pwd);      
+        git.push().setCredentialsProvider(credentialsProvider).setForce(true).call();
+    }        
+
+    public static void checkCredentials(Git git, String usr, String pwd) throws GitAPIException, IOException{
+        UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(usr, pwd);      
+        git.push().setDryRun(true).setCredentialsProvider(credentialsProvider).setForce(true).call();
+    }        
     
-
     public static Git updateDataSourcesRepo(boolean imageBuffer) throws GitAPIException, IOException{        
         try{
             return cloneDataSourcesRepo(imageBuffer);
@@ -255,7 +262,7 @@ public class DataBuffer {
                     CameraInfo info = new CameraInfo((String)((List)m.get("labels")).get(0),(String)m.get("stream"), (String)((List)m.get("groups")).get(0), lineEnabled);
                     ret.add(info);
                 } catch (Exception ex){
-                    System.out.println(ex);
+                    //System.out.println(ex);
                 }
             }
         }        
@@ -263,12 +270,14 @@ public class DataBuffer {
     }
   
   
-    public static String updateImageBufferConfig(List<CameraInfo> cameras) throws IOException, InterruptedException, GitAPIException{
+    public static String updateImageBufferConfig(List<CameraInfo> cameras, String usr, String pwd, String msg) throws IOException, InterruptedException, GitAPIException{
         try(Git git = updateDataSourcesRepo(true)){
             Path path = Paths.get(getDataSourcesRepoFolder(true), "sources", "image.sources");
             if (!path.toFile().isFile()){
                 throw new IOException("Cannot retrieve the configuration file");
-            }
+            }                        
+            checkCredentials(git, usr, pwd);
+            
             String str = Files.readString(path);
 
             String[] lines = str.split("\n");
@@ -295,10 +304,10 @@ public class DataBuffer {
             }
 
             Files.writeString(path, str);  
+           
             String ret = uploadSources(true);
-            commitRepo(git);
-            //pushRepo(git);
-            
+            commitRepo(git,((msg==null)||(msg.isBlank())) ? "Updated by CSM" : msg);
+            pushRepo(git, usr, pwd);            
             return ret;
         }
     }    
