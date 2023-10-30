@@ -189,6 +189,7 @@ public class ImageBufferConfigPanel extends MonitoredPanel {
     void checkStreams() throws Exception{
         String group = currentGroup();
         for (int i=0; i< groupCameras.size(); i++){
+            modelCameras.setValueAt("", i, 3);
             String url = (String) modelCameras.getValueAt(i, 2);
             String camera = (String) modelCameras.getValueAt(i, 1);
             int index = i;        
@@ -199,9 +200,10 @@ public class ImageBufferConfigPanel extends MonitoredPanel {
             }
             Thread thread = new Thread(() -> {
                 String ret = "no";
-                try (Stream st = new Stream(url, ZMQ.PULL )) {
+                String address = url.replace("daqsf", "sf");
+                try (Stream st = new Stream(address, ZMQ.PULL )) {
                     st.start();
-                    StreamValue sv = st.read(3000);
+                    StreamValue sv = st.read(2000);
                     if (sv!=null){
                         try{ 
                             String channel = sv.getKeys().get(0);
