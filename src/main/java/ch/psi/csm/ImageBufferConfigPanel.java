@@ -348,7 +348,7 @@ public class ImageBufferConfigPanel extends MonitoredPanel {
                 .addContainerGap())
         );
 
-        buttonApply.setText("Apply");
+        buttonApply.setText("Commit Changes");
         buttonApply.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonApplyActionPerformed(evt);

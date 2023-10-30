@@ -10,7 +10,6 @@ public class CommitDialog extends StandardDialog {
 
     public CommitDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        setTitle("Commit Changes");
         initComponents();
         SwingUtils.centerComponent(parent, this);
     }
@@ -48,7 +47,7 @@ public class CommitDialog extends StandardDialog {
         textMsg = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Font Selection");
+        setTitle("Commit Changes");
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabel1.setText("User name:");
