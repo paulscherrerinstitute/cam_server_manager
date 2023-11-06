@@ -1,6 +1,7 @@
 package ch.psi.csm;
 
 import ch.psi.camserver.CamServerClient;
+import ch.psi.camserver.CameraClient;
 import ch.psi.camserver.PipelineClient;
 import ch.psi.camserver.ProxyClient;
 import ch.psi.utils.Arr;
@@ -8,6 +9,7 @@ import ch.psi.utils.NamedThreadFactory;
 import ch.psi.utils.Str;
 import ch.psi.utils.swing.SwingUtils;
 import ch.psi.utils.swing.MonitoredPanel;
+import ch.psi.utils.swing.SwingUtils.OptionType;
 import ch.psi.utils.swing.TextEditor;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
@@ -106,9 +108,7 @@ public class PanelStatus extends MonitoredPanel {
 
    public void setPipeline(boolean value){
        isPipeline = value;
-       //buttonConfig.setVisible(value);
-       buttonConfig.setText(isPipeline ? "Config" : "Delete");
-       buttonFunction.setVisible(value);
+       buttonFunction.setText(isPipeline ? "Script" : "Delete");
    }
 
    @Override
@@ -516,14 +516,15 @@ public class PanelStatus extends MonitoredPanel {
             panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInstancesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(buttonRead, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonInstanceStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonInstanceLogs, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelInstancesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(buttonRead, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(buttonConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(buttonInstanceStop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(buttonInstanceLogs, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(buttonFunction, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -539,13 +540,13 @@ public class PanelStatus extends MonitoredPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonInstanceStop)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonConfig)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonFunction)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonConfig)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonInstanceLogs)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane3))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -731,8 +732,8 @@ public class PanelStatus extends MonitoredPanel {
             schedulerPolling.submit(()->{
                 try{
                     //InstanceManagerClient client = new InstanceManagerClient(currentServer, PipelineClient.prefix);
-                    //client.stopInstance(currentInstance);
-                    proxy.stopInstance(currentInstance);
+                    //client.stopInstance(currentInstance);                    
+                        proxy.stopInstance(currentInstance);
                 } catch (Exception ex){
                     SwingUtils.showException(this, ex);
                 }                    
@@ -770,27 +771,24 @@ public class PanelStatus extends MonitoredPanel {
                 throw new Exception("No insatance selected");
             }
             
-            if (isPipeline){
-                Map instanceData = instanceInfo.get(currentInstance);
-                Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
-                String json = JsonSerializer.encode(cfg, true);
-                ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, currentInstance, json, "json");
-                dlg.setVisible(true);
-                if (dlg.getResult()){
-                    json = dlg.ret;
-                    cfg = (Map) JsonSerializer.decode(json, Map.class);
+            Map instanceData = instanceInfo.get(currentInstance);
+            Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());    
+            String json = JsonSerializer.encode(cfg, true);
+            ScriptEditor dlg = new ScriptEditor(SwingUtils.getFrame(this), true, currentInstance, json, "json");
+            dlg.setVisible(true);
+            if (dlg.getResult()){
+                json = dlg.ret;
+                cfg = (Map) JsonSerializer.decode(json, Map.class);
+                
+                if (isPipeline){
                     PipelineClient client = new PipelineClient(currentServer);
-                    client.setInstanceConfig(currentInstance, cfg);
-                }        
-            } else {                        
-                schedulerPolling.submit(()->{
-                    try{
-                        proxy.deleteInstance(currentInstance);
-                    } catch (Exception ex){
-                        SwingUtils.showException(this, ex);
-                    }                    
-                });             
-            }
+                    client.setInstanceConfig(currentInstance, cfg);                    
+                } else {
+                    CameraClient client = new CameraClient(currentServer);
+                    client.setConfig(currentInstance, cfg);
+                    proxy.setNamedConfig(currentInstance, dlg.ret);
+                }                
+            }        
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }        
@@ -820,19 +818,29 @@ public class PanelStatus extends MonitoredPanel {
 
     private void buttonFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonFunctionActionPerformed
         try{     
-            PipelineClient client = new PipelineClient(getUrl());
-            Map instanceData = instanceInfo.get(currentInstance);
-            List<String> ret = client.getScripts();
-            Collections.sort(ret);
-            String[] scripts = ret.toArray(new String[0]);            
-            Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());                
-            String current = (String) cfg.getOrDefault("function", null);       
-            current = Arr.containsEqual(scripts, current) ? current : null;
-            String msg = "Select the processing script for for the pipeline" + currentInstance + ": ";
-            String script = SwingUtils.getString(this, msg, scripts, current);       
-            if (script!=null){
-                client.setFunction(currentInstance, script);
-            }
+            if (isPipeline){
+                PipelineClient client = new PipelineClient(getUrl());
+                Map instanceData = instanceInfo.get(currentInstance);
+                List<String> ret = client.getScripts();
+                Collections.sort(ret);
+                String[] scripts = ret.toArray(new String[0]);            
+                Map cfg = (Map) instanceData.getOrDefault("config", new HashMap());                
+                String current = (String) cfg.getOrDefault("function", null);       
+                current = Arr.containsEqual(scripts, current) ? current : null;
+                String msg = "Select the processing script for for the pipeline" + currentInstance + ": ";
+                String script = SwingUtils.getString(this, msg, scripts, current);       
+                if (script!=null){
+                    client.setFunction(currentInstance, script);
+                }
+            } else {                        
+                schedulerPolling.submit(()->{
+                    try{
+                        proxy.deleteInstance(currentInstance);
+                    } catch (Exception ex){
+                        SwingUtils.showException(this, ex);
+                    }                    
+                });             
+            }        
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }        
