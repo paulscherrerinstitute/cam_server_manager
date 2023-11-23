@@ -796,7 +796,7 @@ public class PanelStatus extends MonitoredPanel {
 
     private void buttonProxyLogsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonProxyLogsActionPerformed
         try{
-            PanelLogs.show(this,  "Proxy Logs" + currentInstance, schedulerPolling, ()->{return proxy.getLogs();});
+            PanelLogs.show(this,  "Proxy Logs", schedulerPolling, ()->{return proxy.getLogs();});
         } catch (Exception ex){
             SwingUtils.showException(this, ex);
         }
